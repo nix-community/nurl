@@ -2,7 +2,7 @@ mod cli;
 mod fetcher;
 
 use anyhow::{bail, Result};
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use url::Host;
 
 use crate::{
@@ -13,10 +13,23 @@ use crate::{
     },
 };
 
-use std::io::stdout;
+use std::io::{stdout, Write};
 
 fn main() -> Result<()> {
     let opts = Opts::parse();
+
+    if opts.list_fetchers || opts.list_possible_fetchers {
+        let mut out = stdout().lock();
+        for fetcher in FetcherFunction::value_variants() {
+            if matches!(fetcher, FetcherFunction::Fetchhg) && opts.list_possible_fetchers {
+                continue;
+            }
+            if let Some(fetcher) = fetcher.to_possible_value() {
+                writeln!(out, "{}", fetcher.get_name())?;
+            }
+        }
+        return Ok(());
+    }
 
     let fetcher: FetcherDispatch = match (opts.fetcher, opts.url.host()) {
         (None | Some(FetcherFunction::FetchFromGitHub), Some(Host::Domain("github.com"))) => {

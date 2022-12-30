@@ -7,9 +7,19 @@ use url::Url;
 #[command(version, verbatim_doc_comment)]
 pub struct Opts {
     /// URL to the repository to be fetched
+    #[arg(
+        required_unless_present = "command",
+        default_value = "x:", // placeholder value, will not be accessed
+        hide_default_value = true
+    )]
     pub url: Url,
 
     /// the revision or reference to be fetched
+    #[arg(
+        required_unless_present = "command",
+        default_value_t,
+        hide_default_value = true
+    )]
     pub rev: String,
 
     /// specify the fetcher function instead of inferring from the URL
@@ -23,6 +33,14 @@ pub struct Opts {
     /// output in json format
     #[arg(short, long)]
     pub json: bool,
+
+    /// List all available fetchers
+    #[arg(short, long, group = "command")]
+    pub list_fetchers: bool,
+
+    /// List all fetchers that can be generated without --fetcher
+    #[arg(short = 'L', long, group = "command")]
+    pub list_possible_fetchers: bool,
 }
 
 #[derive(Clone, Debug, ValueEnum)]

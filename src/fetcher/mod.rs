@@ -39,8 +39,8 @@ pub enum FetcherDispatch {
 
 #[macro_export]
 macro_rules! impl_fetcher {
-    ($t:ident $($tt:tt)*) => {
-        impl $($tt)* $crate::fetcher::Fetcher for $t $($tt)* {
+    ($t:ty) => {
+        impl $crate::fetcher::Fetcher for $t {
             fn fetch_nix(
                 &self,
                 out: &mut impl ::std::io::Write,
@@ -48,11 +48,16 @@ macro_rules! impl_fetcher {
                 rev: String,
                 indent: String,
             ) -> ::anyhow::Result<()> {
-                self.fetch_nix_imp(out, url, rev, indent)
+                self.fetch_nix_impl(out, url, rev, indent)
             }
 
-            fn fetch_json(&self, out: &mut impl ::std::io::Write, url: ::url::Url, rev: String) -> ::anyhow::Result<()> {
-                self.fetch_json_imp(out, url, rev)
+            fn fetch_json(
+                &self,
+                out: &mut impl ::std::io::Write,
+                url: ::url::Url,
+                rev: String,
+            ) -> ::anyhow::Result<()> {
+                self.fetch_json_impl(out, url, rev)
             }
         }
     };
@@ -88,7 +93,7 @@ pub trait SimpleFlakeFetcher<'a> {
         Ok((owner, repo, hash))
     }
 
-    fn fetch_nix_imp(
+    fn fetch_nix_impl(
         &'a self,
         out: &mut impl Write,
         url: Url,
@@ -116,7 +121,7 @@ pub trait SimpleFlakeFetcher<'a> {
         Ok(())
     }
 
-    fn fetch_json_imp(&'a self, out: &mut impl Write, url: Url, rev: String) -> Result<()> {
+    fn fetch_json_impl(&'a self, out: &mut impl Write, url: Url, rev: String) -> Result<()> {
         let (owner, repo, hash) = self.fetch(&url, &rev)?;
 
         let mut args = json! ({
@@ -154,7 +159,7 @@ pub trait UrlFlakeFetcher {
         ))
     }
 
-    fn fetch_nix_imp(
+    fn fetch_nix_impl(
         &self,
         out: &mut impl Write,
         url: Url,
@@ -177,7 +182,7 @@ pub trait UrlFlakeFetcher {
         Ok(())
     }
 
-    fn fetch_json_imp(&self, out: &mut impl Write, url: Url, rev: String) -> Result<()> {
+    fn fetch_json_impl(&self, out: &mut impl Write, url: Url, rev: String) -> Result<()> {
         let hash = self.fetch(&url, &rev)?;
 
         serde_json::to_writer(

@@ -57,8 +57,8 @@ pub fn flake_prefetch(flake_ref: String) -> Result<String> {
 }
 
 pub trait SimpleFlakeFetcher<'a> {
-    const NAME: &'static str;
     const FLAKE_TYPE: &'static str;
+    const NAME: &'static str;
 
     fn host(&self) -> Option<&'a str>;
 
@@ -103,9 +103,9 @@ pub trait SimpleFlakeFetcher<'a> {
     }
 }
 
-pub(crate) trait UrlFlakeFetcher {
-    const NAME: &'static str;
+pub trait UrlFlakeFetcher {
     const FLAKE_TYPE: &'static str;
+    const NAME: &'static str;
 
     fn fetch_nix(&self, out: &mut impl Write, url: &Url, rev: String, indent: &str) -> Result<()> {
         let hash = flake_prefetch(format!(

@@ -48,10 +48,14 @@ fn main() -> Result<()> {
         }
 
         (
-            Some(Fetcher::FetchFromGitHub | Fetcher::FetchFromGitLab | Fetcher::FetchFromSourcehut),
+            Some(
+                fetcher @ (Fetcher::FetchFromGitHub
+                | Fetcher::FetchFromGitLab
+                | Fetcher::FetchFromSourcehut),
+            ),
             None,
         ) => {
-            bail!("bad");
+            bail!("{fetcher:?} does not support URLs without a host");
         }
 
         (Some(Fetcher::Fetchgit), _) | (None, _) => {

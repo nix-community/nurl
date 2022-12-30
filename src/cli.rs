@@ -21,7 +21,7 @@ pub struct Opts {
     pub indent: usize,
 }
 
-#[derive(Clone, ValueEnum)]
+#[derive(Clone, Debug, ValueEnum)]
 #[clap(rename_all = "camelCase")]
 pub enum Fetcher {
     FetchFromGitHub,

@@ -6,10 +6,10 @@ use clap::Parser;
 use url::Host;
 
 use crate::{
-    cli::{Fetcher, Opts},
+    cli::{FetcherFunction, Opts},
     fetcher::{
-        FetchFromGitHub, FetchFromGitLab, FetchFromSourcehut, Fetchgit, Fetchhg,
-        SimpleFlakeFetcher, UrlFlakeFetcher,
+        FetchFromGitHub, FetchFromGitLab, FetchFromSourcehut, Fetcher, FetcherDispatch, Fetchgit,
+        Fetchhg,
     },
 };
 
@@ -18,54 +18,50 @@ use std::io::stdout;
 fn main() -> Result<()> {
     let opts = Opts::parse();
 
-    let out = &mut stdout().lock();
     let indent = &" ".repeat(opts.indent);
 
-    match (opts.fetcher, opts.url.host()) {
-        (Some(Fetcher::FetchFromGitHub), Some(host)) => {
-            FetchFromGitHub((host != Host::Domain("github.com")).then_some(&host.to_string()))
-                .fetch_nix(out, &opts.url, opts.rev, indent)?;
+    let fetcher: FetcherDispatch = match (opts.fetcher, opts.url.host()) {
+        (None | Some(FetcherFunction::FetchFromGitHub), Some(Host::Domain("github.com"))) => {
+            FetchFromGitHub(None).into()
         }
-        (None, Some(Host::Domain("github.com"))) => {
-            FetchFromGitHub(None).fetch_nix(out, &opts.url, opts.rev, indent)?;
+        (Some(FetcherFunction::FetchFromGitHub), Some(host)) => {
+            FetchFromGitHub(Some(host.to_string())).into()
         }
 
-        (Some(Fetcher::FetchFromGitLab), Some(host)) => {
-            FetchFromGitLab((host != Host::Domain("github.com")).then_some(&host.to_string()))
-                .fetch_nix(out, &opts.url, opts.rev, indent)?;
+        (None | Some(FetcherFunction::FetchFromGitLab), Some(Host::Domain("gitlab.com"))) => {
+            FetchFromGitLab(None).into()
         }
         (None, Some(Host::Domain(host))) if host.starts_with("gitlab.") => {
-            FetchFromGitLab((host != "gitlab.com").then_some(host))
-                .fetch_nix(out, &opts.url, opts.rev, indent)?;
+            FetchFromGitLab(Some(host.into())).into()
+        }
+        (Some(FetcherFunction::FetchFromGitLab), Some(host)) => {
+            FetchFromGitLab(Some(host.to_string())).into()
         }
 
-        (Some(Fetcher::FetchFromSourcehut), Some(host)) => {
-            FetchFromSourcehut((host != Host::Domain("git.sr.ht")).then_some(&host.to_string()))
-                .fetch_nix(out, &opts.url, opts.rev, indent)?;
+        (None | Some(FetcherFunction::FetchFromSourcehut), Some(Host::Domain("git.sr.ht"))) => {
+            FetchFromSourcehut(None).into()
         }
-        (None, Some(Host::Domain("git.sr.ht"))) => {
-            FetchFromSourcehut(None).fetch_nix(out, &opts.url, opts.rev, indent)?;
+        (Some(FetcherFunction::FetchFromSourcehut), Some(host)) => {
+            FetchFromSourcehut(Some(host.to_string())).into()
         }
 
         (
             Some(
-                fetcher @ (Fetcher::FetchFromGitHub
-                | Fetcher::FetchFromGitLab
-                | Fetcher::FetchFromSourcehut),
+                fetcher @ (FetcherFunction::FetchFromGitHub
+                | FetcherFunction::FetchFromGitLab
+                | FetcherFunction::FetchFromSourcehut),
             ),
             None,
         ) => {
             bail!("{fetcher:?} does not support URLs without a host");
         }
 
-        (Some(Fetcher::Fetchgit), _) | (None, _) => {
-            Fetchgit.fetch_nix(out, &opts.url, opts.rev, indent)?;
-        }
+        (Some(FetcherFunction::Fetchgit), _) | (None, _) => Fetchgit.into(),
 
-        (Some(Fetcher::Fetchhg), _) => {
-            Fetchhg.fetch_nix(out, &opts.url, opts.rev, indent)?;
-        }
-    }
+        (Some(FetcherFunction::Fetchhg), _) => Fetchhg.into(),
+    };
+
+    fetcher.fetch_nix(&mut stdout().lock(), &opts.url, opts.rev, indent)?;
 
     Ok(())
 }

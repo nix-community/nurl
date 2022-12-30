@@ -14,7 +14,7 @@ pub struct Opts {
 
     /// specify the fetcher function instead of inferring from the URL
     #[arg(short, long)]
-    pub fetcher: Option<Fetcher>,
+    pub fetcher: Option<FetcherFunction>,
 
     /// extra indentation (in number of spaces)
     #[arg(short, long, default_value_t = 0)]
@@ -23,7 +23,7 @@ pub struct Opts {
 
 #[derive(Clone, Debug, ValueEnum)]
 #[clap(rename_all = "camelCase")]
-pub enum Fetcher {
+pub enum FetcherFunction {
     FetchFromGitHub,
     FetchFromGitLab,
     FetchFromSourcehut,

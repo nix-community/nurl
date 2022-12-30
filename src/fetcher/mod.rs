@@ -4,6 +4,7 @@ mod gitlab;
 mod hg;
 mod sourcehut;
 
+use enum_dispatch::enum_dispatch;
 pub use git::Fetchgit;
 pub use github::FetchFromGitHub;
 pub use gitlab::FetchFromGitLab;
@@ -20,47 +21,42 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
+#[enum_dispatch]
 pub trait Fetcher {
     fn fetch_nix(&self, out: &mut impl Write, url: &Url, rev: String, indent: &str) -> Result<()>;
 }
 
-trait GetStdout {
-    fn get_stdout(&mut self) -> Result<Vec<u8>>;
+#[enum_dispatch(Fetcher)]
+pub enum FetcherDispatch {
+    FetchFromGitHub(FetchFromGitHub),
+    FetchFromGitLab(FetchFromGitLab),
+    FetchFromSourcehut(FetchFromSourcehut),
+    Fetchgit(Fetchgit),
+    Fetchhg(Fetchhg),
 }
 
-impl GetStdout for Command {
-    fn get_stdout(&mut self) -> Result<Vec<u8>> {
-        let Output { stdout, status, .. } = self.stderr(Stdio::inherit()).output()?;
-        if !status.success() {
-            bail!("command exited with exit code {}", status);
+#[macro_export]
+macro_rules! impl_fetcher {
+    ($t:ident $($tt:tt)*) => {
+        impl $($tt)* $crate::fetcher::Fetcher for $t $($tt)* {
+            fn fetch_nix(
+                &self,
+                out: &mut impl ::std::io::Write,
+                url: &::url::Url,
+                rev: String,
+                indent: &str,
+            ) -> ::anyhow::Result<()> {
+                self.fetch_nix_imp(out, url, rev, indent)
+            }
         }
-        Ok(stdout)
-    }
-}
-
-pub fn flake_prefetch(flake_ref: String) -> Result<String> {
-    #[derive(Deserialize)]
-    struct PrefetchOutput {
-        hash: String,
-    }
-
-    eprintln!("$ nix flake prefetch --json {flake_ref}");
-    Ok(serde_json::from_slice::<PrefetchOutput>(
-        &Command::new("nix")
-            .arg("flake")
-            .arg("prefetch")
-            .arg("--json")
-            .arg(flake_ref)
-            .get_stdout()?,
-    )?
-    .hash)
+    };
 }
 
 pub trait SimpleFlakeFetcher<'a> {
     const FLAKE_TYPE: &'static str;
     const NAME: &'static str;
 
-    fn host(&self) -> Option<&'a str>;
+    fn host(&'a self) -> &'a Option<String>;
 
     fn get_repo(&self, url: &Url) -> Option<(String, String)> {
         let mut xs = url.path_segments()?;
@@ -72,7 +68,13 @@ pub trait SimpleFlakeFetcher<'a> {
         ))
     }
 
-    fn fetch_nix(&self, out: &mut impl Write, url: &Url, rev: String, indent: &str) -> Result<()> {
+    fn fetch_nix_imp(
+        &'a self,
+        out: &mut impl Write,
+        url: &Url,
+        rev: String,
+        indent: &str,
+    ) -> Result<()> {
         let (owner, repo) = self
             .get_repo(url)
             .with_context(|| format!("failed to parse {url} as a {} url", Self::FLAKE_TYPE))?;
@@ -107,7 +109,13 @@ pub trait UrlFlakeFetcher {
     const FLAKE_TYPE: &'static str;
     const NAME: &'static str;
 
-    fn fetch_nix(&self, out: &mut impl Write, url: &Url, rev: String, indent: &str) -> Result<()> {
+    fn fetch_nix_imp(
+        &self,
+        out: &mut impl Write,
+        url: &Url,
+        rev: String,
+        indent: &str,
+    ) -> Result<()> {
         let hash = flake_prefetch(format!(
             "{}+{url}?{}={rev}",
             Self::FLAKE_TYPE,
@@ -127,4 +135,36 @@ pub trait UrlFlakeFetcher {
 
         Ok(())
     }
+}
+
+trait GetStdout {
+    fn get_stdout(&mut self) -> Result<Vec<u8>>;
+}
+
+impl GetStdout for Command {
+    fn get_stdout(&mut self) -> Result<Vec<u8>> {
+        let Output { stdout, status, .. } = self.stderr(Stdio::inherit()).output()?;
+        if !status.success() {
+            bail!("command exited with exit code {}", status);
+        }
+        Ok(stdout)
+    }
+}
+
+pub fn flake_prefetch(flake_ref: String) -> Result<String> {
+    #[derive(Deserialize)]
+    struct PrefetchOutput {
+        hash: String,
+    }
+
+    eprintln!("$ nix flake prefetch --json {flake_ref}");
+    Ok(serde_json::from_slice::<PrefetchOutput>(
+        &Command::new("nix")
+            .arg("flake")
+            .arg("prefetch")
+            .arg("--json")
+            .arg(flake_ref)
+            .get_stdout()?,
+    )?
+    .hash)
 }

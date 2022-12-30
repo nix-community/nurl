@@ -1,12 +1,13 @@
-use crate::fetcher::SimpleFlakeFetcher;
+use crate::{fetcher::SimpleFlakeFetcher, impl_fetcher};
 
-pub struct FetchFromGitHub<'a>(pub Option<&'a str>);
+pub struct FetchFromGitHub(pub Option<String>);
+impl_fetcher!(FetchFromGitHub);
 
-impl<'a> SimpleFlakeFetcher<'a> for FetchFromGitHub<'a> {
+impl<'a> SimpleFlakeFetcher<'a> for FetchFromGitHub {
     const FLAKE_TYPE: &'static str = "github";
     const NAME: &'static str = "fetchFromGitHub";
 
-    fn host(&self) -> Option<&'a str> {
-        self.0
+    fn host(&'a self) -> &'a Option<String> {
+        &self.0
     }
 }

@@ -23,6 +23,12 @@ url = "2.3.1"
 version = "4.0.32"
 features = ["cargo", "derive", "unicode", "wrap_help"]
 
+[build-dependencies]
+clap = { version = "4.0.32", features = ["derive"] }
+clap_complete = "4.0.7"
+clap_mangen = "0.2.6"
+url = "2.3.1"
+
 [profile.release]
 lto = true
 panic = "abort"

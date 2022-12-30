@@ -23,7 +23,7 @@
       packages = forEachSystem (system:
         let
           inherit (nixpkgs.legacyPackages.${system})
-            gitMinimal makeWrapper mercurial nix rustPlatform;
+            gitMinimal installShellFiles makeWrapper mercurial nix rustPlatform;
         in
         {
           default = rustPlatform.buildRustPackage {
@@ -34,12 +34,19 @@
 
             cargoLock.lockFile = self + "/Cargo.lock";
 
-            nativeBuildInputs = [ makeWrapper ];
+            nativeBuildInputs = [
+              installShellFiles
+              makeWrapper
+            ];
 
             postInstall = ''
               wrapProgram $out/bin/nurl \
                 --prefix PATH : ${makeBinPath [ gitMinimal mercurial nix ]}
+              installManPage artifacts/nurl.1
+              installShellCompletion artifacts/nurl.{bash,fish} --zsh artifacts/_nurl
             '';
+
+            GEN_ARTIFACTS = "artifacts";
 
             meta = {
               inherit (package) description;

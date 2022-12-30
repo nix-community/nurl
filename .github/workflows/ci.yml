@@ -28,6 +28,8 @@ jobs:
         run: |
           rustup toolchain install stable --profile minimal -t ${{ matrix.target }}
           cargo +stable build --target ${{ matrix.target }}
+        env:
+          GEN_ARTIFACTS: artifacts
 
   clippy-rustfmt:
     name: clippy-rustfmt

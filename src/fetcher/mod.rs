@@ -23,7 +23,7 @@ use std::{
 
 #[enum_dispatch]
 pub trait Fetcher {
-    fn fetch_nix(&self, out: &mut impl Write, url: &Url, rev: String, indent: &str) -> Result<()>;
+    fn fetch_nix(&self, out: &mut impl Write, url: Url, rev: String, indent: String) -> Result<()>;
 }
 
 #[enum_dispatch(Fetcher)]
@@ -42,9 +42,9 @@ macro_rules! impl_fetcher {
             fn fetch_nix(
                 &self,
                 out: &mut impl ::std::io::Write,
-                url: &::url::Url,
+                url: ::url::Url,
                 rev: String,
-                indent: &str,
+                indent: String,
             ) -> ::anyhow::Result<()> {
                 self.fetch_nix_imp(out, url, rev, indent)
             }
@@ -71,12 +71,12 @@ pub trait SimpleFlakeFetcher<'a> {
     fn fetch_nix_imp(
         &'a self,
         out: &mut impl Write,
-        url: &Url,
+        url: Url,
         rev: String,
-        indent: &str,
+        indent: String,
     ) -> Result<()> {
         let (owner, repo) = self
-            .get_repo(url)
+            .get_repo(&url)
             .with_context(|| format!("failed to parse {url} as a {} url", Self::FLAKE_TYPE))?;
 
         let hash = flake_prefetch(if let Some(host) = self.host() {
@@ -112,9 +112,9 @@ pub trait UrlFlakeFetcher {
     fn fetch_nix_imp(
         &self,
         out: &mut impl Write,
-        url: &Url,
+        url: Url,
         rev: String,
-        indent: &str,
+        indent: String,
     ) -> Result<()> {
         let hash = flake_prefetch(format!(
             "{}+{url}?{}={rev}",

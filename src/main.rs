@@ -18,8 +18,6 @@ use std::io::stdout;
 fn main() -> Result<()> {
     let opts = Opts::parse();
 
-    let indent = &" ".repeat(opts.indent);
-
     let fetcher: FetcherDispatch = match (opts.fetcher, opts.url.host()) {
         (None | Some(FetcherFunction::FetchFromGitHub), Some(Host::Domain("github.com"))) => {
             FetchFromGitHub(None).into()
@@ -56,12 +54,15 @@ fn main() -> Result<()> {
             bail!("{fetcher:?} does not support URLs without a host");
         }
 
-        (Some(FetcherFunction::Fetchgit), _) | (None, _) => Fetchgit.into(),
+        (None | Some(FetcherFunction::Fetchgit), _) => Fetchgit.into(),
 
         (Some(FetcherFunction::Fetchhg), _) => Fetchhg.into(),
     };
 
-    fetcher.fetch_nix(&mut stdout().lock(), &opts.url, opts.rev, indent)?;
+    let out = &mut stdout().lock();
+    let indent = " ".repeat(opts.indent);
+
+    fetcher.fetch_nix(out, opts.url, opts.rev, indent)?;
 
     Ok(())
 }

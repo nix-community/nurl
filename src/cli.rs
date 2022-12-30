@@ -19,6 +19,10 @@ pub struct Opts {
     /// extra indentation (in number of spaces)
     #[arg(short, long, default_value_t = 0)]
     pub indent: usize,
+
+    /// output in json format
+    #[arg(short, long)]
+    pub json: bool,
 }
 
 #[derive(Clone, Debug, ValueEnum)]

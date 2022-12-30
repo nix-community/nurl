@@ -60,9 +60,11 @@ fn main() -> Result<()> {
     };
 
     let out = &mut stdout().lock();
-    let indent = " ".repeat(opts.indent);
-
-    fetcher.fetch_nix(out, opts.url, opts.rev, indent)?;
+    if opts.json {
+        fetcher.fetch_json(out, opts.url, opts.rev)
+    } else {
+        fetcher.fetch_nix(out, opts.url, opts.rev, " ".repeat(opts.indent))
+    }?;
 
     Ok(())
 }

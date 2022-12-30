@@ -3,15 +3,24 @@ name = "nurl"
 version = "0.1.0"
 authors = ["figsoda <figsoda@pm.me>"]
 edition = "2021"
-description = ""
+description = "Generate Nix fetcher calls from repository URLs"
 readme = "README.md"
 homepage = "https://github.com/nix-community/nurl"
 repository = "https://github.com/nix-community/nurl"
 license = "MPL-2.0"
-keywords = []
-categories = []
+keywords = ["cli", "fetch", "git", "nix", "prefetch"]
+categories = ["command-line-utilities"]
 
 [dependencies]
+anyhow = "1.0.68"
+indoc = "1.0.8"
+serde = { version = "1.0.152", features = ["derive"] }
+serde_json = "1.0.91"
+url = "2.3.1"
+
+[dependencies.clap]
+version = "4.0.32"
+features = ["cargo", "derive", "unicode", "wrap_help"]
 
 [profile.release]
 lto = true

@@ -6,47 +6,47 @@
   outputs = { self, nixpkgs }:
     let
       inherit (nixpkgs.lib)
-        genAttrs importTOML licenses makeBinPath maintainers systems;
+        genAttrs importTOML licenses makeBinPath maintainers;
       inherit (importTOML (self + "/Cargo.toml")) package;
+
+      forEachSystem = genAttrs [
+        "aarch64-darwin"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "x86_64-linux"
+      ];
     in
     {
-      formatter = genAttrs systems.flakeExposed
+      formatter = forEachSystem
         (system: nixpkgs.legacyPackages.${system}.nixpkgs-fmt);
 
-      packages = genAttrs
-        [
-          "aarch64-darwin"
-          "aarch64-linux"
-          "x86_64-darwin"
-          "x86_64-linux"
-        ]
-        (system:
-          let
-            inherit (nixpkgs.legacyPackages.${system})
-              gitMinimal makeWrapper mercurial nix rustPlatform;
-          in
-          {
-            default = rustPlatform.buildRustPackage {
-              pname = "nurl";
-              inherit (package) version;
+      packages = forEachSystem (system:
+        let
+          inherit (nixpkgs.legacyPackages.${system})
+            gitMinimal makeWrapper mercurial nix rustPlatform;
+        in
+        {
+          default = rustPlatform.buildRustPackage {
+            pname = "nurl";
+            inherit (package) version;
 
-              src = self;
+            src = self;
 
-              cargoLock.lockFile = self + "/Cargo.lock";
+            cargoLock.lockFile = self + "/Cargo.lock";
 
-              nativeBuildInputs = [ makeWrapper ];
+            nativeBuildInputs = [ makeWrapper ];
 
-              postInstall = ''
-                wrapProgram $out/bin/nurl \
-                  --prefix PATH : ${makeBinPath [ gitMinimal mercurial nix ]}
-              '';
+            postInstall = ''
+              wrapProgram $out/bin/nurl \
+                --prefix PATH : ${makeBinPath [ gitMinimal mercurial nix ]}
+            '';
 
-              meta = {
-                inherit (package) description;
-                license = licenses.mpl20;
-                maintainers = with maintainers; [ figsoda ];
-              };
+            meta = {
+              inherit (package) description;
+              license = licenses.mpl20;
+              maintainers = with maintainers; [ figsoda ];
             };
-          });
+          };
+        });
     };
 }

@@ -1,3 +1,4 @@
+mod bitbucket;
 mod git;
 mod gitea;
 mod github;
@@ -5,6 +6,7 @@ mod gitlab;
 mod hg;
 mod sourcehut;
 
+pub use bitbucket::FetchFromBitBucket;
 pub use git::Fetchgit;
 pub use gitea::FetchFromGitea;
 pub use github::FetchFromGitHub;
@@ -39,6 +41,7 @@ pub trait Fetcher {
 
 #[enum_dispatch(Fetcher)]
 pub enum FetcherDispatch {
+    FetchFromBitBucket(FetchFromBitBucket),
     FetchFromGitea(FetchFromGitea),
     FetchFromGitHub(FetchFromGitHub),
     FetchFromGitLab(FetchFromGitLab),

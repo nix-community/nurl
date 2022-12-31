@@ -26,13 +26,24 @@ impl GetStdout for Command {
     }
 }
 
+macro_rules! info {
+    ($($tt:tt)+) => {{
+        use owo_colors::{OwoColorize, Stream, Style};
+        eprintln!(
+            "{}",
+            format_args!($($tt)+).if_supports_color(Stream::Stderr, |text| text
+                .style(Style::new().blue().bold()))
+        );
+    }};
+}
+
 pub fn flake_prefetch(flake_ref: String) -> Result<String> {
     #[derive(Deserialize)]
     struct PrefetchOutput {
         hash: String,
     }
 
-    eprintln!("$ nix flake prefetch --json {flake_ref}");
+    info!("$ nix flake prefetch --json {flake_ref}");
     Ok(serde_json::from_slice::<PrefetchOutput>(
         &Command::new("nix")
             .arg("flake")
@@ -45,7 +56,7 @@ pub fn flake_prefetch(flake_ref: String) -> Result<String> {
 }
 
 pub fn url_prefetch(url: String) -> Result<String> {
-    eprintln!("nix-prefetch-url --unpack {url}");
+    info!("$ nix-prefetch-url --unpack {url}");
     let hash = String::from_utf8(
         Command::new("nix-prefetch-url")
             .arg("--unpack")
@@ -54,7 +65,7 @@ pub fn url_prefetch(url: String) -> Result<String> {
     )?;
     let hash = hash.trim_end();
 
-    eprintln!("nix hash to-sri --type sha256 {hash}");
+    info!("$ nix hash to-sri --type sha256 {hash}");
     Ok(String::from_utf8(
         Command::new("nix")
             .arg("hash")
@@ -69,7 +80,7 @@ pub fn url_prefetch(url: String) -> Result<String> {
 }
 
 pub fn fod_prefetch(expr: String) -> Result<String> {
-    eprintln!("$ nix build --impure --no-link --expr '{expr}'");
+    info!("$ nix build --impure --no-link --expr '{expr}'");
 
     let Output {
         stdout,

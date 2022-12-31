@@ -1,5 +1,5 @@
 use crate::{
-    fetcher::{SimpleFetcher, SimpleFlakeFetcher},
+    common::{SimpleFetcher, SimpleFlakeFetcher},
     impl_fetcher,
 };
 

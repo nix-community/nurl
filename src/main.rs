@@ -12,8 +12,8 @@ use url::Host;
 use crate::{
     cli::{FetcherFunction, Opts},
     fetcher::{
-        FetchFromBitBucket, FetchFromGitHub, FetchFromGitLab, FetchFromGitea, FetchFromSourcehut,
-        Fetcher, FetcherDispatch, Fetchgit, Fetchhg,
+        FetchFromBitBucket, FetchFromGitHub, FetchFromGitLab, FetchFromGitea, FetchFromRepoOrCz,
+        FetchFromSourcehut, Fetcher, FetcherDispatch, Fetchgit, Fetchhg,
     },
 };
 
@@ -66,6 +66,13 @@ fn main() -> Result<()> {
         ) => FetchFromGitea(host.into()).into(),
         (Some(FetcherFunction::FetchFromGitea), Some(host)) => {
             FetchFromGitea(host.to_string()).into()
+        }
+
+        (None | Some(FetcherFunction::FetchFromRepoOrCz), Some(Host::Domain("repo.or.cz"))) => {
+            FetchFromRepoOrCz.into()
+        }
+        (Some(FetcherFunction::FetchFromRepoOrCz), _) => {
+            bail!("fetchFromRepoOrCz only supports repo.or.cz");
         }
 
         (None | Some(FetcherFunction::FetchFromSourcehut), Some(Host::Domain("git.sr.ht"))) => {

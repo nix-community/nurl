@@ -9,8 +9,8 @@ impl_fetcher!(FetchFromSourcehut);
 impl<'a> SimpleFetcher<'a> for FetchFromSourcehut {
     const NAME: &'static str = "fetchFromSourcehut";
 
-    fn host(&'a self) -> &'a Option<String> {
-        &self.0
+    fn host(&'a self) -> Option<&'a str> {
+        self.0.as_deref()
     }
 }
 

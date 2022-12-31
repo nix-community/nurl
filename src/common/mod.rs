@@ -2,7 +2,7 @@ mod cvs;
 mod simple;
 
 pub use cvs::{CvsFetcher, CvsFlakeFetcher, CvsFodFetcher};
-pub use simple::{SimpleFetcher, SimpleFlakeFetcher, SimpleFodFetcher};
+pub use simple::{SimpleFetcher, SimpleFlakeFetcher, SimpleFodFetcher, SimpleUrlFetcher};
 
 use anyhow::{anyhow, bail, Result};
 use serde::Deserialize;
@@ -42,6 +42,30 @@ pub fn flake_prefetch(flake_ref: String) -> Result<String> {
             .get_stdout()?,
     )?
     .hash)
+}
+
+pub fn url_prefetch(url: String) -> Result<String> {
+    eprintln!("nix-prefetch-url --unpack {url}");
+    let hash = String::from_utf8(
+        Command::new("nix-prefetch-url")
+            .arg("--unpack")
+            .arg(url)
+            .get_stdout()?,
+    )?;
+    let hash = hash.trim_end();
+
+    eprintln!("nix hash to-sri --type sha256 {hash}");
+    Ok(String::from_utf8(
+        Command::new("nix")
+            .arg("hash")
+            .arg("to-sri")
+            .arg("--type")
+            .arg("sha256")
+            .arg(hash)
+            .get_stdout()?,
+    )?
+    .trim_end()
+    .into())
 }
 
 pub fn fod_prefetch(expr: String) -> Result<String> {

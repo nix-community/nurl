@@ -9,8 +9,8 @@ impl_fetcher!(FetchFromGitLab);
 impl<'a> SimpleFetcher<'a> for FetchFromGitLab {
     const NAME: &'static str = "fetchFromGitLab";
 
-    fn host(&'a self) -> &'a Option<String> {
-        &self.0
+    fn host(&'a self) -> Option<&'a str> {
+        self.0.as_deref()
     }
 }
 

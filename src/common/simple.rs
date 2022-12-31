@@ -5,13 +5,13 @@ use url::Url;
 
 use std::{fmt::Write as _, io::Write};
 
-use crate::common::{flake_prefetch, fod_prefetch};
+use crate::common::{flake_prefetch, fod_prefetch, url_prefetch};
 
 pub trait SimpleFetcher<'a> {
     const HOST_KEY: &'static str = "domain";
     const NAME: &'static str;
 
-    fn host(&'a self) -> &'a Option<String>;
+    fn host(&'a self) -> Option<&'a str>;
 
     fn get_repo(&self, url: &Url) -> Option<(String, String)> {
         let mut xs = url.path_segments()?;
@@ -160,6 +160,50 @@ pub trait SimpleFlakeFetcher<'a>: SimpleFetcher<'a> {
             format!("{}:{owner}/{repo}/{rev}", Self::FLAKE_TYPE)
         })?;
 
+        Ok((owner, repo, hash))
+    }
+
+    fn fetch_nix_impl(
+        &'a self,
+        out: &mut impl Write,
+        url: Url,
+        rev: String,
+        args: Vec<(String, String)>,
+        indent: String,
+    ) -> Result<()> {
+        let (owner, repo, hash) = if args.is_empty() {
+            self.fetch(&url, &rev)?
+        } else {
+            self.fetch_fod(&url, &rev, &args)?
+        };
+
+        self.write_nix(out, owner, repo, rev, hash, args, indent)
+    }
+
+    fn fetch_json_impl(
+        &'a self,
+        out: &mut impl Write,
+        url: Url,
+        rev: String,
+        args: Vec<(String, String)>,
+    ) -> Result<()> {
+        let (owner, repo, hash) = if args.is_empty() {
+            self.fetch(&url, &rev)?
+        } else {
+            self.fetch_fod(&url, &rev, &args)?
+        };
+        self.write_json(out, owner, repo, rev, hash, args)
+    }
+}
+
+pub trait SimpleUrlFetcher<'a>: SimpleFetcher<'a> {
+    fn get_url(&self, owner: &str, repo: &str, rev: &str) -> String;
+
+    fn fetch(&'a self, url: &Url, rev: &str) -> Result<(String, String, String)> {
+        let (owner, repo) = self
+            .get_repo(url)
+            .with_context(|| format!("failed to parse {url}"))?;
+        let hash = url_prefetch(self.get_url(&owner, &repo, rev))?;
         Ok((owner, repo, hash))
     }
 

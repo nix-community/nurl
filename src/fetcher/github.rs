@@ -10,8 +10,8 @@ impl<'a> SimpleFetcher<'a> for FetchFromGitHub {
     const HOST_KEY: &'static str = "githubBase";
     const NAME: &'static str = "fetchFromGitHub";
 
-    fn host(&'a self) -> &'a Option<String> {
-        &self.0
+    fn host(&'a self) -> Option<&'a str> {
+        self.0.as_deref()
     }
 }
 

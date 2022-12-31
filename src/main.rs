@@ -12,8 +12,8 @@ use url::Host;
 use crate::{
     cli::{FetcherFunction, Opts},
     fetcher::{
-        FetchFromGitHub, FetchFromGitLab, FetchFromSourcehut, Fetcher, FetcherDispatch, Fetchgit,
-        Fetchhg,
+        FetchFromGitHub, FetchFromGitLab, FetchFromGitea, FetchFromSourcehut, Fetcher,
+        FetcherDispatch, Fetchgit, Fetchhg,
     },
 };
 
@@ -36,6 +36,14 @@ fn main() -> Result<()> {
     }
 
     let fetcher: FetcherDispatch = match (opts.fetcher, opts.url.host()) {
+        (
+            None | Some(FetcherFunction::FetchFromGitea),
+            Some(Host::Domain(host @ "codeberg.org")),
+        ) => FetchFromGitea(host.into()).into(),
+        (Some(FetcherFunction::FetchFromGitea), Some(host)) => {
+            FetchFromGitea(host.to_string()).into()
+        }
+
         (None | Some(FetcherFunction::FetchFromGitHub), Some(Host::Domain("github.com"))) => {
             FetchFromGitHub(None).into()
         }
@@ -62,7 +70,8 @@ fn main() -> Result<()> {
 
         (
             Some(
-                fetcher @ (FetcherFunction::FetchFromGitHub
+                fetcher @ (FetcherFunction::FetchFromGitea
+                | FetcherFunction::FetchFromGitHub
                 | FetcherFunction::FetchFromGitLab
                 | FetcherFunction::FetchFromSourcehut),
             ),

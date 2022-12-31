@@ -1,10 +1,12 @@
 mod git;
+mod gitea;
 mod github;
 mod gitlab;
 mod hg;
 mod sourcehut;
 
 pub use git::Fetchgit;
+pub use gitea::FetchFromGitea;
 pub use github::FetchFromGitHub;
 pub use gitlab::FetchFromGitLab;
 pub use hg::Fetchhg;
@@ -37,6 +39,7 @@ pub trait Fetcher {
 
 #[enum_dispatch(Fetcher)]
 pub enum FetcherDispatch {
+    FetchFromGitea(FetchFromGitea),
     FetchFromGitHub(FetchFromGitHub),
     FetchFromGitLab(FetchFromGitLab),
     FetchFromSourcehut(FetchFromSourcehut),

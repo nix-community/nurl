@@ -8,6 +8,7 @@ use std::{fmt::Write as _, io::Write};
 use crate::common::{flake_prefetch, fod_prefetch};
 
 pub trait SimpleFetcher<'a> {
+    const HOST_KEY: &'static str = "domain";
     const NAME: &'static str;
 
     fn host(&'a self) -> &'a Option<String>;
@@ -37,7 +38,7 @@ pub trait SimpleFetcher<'a> {
             Self::NAME
         );
         if let Some(host) = self.host() {
-            write!(expr, r#"domain="{host}""#)?;
+            write!(expr, r#"{}="{host}""#, Self::HOST_KEY)?;
         }
         for (key, value) in args {
             write!(expr, "{key}={value};")?;
@@ -61,8 +62,8 @@ pub trait SimpleFetcher<'a> {
     ) -> Result<()> {
         writeln!(out, "{} {{", Self::NAME)?;
 
-        if let Some(domain) = self.host() {
-            writeln!(out, r#"{indent}  domain = "{domain}";"#)?;
+        if let Some(host) = self.host() {
+            writeln!(out, r#"{indent}  {} = "{host}";"#, Self::HOST_KEY)?;
         }
 
         writedoc!(

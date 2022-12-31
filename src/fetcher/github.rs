@@ -7,6 +7,7 @@ pub struct FetchFromGitHub(pub Option<String>);
 impl_fetcher!(FetchFromGitHub);
 
 impl<'a> SimpleFetcher<'a> for FetchFromGitHub {
+    const HOST_KEY: &'static str = "githubBase";
     const NAME: &'static str = "fetchFromGitHub";
 
     fn host(&'a self) -> &'a Option<String> {

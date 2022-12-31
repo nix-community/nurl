@@ -43,14 +43,6 @@ fn main() -> Result<()> {
             bail!("fetchFromBitBucket only supports bitbucket.org");
         }
 
-        (
-            None | Some(FetcherFunction::FetchFromGitea),
-            Some(Host::Domain(host @ "codeberg.org")),
-        ) => FetchFromGitea(host.into()).into(),
-        (Some(FetcherFunction::FetchFromGitea), Some(host)) => {
-            FetchFromGitea(host.to_string()).into()
-        }
-
         (None | Some(FetcherFunction::FetchFromGitHub), Some(Host::Domain("github.com"))) => {
             FetchFromGitHub(None).into()
         }
@@ -68,6 +60,14 @@ fn main() -> Result<()> {
             FetchFromGitLab(Some(host.to_string())).into()
         }
 
+        (
+            None | Some(FetcherFunction::FetchFromGitea),
+            Some(Host::Domain(host @ "codeberg.org")),
+        ) => FetchFromGitea(host.into()).into(),
+        (Some(FetcherFunction::FetchFromGitea), Some(host)) => {
+            FetchFromGitea(host.to_string()).into()
+        }
+
         (None | Some(FetcherFunction::FetchFromSourcehut), Some(Host::Domain("git.sr.ht"))) => {
             FetchFromSourcehut(None).into()
         }
@@ -77,9 +77,9 @@ fn main() -> Result<()> {
 
         (
             Some(
-                fetcher @ (FetcherFunction::FetchFromGitea
-                | FetcherFunction::FetchFromGitHub
+                fetcher @ (FetcherFunction::FetchFromGitHub
                 | FetcherFunction::FetchFromGitLab
+                | FetcherFunction::FetchFromGitea
                 | FetcherFunction::FetchFromSourcehut),
             ),
             None,

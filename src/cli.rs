@@ -51,9 +51,9 @@ pub struct Opts {
 #[clap(rename_all = "camelCase")]
 pub enum FetcherFunction {
     FetchFromBitBucket,
-    FetchFromGitea,
     FetchFromGitHub,
     FetchFromGitLab,
+    FetchFromGitea,
     FetchFromSourcehut,
     Fetchgit,
     Fetchhg,

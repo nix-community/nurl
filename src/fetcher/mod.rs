@@ -42,9 +42,9 @@ pub trait Fetcher {
 #[enum_dispatch(Fetcher)]
 pub enum FetcherDispatch {
     FetchFromBitBucket(FetchFromBitBucket),
-    FetchFromGitea(FetchFromGitea),
     FetchFromGitHub(FetchFromGitHub),
     FetchFromGitLab(FetchFromGitLab),
+    FetchFromGitea(FetchFromGitea),
     FetchFromSourcehut(FetchFromSourcehut),
     Fetchgit(Fetchgit),
     Fetchhg(Fetchhg),

@@ -121,19 +121,17 @@ pub trait SimpleFetcher<'a> {
 
         Ok((owner, repo, hash))
     }
-}
 
-pub trait SimpleFodFetcher<'a>: SimpleFetcher<'a> {
-    fn fetch_nix_impl(
+    fn write_nix(
         &'a self,
         out: &mut impl Write,
-        url: Url,
+        owner: String,
+        repo: String,
         rev: String,
+        hash: String,
         args: Vec<(String, String)>,
         indent: String,
     ) -> Result<()> {
-        let (owner, repo, hash) = self.fetch_fod(&url, &rev, &args)?;
-
         writeln!(out, "{} {{", Self::NAME)?;
 
         if let Some(domain) = self.host() {
@@ -159,15 +157,15 @@ pub trait SimpleFodFetcher<'a>: SimpleFetcher<'a> {
         Ok(())
     }
 
-    fn fetch_json_impl(
+    fn write_json(
         &'a self,
         out: &mut impl Write,
-        url: Url,
+        owner: String,
+        repo: String,
         rev: String,
+        hash: String,
         args: Vec<(String, String)>,
     ) -> Result<()> {
-        let (owner, repo, hash) = self.fetch_fod(&url, &rev, &args)?;
-
         let mut fetcher_args = json! ({
             "owner": owner,
             "repo": repo,
@@ -192,6 +190,31 @@ pub trait SimpleFodFetcher<'a>: SimpleFetcher<'a> {
         )?;
 
         Ok(())
+    }
+}
+
+pub trait SimpleFodFetcher<'a>: SimpleFetcher<'a> {
+    fn fetch_nix_impl(
+        &'a self,
+        out: &mut impl Write,
+        url: Url,
+        rev: String,
+        args: Vec<(String, String)>,
+        indent: String,
+    ) -> Result<()> {
+        let (owner, repo, hash) = self.fetch_fod(&url, &rev, &args)?;
+        self.write_nix(out, owner, repo, rev, hash, args, indent)
+    }
+
+    fn fetch_json_impl(
+        &'a self,
+        out: &mut impl Write,
+        url: Url,
+        rev: String,
+        args: Vec<(String, String)>,
+    ) -> Result<()> {
+        let (owner, repo, hash) = self.fetch_fod(&url, &rev, &args)?;
+        self.write_json(out, owner, repo, rev, hash, args)
     }
 }
 
@@ -226,29 +249,7 @@ pub trait SimpleFlakeFetcher<'a>: SimpleFetcher<'a> {
             self.fetch_fod(&url, &rev, &args)?
         };
 
-        writeln!(out, "{} {{", Self::NAME)?;
-
-        if let Some(domain) = self.host() {
-            writeln!(out, r#"{indent}  domain = "{domain}";"#)?;
-        }
-
-        writedoc!(
-            out,
-            r#"
-                {indent}  owner = "{owner}";
-                {indent}  repo = "{repo}";
-                {indent}  rev = "{rev}";
-                {indent}  hash = "{hash}";
-            "#
-        )?;
-
-        for (key, value) in args {
-            writeln!(out, "{indent}  {key} = {value};")?;
-        }
-
-        write!(out, "{indent}}}")?;
-
-        Ok(())
+        self.write_nix(out, owner, repo, rev, hash, args, indent)
     }
 
     fn fetch_json_impl(
@@ -263,31 +264,7 @@ pub trait SimpleFlakeFetcher<'a>: SimpleFetcher<'a> {
         } else {
             self.fetch_fod(&url, &rev, &args)?
         };
-
-        let mut fetcher_args = json! ({
-            "owner": owner,
-            "repo": repo,
-            "rev": rev,
-            "hash": hash,
-        });
-
-        if let Some(host) = self.host() {
-            fetcher_args["host"] = json!(host);
-        }
-
-        for (key, value) in args {
-            fetcher_args[key] = json!(value);
-        }
-
-        serde_json::to_writer(
-            out,
-            &json!({
-                "fetcher": Self::NAME,
-                "args": fetcher_args,
-            }),
-        )?;
-
-        Ok(())
+        self.write_json(out, owner, repo, rev, hash, args)
     }
 }
 
@@ -305,19 +282,16 @@ pub trait UrlFetcher {
         expr.push('}');
         fod_prefetch(expr)
     }
-}
 
-pub trait UrlFodFetcher: UrlFetcher {
-    fn fetch_nix_impl(
+    fn write_nix(
         &self,
         out: &mut impl Write,
         url: Url,
         rev: String,
+        hash: String,
         args: Vec<(String, String)>,
         indent: String,
     ) -> Result<()> {
-        let hash = self.fetch_fod(&url, &rev, &args)?;
-
         writedoc!(
             out,
             r#"
@@ -336,6 +310,64 @@ pub trait UrlFodFetcher: UrlFetcher {
         write!(out, "{indent}}}")?;
 
         Ok(())
+    }
+
+    fn write_json(
+        &self,
+        out: &mut impl Write,
+        url: Url,
+        rev: String,
+        hash: String,
+        args: Vec<(String, String)>,
+    ) -> Result<()> {
+        let mut fetcher_args = json!({
+            "url": url.to_string(),
+            "rev": rev,
+            "hash": hash,
+        });
+
+        for (key, value) in args {
+            fetcher_args[key] = json!(value);
+        }
+
+        serde_json::to_writer(
+            out,
+            &json!({
+                "fetcher": Self::NAME,
+                "args": {
+                    "url": url.to_string(),
+                    "rev": rev,
+                    "hash": hash,
+                },
+            }),
+        )?;
+
+        Ok(())
+    }
+}
+
+pub trait UrlFodFetcher: UrlFetcher {
+    fn fetch_nix_impl(
+        &self,
+        out: &mut impl Write,
+        url: Url,
+        rev: String,
+        args: Vec<(String, String)>,
+        indent: String,
+    ) -> Result<()> {
+        let hash = self.fetch_fod(&url, &rev, &args)?;
+        self.write_nix(out, url, rev, hash, args, indent)
+    }
+
+    fn fetch_json_impl(
+        &self,
+        out: &mut impl Write,
+        url: Url,
+        rev: String,
+        args: Vec<(String, String)>,
+    ) -> Result<()> {
+        let hash = self.fetch_fod(&url, &rev, &args)?;
+        self.write_json(out, url, rev, hash, args)
     }
 }
 
@@ -363,25 +395,7 @@ pub trait UrlFlakeFetcher: UrlFetcher {
         } else {
             self.fetch_fod(&url, &rev, &args)?
         };
-
-        writedoc!(
-            out,
-            r#"
-                {} {{
-                {indent}  url = "{url}";
-                {indent}  rev = "{rev}";
-                {indent}  hash = "{hash}";
-            "#,
-            Self::NAME
-        )?;
-
-        for (key, value) in args {
-            writeln!(out, "{indent}  {key} = {value};")?;
-        }
-
-        write!(out, "{indent}}}")?;
-
-        Ok(())
+        self.write_nix(out, url, rev, hash, args, indent)
     }
 
     fn fetch_json_impl(
@@ -396,30 +410,7 @@ pub trait UrlFlakeFetcher: UrlFetcher {
         } else {
             self.fetch_fod(&url, &rev, &args)?
         };
-
-        let mut fetcher_args = json!({
-            "url": url.to_string(),
-            "rev": rev,
-            "hash": hash,
-        });
-
-        for (key, value) in args {
-            fetcher_args[key] = json!(value);
-        }
-
-        serde_json::to_writer(
-            out,
-            &json!({
-                "fetcher": Self::NAME,
-                "args": {
-                    "url": url.to_string(),
-                    "rev": rev,
-                    "hash": hash,
-                },
-            }),
-        )?;
-
-        Ok(())
+        self.write_json(out, url, rev, hash, args)
     }
 }
 

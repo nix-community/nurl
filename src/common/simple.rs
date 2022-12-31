@@ -13,7 +13,9 @@ pub trait SimpleFetcher<'a, const N: usize = 2> {
     const KEYS: [&'static str; N];
     const NAME: &'static str;
 
-    fn host(&'a self) -> Option<&'a str>;
+    fn host(&'a self) -> Option<&'a str> {
+        None
+    }
 
     fn get_values(&self, url: &'a Url) -> Option<[&'a str; N]> {
         let mut xs: [_; N] = url

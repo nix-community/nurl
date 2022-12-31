@@ -25,7 +25,7 @@ pub trait Fetcher {
     fn fetch_nix(
         &self,
         out: &mut impl Write,
-        url: Url,
+        url: &Url,
         rev: String,
         args: Vec<(String, String)>,
         indent: String,
@@ -33,7 +33,7 @@ pub trait Fetcher {
     fn fetch_json(
         &self,
         out: &mut impl Write,
-        url: Url,
+        url: &Url,
         rev: String,
         args: Vec<(String, String)>,
     ) -> Result<()>;
@@ -57,7 +57,7 @@ macro_rules! impl_fetcher {
             fn fetch_nix(
                 &self,
                 out: &mut impl ::std::io::Write,
-                url: ::url::Url,
+                url: &::url::Url,
                 rev: String,
                 args: Vec<(String, String)>,
                 indent: String,
@@ -68,7 +68,7 @@ macro_rules! impl_fetcher {
             fn fetch_json(
                 &self,
                 out: &mut impl ::std::io::Write,
-                url: ::url::Url,
+                url: &::url::Url,
                 rev: String,
                 args: Vec<(String, String)>,
             ) -> ::anyhow::Result<()> {

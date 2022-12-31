@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use indoc::writedoc;
+use itertools::Itertools;
 use serde_json::json;
 use url::Url;
 
@@ -7,54 +8,66 @@ use std::{fmt::Write as _, io::Write};
 
 use crate::common::{flake_prefetch, fod_prefetch, url_prefetch};
 
-pub trait SimpleFetcher<'a> {
+pub trait SimpleFetcher<'a, const N: usize = 2> {
     const HOST_KEY: &'static str = "domain";
+    const KEYS: [&'static str; N];
     const NAME: &'static str;
 
     fn host(&'a self) -> Option<&'a str>;
 
-    fn get_repo(&self, url: &Url) -> Option<(String, String)> {
-        let mut xs = url.path_segments()?;
-        let owner = xs.next()?;
-        let repo = xs.next()?;
-        Some((
-            owner.into(),
-            repo.strip_suffix(".git").unwrap_or(repo).into(),
-        ))
+    fn get_values(&self, url: &'a Url) -> Option<[&'a str; N]> {
+        let mut xs: [_; N] = url
+            .path_segments()?
+            .chunks(N)
+            .into_iter()
+            .next()?
+            .collect::<Vec<_>>()
+            .try_into()
+            .ok()?;
+        xs[N - 1] = xs[N - 1].strip_suffix(".git").unwrap_or(xs[N - 1]);
+        Some(xs)
     }
 
     fn fetch_fod(
         &'a self,
-        url: &Url,
+        url: &'a Url,
         rev: &str,
         args: &[(String, String)],
-    ) -> Result<(String, String, String)> {
-        let (owner, repo) = self
-            .get_repo(url)
+    ) -> Result<([&str; N], String)> {
+        let values = self
+            .get_values(url)
             .with_context(|| format!("failed to parse {url}"))?;
 
-        let mut expr = format!(
-            r#"(import <nixpkgs> {{}}).{}{{owner="{owner}";repo="{repo}";rev="{rev}";hash="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";"#,
-            Self::NAME
-        );
+        let mut expr = format!(r#"(import <nixpkgs> {{}}).{}{{"#, Self::NAME);
+
         if let Some(host) = self.host() {
             write!(expr, r#"{}="{host}""#, Self::HOST_KEY)?;
         }
+
+        for (key, value) in Self::KEYS.iter().zip(values) {
+            write!(expr, r#"{key}="{value}";"#)?;
+        }
+
+        write!(
+            expr,
+            r#"rev="{rev}";hash="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";"#
+        )?;
+
         for (key, value) in args {
             write!(expr, "{key}={value};")?;
         }
+
         expr.push('}');
 
         let hash = fod_prefetch(expr)?;
 
-        Ok((owner, repo, hash))
+        Ok((values, hash))
     }
 
     fn write_nix(
         &'a self,
         out: &mut impl Write,
-        owner: String,
-        repo: String,
+        values: [&str; N],
         rev: String,
         hash: String,
         args: Vec<(String, String)>,
@@ -66,11 +79,13 @@ pub trait SimpleFetcher<'a> {
             writeln!(out, r#"{indent}  {} = "{host}";"#, Self::HOST_KEY)?;
         }
 
+        for (key, value) in Self::KEYS.iter().zip(values) {
+            writeln!(out, r#"{indent}  {key} = "{value}";"#)?;
+        }
+
         writedoc!(
             out,
             r#"
-                {indent}  owner = "{owner}";
-                {indent}  repo = "{repo}";
                 {indent}  rev = "{rev}";
                 {indent}  hash = "{hash}";
             "#
@@ -88,15 +103,12 @@ pub trait SimpleFetcher<'a> {
     fn write_json(
         &'a self,
         out: &mut impl Write,
-        owner: String,
-        repo: String,
+        values: [&str; N],
         rev: String,
         hash: String,
         args: Vec<(String, String)>,
     ) -> Result<()> {
         let mut fetcher_args = json! ({
-            "owner": owner,
-            "repo": repo,
             "rev": rev,
             "hash": hash,
         });
@@ -105,7 +117,11 @@ pub trait SimpleFetcher<'a> {
             fetcher_args["host"] = json!(host);
         }
 
-        for (key, value) in args {
+        for (key, value) in Self::KEYS
+            .into_iter()
+            .zip(values)
+            .chain(args.iter().map(|(x, y)| (x.as_str(), y.as_str())))
+        {
             fetcher_args[key] = json!(value);
         }
 
@@ -121,37 +137,38 @@ pub trait SimpleFetcher<'a> {
     }
 }
 
-pub trait SimpleFodFetcher<'a>: SimpleFetcher<'a> {
+pub trait SimpleFodFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
     fn fetch_nix_impl(
         &'a self,
         out: &mut impl Write,
-        url: Url,
+        url: &'a Url,
         rev: String,
         args: Vec<(String, String)>,
         indent: String,
     ) -> Result<()> {
-        let (owner, repo, hash) = self.fetch_fod(&url, &rev, &args)?;
-        self.write_nix(out, owner, repo, rev, hash, args, indent)
+        let (values, hash) = self.fetch_fod(url, &rev, &args)?;
+        self.write_nix(out, values, rev, hash, args, indent)
     }
 
     fn fetch_json_impl(
         &'a self,
         out: &mut impl Write,
-        url: Url,
+        url: &'a Url,
         rev: String,
         args: Vec<(String, String)>,
     ) -> Result<()> {
-        let (owner, repo, hash) = self.fetch_fod(&url, &rev, &args)?;
-        self.write_json(out, owner, repo, rev, hash, args)
+        let (values, hash) = self.fetch_fod(url, &rev, &args)?;
+        self.write_json(out, values, rev, hash, args)
     }
 }
 
-pub trait SimpleFlakeFetcher<'a>: SimpleFetcher<'a> {
+pub trait SimpleFlakeFetcher<'a>: SimpleFetcher<'a, 2> {
+    const KEYS: [&'static str; 2] = ["owner", "repo"];
     const FLAKE_TYPE: &'static str;
 
-    fn fetch(&'a self, url: &Url, rev: &str) -> Result<(String, String, String)> {
-        let (owner, repo) = self
-            .get_repo(url)
+    fn fetch(&'a self, url: &'a Url, rev: &str) -> Result<([&str; 2], String)> {
+        let [owner, repo] = self
+            .get_values(url)
             .with_context(|| format!("failed to parse {url} as a {} url", Self::FLAKE_TYPE))?;
 
         let hash = flake_prefetch(if let Some(host) = self.host() {
@@ -160,82 +177,82 @@ pub trait SimpleFlakeFetcher<'a>: SimpleFetcher<'a> {
             format!("{}:{owner}/{repo}/{rev}", Self::FLAKE_TYPE)
         })?;
 
-        Ok((owner, repo, hash))
+        Ok(([owner, repo], hash))
     }
 
     fn fetch_nix_impl(
         &'a self,
         out: &mut impl Write,
-        url: Url,
+        url: &'a Url,
         rev: String,
         args: Vec<(String, String)>,
         indent: String,
     ) -> Result<()> {
-        let (owner, repo, hash) = if args.is_empty() {
-            self.fetch(&url, &rev)?
+        let (values, hash) = if args.is_empty() {
+            self.fetch(url, &rev)?
         } else {
-            self.fetch_fod(&url, &rev, &args)?
+            self.fetch_fod(url, &rev, &args)?
         };
 
-        self.write_nix(out, owner, repo, rev, hash, args, indent)
+        self.write_nix(out, values, rev, hash, args, indent)
     }
 
     fn fetch_json_impl(
         &'a self,
         out: &mut impl Write,
-        url: Url,
+        url: &'a Url,
         rev: String,
         args: Vec<(String, String)>,
     ) -> Result<()> {
-        let (owner, repo, hash) = if args.is_empty() {
-            self.fetch(&url, &rev)?
+        let (values, hash) = if args.is_empty() {
+            self.fetch(url, &rev)?
         } else {
-            self.fetch_fod(&url, &rev, &args)?
+            self.fetch_fod(url, &rev, &args)?
         };
-        self.write_json(out, owner, repo, rev, hash, args)
+        self.write_json(out, values, rev, hash, args)
     }
 }
 
-pub trait SimpleUrlFetcher<'a>: SimpleFetcher<'a> {
-    fn get_url(&self, owner: &str, repo: &str, rev: &str) -> String;
+pub trait SimpleUrlFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
+    fn get_url(&self, values: [&str; N], rev: &str) -> String;
 
-    fn fetch(&'a self, url: &Url, rev: &str) -> Result<(String, String, String)> {
-        let (owner, repo) = self
-            .get_repo(url)
+    fn fetch(&'a self, url: &'a Url, rev: &str) -> Result<([&str; N], String)> {
+        let values = self
+            .get_values(url)
             .with_context(|| format!("failed to parse {url}"))?;
-        let hash = url_prefetch(self.get_url(&owner, &repo, rev))?;
-        Ok((owner, repo, hash))
+        let hash = url_prefetch(self.get_url(values, rev))?;
+        Ok((values, hash))
     }
 
     fn fetch_nix_impl(
         &'a self,
         out: &mut impl Write,
-        url: Url,
+        url: &'a Url,
         rev: String,
         args: Vec<(String, String)>,
         indent: String,
     ) -> Result<()> {
-        let (owner, repo, hash) = if args.is_empty() {
-            self.fetch(&url, &rev)?
+        let (values, hash) = if args.is_empty() {
+            self.fetch(url, &rev)?
         } else {
-            self.fetch_fod(&url, &rev, &args)?
+            self.fetch_fod(url, &rev, &args)?
         };
 
-        self.write_nix(out, owner, repo, rev, hash, args, indent)
+        self.write_nix(out, values, rev, hash, args, indent)
     }
 
     fn fetch_json_impl(
         &'a self,
         out: &mut impl Write,
-        url: Url,
+        url: &'a Url,
         rev: String,
         args: Vec<(String, String)>,
     ) -> Result<()> {
-        let (owner, repo, hash) = if args.is_empty() {
-            self.fetch(&url, &rev)?
+        let (values, hash) = if args.is_empty() {
+            self.fetch(url, &rev)?
         } else {
-            self.fetch_fod(&url, &rev, &args)?
+            self.fetch_fod(url, &rev, &args)?
         };
-        self.write_json(out, owner, repo, rev, hash, args)
+        self.write_json(out, values, rev, hash, args)
     }
 }

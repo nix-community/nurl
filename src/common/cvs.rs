@@ -25,7 +25,7 @@ pub trait CvsFetcher {
     fn write_nix(
         &self,
         out: &mut impl Write,
-        url: Url,
+        url: &Url,
         rev: String,
         hash: String,
         args: Vec<(String, String)>,
@@ -54,7 +54,7 @@ pub trait CvsFetcher {
     fn write_json(
         &self,
         out: &mut impl Write,
-        url: Url,
+        url: &Url,
         rev: String,
         hash: String,
         args: Vec<(String, String)>,
@@ -89,23 +89,23 @@ pub trait CvsFodFetcher: CvsFetcher {
     fn fetch_nix_impl(
         &self,
         out: &mut impl Write,
-        url: Url,
+        url: &Url,
         rev: String,
         args: Vec<(String, String)>,
         indent: String,
     ) -> Result<()> {
-        let hash = self.fetch_fod(&url, &rev, &args)?;
+        let hash = self.fetch_fod(url, &rev, &args)?;
         self.write_nix(out, url, rev, hash, args, indent)
     }
 
     fn fetch_json_impl(
         &self,
         out: &mut impl Write,
-        url: Url,
+        url: &Url,
         rev: String,
         args: Vec<(String, String)>,
     ) -> Result<()> {
-        let hash = self.fetch_fod(&url, &rev, &args)?;
+        let hash = self.fetch_fod(url, &rev, &args)?;
         self.write_json(out, url, rev, hash, args)
     }
 }
@@ -124,15 +124,15 @@ pub trait CvsFlakeFetcher: CvsFetcher {
     fn fetch_nix_impl(
         &self,
         out: &mut impl Write,
-        url: Url,
+        url: &Url,
         rev: String,
         args: Vec<(String, String)>,
         indent: String,
     ) -> Result<()> {
         let hash = if args.is_empty() {
-            self.fetch(&url, &rev)?
+            self.fetch(url, &rev)?
         } else {
-            self.fetch_fod(&url, &rev, &args)?
+            self.fetch_fod(url, &rev, &args)?
         };
         self.write_nix(out, url, rev, hash, args, indent)
     }
@@ -140,14 +140,14 @@ pub trait CvsFlakeFetcher: CvsFetcher {
     fn fetch_json_impl(
         &self,
         out: &mut impl Write,
-        url: Url,
+        url: &Url,
         rev: String,
         args: Vec<(String, String)>,
     ) -> Result<()> {
         let hash = if args.is_empty() {
-            self.fetch(&url, &rev)?
+            self.fetch(url, &rev)?
         } else {
-            self.fetch_fod(&url, &rev, &args)?
+            self.fetch_fod(url, &rev, &args)?
         };
         self.write_json(out, url, rev, hash, args)
     }

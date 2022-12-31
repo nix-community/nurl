@@ -7,6 +7,7 @@ pub struct FetchFromGitLab(pub Option<String>);
 impl_fetcher!(FetchFromGitLab);
 
 impl<'a> SimpleFetcher<'a> for FetchFromGitLab {
+    const KEYS: [&'static str; 2] = ["owner", "repo"];
     const NAME: &'static str = "fetchFromGitLab";
 
     fn host(&'a self) -> Option<&'a str> {

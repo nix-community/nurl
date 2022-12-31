@@ -95,9 +95,9 @@ fn main() -> Result<()> {
     let out = &mut stdout().lock();
     let args = opts.args.into_iter().tuples().collect();
     if opts.json {
-        fetcher.fetch_json(out, opts.url, opts.rev, args)
+        fetcher.fetch_json(out, &opts.url, opts.rev, args)
     } else {
-        fetcher.fetch_nix(out, opts.url, opts.rev, args, " ".repeat(opts.indent))
+        fetcher.fetch_nix(out, &opts.url, opts.rev, args, " ".repeat(opts.indent))
     }?;
 
     Ok(())

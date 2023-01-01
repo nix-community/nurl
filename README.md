@@ -20,7 +20,7 @@ fetchFromGitHub {
 
 ## Supported Fetchers
 
-- fetchFromBitBucket
+- fetchFromBitbucket
 - fetchFromGitHub
 - fetchFromGitLab
 - fetchFromGitea
@@ -40,7 +40,7 @@ Arguments:
   [REV]  the revision or reference to be fetched
 
 Options:
-  -f, --fetcher <FETCHER>       specify the fetcher function instead of inferring from the URL [possible values: fetchFromBitBucket, fetchFromGitHub, fetchFromGitLab, fetchFromGitea, fetchFromGitiles, fetchFromRepoOrCz, fetchFromSourcehut, fetchgit, fetchhg]
+  -f, --fetcher <FETCHER>       specify the fetcher function instead of inferring from the URL [possible values: fetchFromBitbucket, fetchFromGitHub, fetchFromGitLab, fetchFromGitea, fetchFromGitiles, fetchFromRepoOrCz, fetchFromSourcehut, fetchgit, fetchhg]
   -i, --indent <INDENT>         extra indentation (in number of spaces) [default: 0]
   -j, --json                    output in json format
   -a, --arg <KEY> <VALUE>       additional arguments to pass to the fetcher

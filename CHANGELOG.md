@@ -13,7 +13,7 @@
 - `--list-fetchers` to list all available fetchers
 - `--list-possible-fetchers` to list all fetchers that can be generated without `--fetcher`
 - Support for the following fetchers
-  - `fetchBitBucket` (<https://bitbucket.org>)
+  - `fetchFromBitbucket` (<https://bitbucket.org>)
   - `fetchFromGitea` (and <https://codeberg.org>)
   - `fetchFromGitiles` (and <https://googlesource.com>)
   - `fetchFromRepoOrCz` (<https://repo.or.cz>)

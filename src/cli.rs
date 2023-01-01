@@ -50,7 +50,7 @@ pub struct Opts {
 #[derive(Clone, Debug, ValueEnum)]
 #[clap(rename_all = "camelCase")]
 pub enum FetcherFunction {
-    FetchFromBitBucket,
+    FetchFromBitbucket,
     FetchFromGitHub,
     FetchFromGitLab,
     FetchFromGitea,

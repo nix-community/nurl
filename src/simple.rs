@@ -119,12 +119,15 @@ pub trait SimpleFetcher<'a, const N: usize = 2> {
             fetcher_args["host"] = json!(host);
         }
 
-        for (key, value) in Self::KEYS
-            .into_iter()
-            .zip(values)
-            .chain(args.iter().map(|(x, y)| (x.as_str(), y.as_str())))
-        {
+        for (key, value) in Self::KEYS.iter().zip(values) {
             fetcher_args[key] = json!(value);
+        }
+
+        for (key, value) in args {
+            fetcher_args[key] = json!({
+                "type": "nix",
+                "value": value,
+            });
         }
 
         serde_json::to_writer(

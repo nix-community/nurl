@@ -26,7 +26,7 @@ impl<'a> SimpleFlakeFetcher<'a, 1> for Fetchgit {
         Ok((
             [url.as_ref()],
             flake_prefetch(format!(
-                "{}+{url}?{}={rev}",
+                "{}+{url}?{}={rev}&submodules=1",
                 Self::FLAKE_TYPE,
                 if rev.len() == 40 { "rev" } else { "ref" },
             ))?,

@@ -82,6 +82,8 @@ pub fn fod_prefetch(expr: String) -> Result<String> {
         status,
     } = Command::new("nix")
         .arg("build")
+        .arg("--experimental-features")
+        .arg("nix-command")
         .arg("--impure")
         .arg("--no-link")
         .arg("--expr")

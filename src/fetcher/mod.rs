@@ -2,6 +2,7 @@ mod bitbucket;
 mod git;
 mod gitea;
 mod github;
+mod gitiles;
 mod gitlab;
 mod hg;
 mod repo_or_cz;
@@ -11,6 +12,7 @@ pub use bitbucket::FetchFromBitBucket;
 pub use git::Fetchgit;
 pub use gitea::FetchFromGitea;
 pub use github::FetchFromGitHub;
+pub use gitiles::FetchFromGitiles;
 pub use gitlab::FetchFromGitLab;
 pub use hg::Fetchhg;
 pub use repo_or_cz::FetchFromRepoOrCz;
@@ -47,6 +49,7 @@ pub enum FetcherDispatch<'a> {
     FetchFromGitHub(FetchFromGitHub<'a>),
     FetchFromGitLab(FetchFromGitLab<'a>),
     FetchFromGitea(FetchFromGitea<'a>),
+    FetchFromGitiles(FetchFromGitiles),
     FetchFromRepoOrCz(FetchFromRepoOrCz),
     FetchFromSourcehut(FetchFromSourcehut<'a>),
     Fetchgit(Fetchgit),

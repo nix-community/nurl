@@ -12,8 +12,8 @@ use itertools::Itertools;
 use crate::{
     cli::{FetcherFunction, Opts},
     fetcher::{
-        FetchFromBitBucket, FetchFromGitHub, FetchFromGitLab, FetchFromGitea, FetchFromRepoOrCz,
-        FetchFromSourcehut, Fetcher, FetcherDispatch, Fetchgit, Fetchhg,
+        FetchFromBitBucket, FetchFromGitHub, FetchFromGitLab, FetchFromGitea, FetchFromGitiles,
+        FetchFromRepoOrCz, FetchFromSourcehut, Fetcher, FetcherDispatch, Fetchgit, Fetchhg,
     },
 };
 
@@ -58,6 +58,13 @@ fn main() -> Result<()> {
             FetchFromGitea(host).into()
         }
         (Some(FetcherFunction::FetchFromGitea), Some(host)) => FetchFromGitea(host).into(),
+
+        (None | Some(FetcherFunction::FetchFromGitiles), Some(host))
+            if host.ends_with(".googlesource.com") =>
+        {
+            FetchFromGitiles.into()
+        }
+        (Some(FetcherFunction::FetchFromGitiles), _) => FetchFromGitiles.into(),
 
         (None | Some(FetcherFunction::FetchFromRepoOrCz), Some("repo.or.cz")) => {
             FetchFromRepoOrCz.into()

@@ -54,6 +54,7 @@ pub enum FetcherFunction {
     FetchFromGitHub,
     FetchFromGitLab,
     FetchFromGitea,
+    FetchFromGitiles,
     FetchFromRepoOrCz,
     FetchFromSourcehut,
     Fetchgit,

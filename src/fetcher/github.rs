@@ -3,19 +3,19 @@ use crate::{
     simple::{SimpleFetcher, SimpleFlakeFetcher},
 };
 
-pub struct FetchFromGitHub(pub Option<String>);
-impl_fetcher!(FetchFromGitHub);
+pub struct FetchFromGitHub<'a>(pub Option<&'a str>);
+impl_fetcher!(FetchFromGitHub<'a>);
 
-impl<'a> SimpleFetcher<'a> for FetchFromGitHub {
+impl<'a> SimpleFetcher<'a> for FetchFromGitHub<'a> {
     const HOST_KEY: &'static str = "githubBase";
     const KEYS: [&'static str; 2] = ["owner", "repo"];
     const NAME: &'static str = "fetchFromGitHub";
 
     fn host(&'a self) -> Option<&'a str> {
-        self.0.as_deref()
+        self.0
     }
 }
 
-impl<'a> SimpleFlakeFetcher<'a> for FetchFromGitHub {
+impl<'a> SimpleFlakeFetcher<'a> for FetchFromGitHub<'a> {
     const FLAKE_TYPE: &'static str = "github";
 }

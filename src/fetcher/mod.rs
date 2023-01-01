@@ -42,21 +42,21 @@ pub trait Fetcher {
 }
 
 #[enum_dispatch(Fetcher)]
-pub enum FetcherDispatch {
+pub enum FetcherDispatch<'a> {
     FetchFromBitBucket(FetchFromBitBucket),
-    FetchFromGitHub(FetchFromGitHub),
-    FetchFromGitLab(FetchFromGitLab),
-    FetchFromGitea(FetchFromGitea),
+    FetchFromGitHub(FetchFromGitHub<'a>),
+    FetchFromGitLab(FetchFromGitLab<'a>),
+    FetchFromGitea(FetchFromGitea<'a>),
     FetchFromRepoOrCz(FetchFromRepoOrCz),
-    FetchFromSourcehut(FetchFromSourcehut),
+    FetchFromSourcehut(FetchFromSourcehut<'a>),
     Fetchgit(Fetchgit),
     Fetchhg(Fetchhg),
 }
 
 #[macro_export]
 macro_rules! impl_fetcher {
-    ($t:ty) => {
-        impl $crate::fetcher::Fetcher for $t {
+    ($t:ident $($tt:tt)*) => {
+        impl $($tt)* $crate::fetcher::Fetcher for $t $($tt)* {
             fn fetch_nix(
                 &self,
                 out: &mut impl ::std::io::Write,

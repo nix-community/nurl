@@ -8,7 +8,6 @@ mod simple;
 use anyhow::{bail, Result};
 use clap::{Parser, ValueEnum};
 use itertools::Itertools;
-use url::Host;
 
 use crate::{
     cli::{FetcherFunction, Opts},
@@ -36,51 +35,42 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
-    let fetcher: FetcherDispatch = match (opts.fetcher, opts.url.host()) {
-        (None | Some(FetcherFunction::FetchFromBitBucket), Some(Host::Domain("bitbucket.org"))) => {
+    let fetcher: FetcherDispatch = match (opts.fetcher, opts.url.host_str()) {
+        (None | Some(FetcherFunction::FetchFromBitBucket), Some("bitbucket.org")) => {
             FetchFromBitBucket.into()
         }
         (Some(FetcherFunction::FetchFromBitBucket), _) => {
             bail!("fetchFromBitBucket only supports bitbucket.org");
         }
 
-        (None | Some(FetcherFunction::FetchFromGitHub), Some(Host::Domain("github.com"))) => {
+        (None | Some(FetcherFunction::FetchFromGitHub), Some("github.com")) => {
             FetchFromGitHub(None).into()
         }
-        (Some(FetcherFunction::FetchFromGitHub), Some(host)) => {
-            FetchFromGitHub(Some(host.to_string())).into()
-        }
+        (Some(FetcherFunction::FetchFromGitHub), Some(host)) => FetchFromGitHub(Some(host)).into(),
 
-        (None | Some(FetcherFunction::FetchFromGitLab), Some(Host::Domain("gitlab.com"))) => {
+        (None | Some(FetcherFunction::FetchFromGitLab), Some("gitlab.com")) => {
             FetchFromGitLab(None).into()
         }
-        (None, Some(Host::Domain(host))) if host.starts_with("gitlab.") => {
-            FetchFromGitLab(Some(host.into())).into()
-        }
-        (Some(FetcherFunction::FetchFromGitLab), Some(host)) => {
-            FetchFromGitLab(Some(host.to_string())).into()
-        }
+        (None, Some(host)) if host.starts_with("gitlab.") => FetchFromGitLab(Some(host)).into(),
+        (Some(FetcherFunction::FetchFromGitLab), Some(host)) => FetchFromGitLab(Some(host)).into(),
 
-        (
-            None | Some(FetcherFunction::FetchFromGitea),
-            Some(Host::Domain(host @ "codeberg.org")),
-        ) => FetchFromGitea(host.into()).into(),
-        (Some(FetcherFunction::FetchFromGitea), Some(host)) => {
-            FetchFromGitea(host.to_string()).into()
+        (None | Some(FetcherFunction::FetchFromGitea), Some(host @ "codeberg.org")) => {
+            FetchFromGitea(host).into()
         }
+        (Some(FetcherFunction::FetchFromGitea), Some(host)) => FetchFromGitea(host).into(),
 
-        (None | Some(FetcherFunction::FetchFromRepoOrCz), Some(Host::Domain("repo.or.cz"))) => {
+        (None | Some(FetcherFunction::FetchFromRepoOrCz), Some("repo.or.cz")) => {
             FetchFromRepoOrCz.into()
         }
         (Some(FetcherFunction::FetchFromRepoOrCz), _) => {
             bail!("fetchFromRepoOrCz only supports repo.or.cz");
         }
 
-        (None | Some(FetcherFunction::FetchFromSourcehut), Some(Host::Domain("git.sr.ht"))) => {
+        (None | Some(FetcherFunction::FetchFromSourcehut), Some("git.sr.ht")) => {
             FetchFromSourcehut(None).into()
         }
         (Some(FetcherFunction::FetchFromSourcehut), Some(host)) => {
-            FetchFromSourcehut(Some(host.to_string())).into()
+            FetchFromSourcehut(Some(host)).into()
         }
 
         (

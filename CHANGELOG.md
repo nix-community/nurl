@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.2.2 - 2023-01-0-1
+
+### Fixes
+
+- Correctly set `experimental-features` for Nix calls
+- Fetch submodules for `fetchgit`
+
 ## v0.2.1 - 2023-01-01
 
 ### Fixes

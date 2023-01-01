@@ -1,9 +1,3 @@
-mod cvs;
-mod simple;
-
-pub use cvs::{CvsFetcher, CvsFlakeFetcher, CvsFodFetcher};
-pub use simple::{SimpleFetcher, SimpleFlakeFetcher, SimpleFodFetcher, SimpleUrlFetcher};
-
 use anyhow::{anyhow, bail, Result};
 use serde::Deserialize;
 

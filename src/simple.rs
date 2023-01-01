@@ -6,7 +6,7 @@ use url::Url;
 
 use std::{fmt::Write as _, io::Write};
 
-use crate::common::{flake_prefetch, fod_prefetch, url_prefetch};
+use crate::prefetch::{flake_prefetch, fod_prefetch, url_prefetch};
 
 pub trait SimpleFetcher<'a, const N: usize = 2> {
     const HOST_KEY: &'static str = "domain";
@@ -164,22 +164,29 @@ pub trait SimpleFodFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
     }
 }
 
-pub trait SimpleFlakeFetcher<'a>: SimpleFetcher<'a, 2> {
-    const KEYS: [&'static str; 2] = ["owner", "repo"];
+pub trait SimpleFlakeFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
     const FLAKE_TYPE: &'static str;
 
-    fn fetch(&'a self, url: &'a Url, rev: &str) -> Result<([&str; 2], String)> {
-        let [owner, repo] = self
+    fn fetch(&'a self, url: &'a Url, rev: &str) -> Result<([&str; N], String)> {
+        let values = self
             .get_values(url)
             .with_context(|| format!("failed to parse {url} as a {} url", Self::FLAKE_TYPE))?;
 
-        let hash = flake_prefetch(if let Some(host) = self.host() {
-            format!("{}:{owner}/{repo}/{rev}?host={}", Self::FLAKE_TYPE, host)
-        } else {
-            format!("{}:{owner}/{repo}/{rev}", Self::FLAKE_TYPE)
-        })?;
+        let mut flake_ref = format!("{}:", Self::FLAKE_TYPE);
+        for value in values {
+            flake_ref.push_str(value);
+            flake_ref.push('/');
+        }
+        flake_ref.push_str(rev);
 
-        Ok(([owner, repo], hash))
+        if let Some(host) = self.host() {
+            flake_ref.push_str("?host=");
+            flake_ref.push_str(host);
+        }
+
+        let hash = flake_prefetch(flake_ref)?;
+
+        Ok((values, hash))
     }
 
     fn fetch_nix_impl(

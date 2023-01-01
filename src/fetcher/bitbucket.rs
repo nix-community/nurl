@@ -1,6 +1,6 @@
 use crate::{
-    common::{SimpleFetcher, SimpleUrlFetcher},
     impl_fetcher,
+    simple::{SimpleFetcher, SimpleUrlFetcher},
 };
 
 pub struct FetchFromBitBucket;

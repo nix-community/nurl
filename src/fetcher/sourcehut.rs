@@ -1,6 +1,6 @@
 use crate::{
-    common::{SimpleFetcher, SimpleFlakeFetcher},
     impl_fetcher,
+    simple::{SimpleFetcher, SimpleFlakeFetcher},
 };
 
 pub struct FetchFromSourcehut(pub Option<String>);

@@ -1,8 +1,9 @@
 #![allow(clippy::too_many_arguments)]
 
 mod cli;
-mod common;
 mod fetcher;
+mod prefetch;
+mod simple;
 
 use anyhow::{bail, Result};
 use clap::{Parser, ValueEnum};

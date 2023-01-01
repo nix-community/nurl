@@ -1,6 +1,6 @@
 use crate::{
-    common::{SimpleFetcher, SimpleFlakeFetcher},
     impl_fetcher,
+    simple::{SimpleFetcher, SimpleFlakeFetcher},
 };
 
 pub struct FetchFromGitHub(pub Option<String>);

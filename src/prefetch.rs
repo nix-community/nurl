@@ -37,11 +37,13 @@ pub fn flake_prefetch(flake_ref: String) -> Result<String> {
         hash: String,
     }
 
-    info!("$ nix flake prefetch --json {flake_ref}");
+    info!("$ nix flake prefetch --experimental-features 'nix-command flakes' --json {flake_ref}");
     Ok(serde_json::from_slice::<PrefetchOutput>(
         &Command::new("nix")
             .arg("flake")
             .arg("prefetch")
+            .arg("--experimental-features")
+            .arg("nix-command flakes")
             .arg("--json")
             .arg(flake_ref)
             .get_stdout()?,
@@ -59,11 +61,13 @@ pub fn url_prefetch(url: String) -> Result<String> {
     )?;
     let hash = hash.trim_end();
 
-    info!("$ nix hash to-sri --type sha256 {hash}");
+    info!("$ nix hash to-sri --experimental-features nix-command --type sha256 {hash}");
     Ok(String::from_utf8(
         Command::new("nix")
             .arg("hash")
             .arg("to-sri")
+            .arg("--experimental-features")
+            .arg("nix-command")
             .arg("--type")
             .arg("sha256")
             .arg(hash)
@@ -74,7 +78,7 @@ pub fn url_prefetch(url: String) -> Result<String> {
 }
 
 pub fn fod_prefetch(expr: String) -> Result<String> {
-    info!("$ nix build --impure --no-link --expr '{expr}'");
+    info!("$ nix build --experimental-features nix-command --impure --no-link --expr '{expr}'");
 
     let Output {
         stdout,

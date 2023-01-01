@@ -34,7 +34,7 @@ pub struct Opts {
     #[arg(short, long)]
     pub json: bool,
 
-    // additional arguments to pass to the fetcher
+    /// additional arguments to pass to the fetcher
     #[arg(short, long = "arg", num_args = 2, value_names = ["KEY", "VALUE"])]
     pub args: Vec<String>,
 

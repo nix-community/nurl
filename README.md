@@ -50,6 +50,14 @@ Options:
   -V, --version                 Print version information
 ```
 
+## Comparison to [nix-prefetch](https://github.com/msteen/nix-prefetch)
+
+- `nurl` infers the fetcher from the URL. For `nix-prefetch`, you need to pick the fetcher and supply the arguments manually.
+- `nix-prefetch` relies FOD which is slow, `nurl` tries to use alternatives when possible.
+- `nix-prefetch` supports arbitrary expressions (planned for `nurl`) and file attributes.
+- `nix-prefetch` is more configurable and has an interface similar to `nix-build`.
+- `nurl` has some nice features dedicated to generated packages (`--indent`, `--list-possible-fetchers`).
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md)

@@ -1,6 +1,22 @@
 # Changelog
 
-## v0.2.2 - 2023-01-0-1
+## v0.3.0 - 2023-01-02
+
+### Changes
+
+- with `--json`, values specified `--arg` are wrapped like this: `{"type": "nix", "value": "<Nix expression>"}` to differentiate from strings
+
+### Fixes
+
+- Correctly handle git:// URLs
+
+### Features
+
+- `--arg-str` to additional arguments to pass to the fetcher as strings
+- `--overwrite` to overwrite arguments in the final output
+- `--overwrite-str` to overwrite arguments in the final output as strings
+
+## v0.2.2 - 2023-01-01
 
 ### Fixes
 

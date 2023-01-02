@@ -40,14 +40,23 @@ Arguments:
   [REV]  the revision or reference to be fetched
 
 Options:
-  -f, --fetcher <FETCHER>       specify the fetcher function instead of inferring from the URL [possible values: fetchFromBitbucket, fetchFromGitHub, fetchFromGitLab, fetchFromGitea, fetchFromGitiles, fetchFromRepoOrCz, fetchFromSourcehut, fetchgit, fetchhg]
-  -i, --indent <INDENT>         extra indentation (in number of spaces) [default: 0]
-  -j, --json                    output in json format
-  -a, --arg <KEY> <VALUE>       additional arguments to pass to the fetcher
-  -l, --list-fetchers           List all available fetchers
-  -L, --list-possible-fetchers  List all fetchers that can be generated without --fetcher
-  -h, --help                    Print help information
-  -V, --version                 Print version information
+  -f, --fetcher <FETCHER>              specify the fetcher function instead of inferring from the
+                                       URL [possible values: fetchFromBitbucket, fetchFromGitHub,
+                                       fetchFromGitLab, fetchFromGitea, fetchFromGitiles,
+                                       fetchFromRepoOrCz, fetchFromSourcehut, fetchgit, fetchhg]
+  -i, --indent <INDENT>                extra indentation (in number of spaces) [default: 0]
+  -j, --json                           output in json format
+  -a, --arg <NAME> <EXPR>              additional arguments to pass to the fetcher
+  -A, --arg-str <NAME> <STRING>        same as --overwrite, but accepts strings instead Nix
+                                       expressions
+  -o, --overwrite <NAME> <EXPR>        overwrite arguments in the final output, not taken into
+                                       consideration when fetching the hash
+  -O, --overwrite-str <NAME> <STRING>  same as --overwrite, but accepts strings instead Nix
+                                       expressions
+  -l, --list-fetchers                  List all available fetchers
+  -L, --list-possible-fetchers         List all fetchers that can be generated without --fetcher
+  -h, --help                           Print help information
+  -V, --version                        Print version information
 ```
 
 ## Comparison to [nix-prefetch](https://github.com/msteen/nix-prefetch)

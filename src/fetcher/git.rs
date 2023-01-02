@@ -18,8 +18,6 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchgit {
 }
 
 impl<'a> SimpleFlakeFetcher<'a, 1> for Fetchgit {
-    const FLAKE_TYPE: &'static str = "git";
-
     fn get_flake_ref(&self, [url]: [&str; 1], rev: &str) -> String {
         let rev_type = if rev.len() == 40 { "rev" } else { "ref" };
         if url.starts_with("git://") {

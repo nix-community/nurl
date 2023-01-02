@@ -17,5 +17,11 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitHub<'a> {
 }
 
 impl<'a> SimpleFlakeFetcher<'a, 2> for FetchFromGitHub<'a> {
-    const FLAKE_TYPE: &'static str = "github";
+    fn get_flake_ref(&'a self, [owner, repo]: [&str; 2], rev: &str) -> String {
+        if let Some(host) = self.0 {
+            format!("github:{owner}/{repo}/{rev}?host={host}")
+        } else {
+            format!("github:{owner}/{repo}/{rev}")
+        }
+    }
 }

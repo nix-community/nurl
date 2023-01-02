@@ -200,23 +200,7 @@ pub trait SimpleFodFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
 }
 
 pub trait SimpleFlakeFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
-    const FLAKE_TYPE: &'static str;
-
-    fn get_flake_ref(&'a self, values: [&str; N], rev: &str) -> String {
-        let mut flake_ref = format!("{}:", Self::FLAKE_TYPE);
-        for value in values {
-            flake_ref.push_str(value);
-            flake_ref.push('/');
-        }
-        flake_ref.push_str(rev);
-
-        if let Some(host) = self.host() {
-            flake_ref.push_str("?host=");
-            flake_ref.push_str(host);
-        }
-
-        flake_ref
-    }
+    fn get_flake_ref(&'a self, values: [&str; N], rev: &str) -> String;
 
     fn fetch(
         &'a self,
@@ -228,7 +212,7 @@ pub trait SimpleFlakeFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         if args.is_empty() && args_str.is_empty() {
             let values = self
                 .get_values(url)
-                .with_context(|| format!("failed to parse {url} as a {} url", Self::FLAKE_TYPE))?;
+                .with_context(|| format!("failed to parse {url}"))?;
             let hash = flake_prefetch(self.get_flake_ref(values, rev))?;
             Ok((values, hash))
         } else {

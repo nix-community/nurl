@@ -18,8 +18,6 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchhg {
 }
 
 impl<'a> SimpleFlakeFetcher<'a, 1> for Fetchhg {
-    const FLAKE_TYPE: &'static str = "hg";
-
     fn get_flake_ref(&self, [url]: [&str; 1], rev: &str) -> String {
         format!(
             "hg+{url}?{}={rev}",

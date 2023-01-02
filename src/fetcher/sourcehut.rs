@@ -16,5 +16,11 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromSourcehut<'a> {
 }
 
 impl<'a> SimpleFlakeFetcher<'a, 2> for FetchFromSourcehut<'a> {
-    const FLAKE_TYPE: &'static str = "sourcehut";
+    fn get_flake_ref(&'a self, [owner, repo]: [&str; 2], rev: &str) -> String {
+        if let Some(host) = self.0 {
+            format!("sourcehut:{owner}/{repo}/{rev}?host={host}")
+        } else {
+            format!("sourcehut:{owner}/{repo}/{rev}")
+        }
+    }
 }

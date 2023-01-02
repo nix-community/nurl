@@ -30,13 +30,12 @@ pub enum GitScheme {
 fn main() -> Result<()> {
     let opts = Opts::parse();
 
-    if opts.list_fetchers {
+    if opts.list_fetchers || opts.list_possible_fetchers {
         let mut out = stdout().lock();
-        for fetcher in FetcherFunction::value_variants()
-            .iter()
-            .filter_map(ValueEnum::to_possible_value)
-        {
-            writeln!(out, "{}", fetcher.get_name())?;
+        for fetcher in FetcherFunction::value_variants() {
+            if let Some(fetcher) = fetcher.to_possible_value() {
+                writeln!(out, "{}", fetcher.get_name())?;
+            }
         }
         return Ok(());
     }

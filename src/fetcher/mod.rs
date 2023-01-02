@@ -33,6 +33,7 @@ pub trait Fetcher {
         url: &Url,
         rev: String,
         args: Vec<(String, String)>,
+        args_str: Vec<(String, String)>,
         overwrites: FxHashMap<String, String>,
         indent: String,
     ) -> Result<()>;
@@ -42,6 +43,7 @@ pub trait Fetcher {
         url: &Url,
         rev: String,
         args: Vec<(String, String)>,
+        args_str: Vec<(String, String)>,
         overwrites: Vec<(String, String)>,
         overwrites_str: Vec<(String, String)>,
     ) -> Result<()>;
@@ -70,10 +72,11 @@ macro_rules! impl_fetcher {
                 url: &::url::Url,
                 rev: String,
                 args: Vec<(String, String)>,
+                args_str: Vec<(String, String)>,
                 overwrites: ::rustc_hash::FxHashMap<String, String>,
                 indent: String,
             ) -> ::anyhow::Result<()> {
-                self.fetch_nix_impl(out, url, rev, args, overwrites, indent)
+                self.fetch_nix_impl(out, url, rev, args, args_str, overwrites, indent)
             }
 
             fn fetch_json(
@@ -82,10 +85,11 @@ macro_rules! impl_fetcher {
                 url: &::url::Url,
                 rev: String,
                 args: Vec<(String, String)>,
+                args_str: Vec<(String, String)>,
                 overwrites: Vec<(String, String)>,
                 overwrites_str: Vec<(String, String)>,
             ) -> ::anyhow::Result<()> {
-                self.fetch_json_impl(out, url, rev, args, overwrites, overwrites_str)
+                self.fetch_json_impl(out, url, rev, args, args_str, overwrites, overwrites_str)
             }
         }
     };

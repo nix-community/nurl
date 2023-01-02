@@ -35,8 +35,12 @@ pub struct Opts {
     pub json: bool,
 
     /// additional arguments to pass to the fetcher
-    #[arg(short, long = "arg", num_args = 2, value_names = ["KEY", "VALUE"])]
+    #[arg(short, long = "arg", num_args = 2, value_names = ["NAME", "EXPR"])]
     pub args: Vec<String>,
+
+    /// same as --overwrite, but accepts strings instead Nix expressions
+    #[arg(short = 'A', long = "arg-str", num_args = 2, value_names = ["NAME", "STRING"])]
+    pub args_str: Vec<String>,
 
     /// overwrite arguments in the final output,
     /// not taken into consideration when fetching the hash

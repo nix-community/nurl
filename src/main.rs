@@ -100,12 +100,14 @@ fn main() -> Result<()> {
 
     let out = &mut stdout().lock();
     let args = opts.args.into_iter().tuples().collect();
+    let args_str = opts.args_str.into_iter().tuples().collect();
     if opts.json {
         fetcher.fetch_json(
             out,
             &opts.url,
             opts.rev,
             args,
+            args_str,
             opts.overwrites.into_iter().tuples().collect(),
             opts.overwrites_str.into_iter().tuples().collect(),
         )
@@ -121,6 +123,7 @@ fn main() -> Result<()> {
             &opts.url,
             opts.rev,
             args,
+            args_str,
             overwrites,
             " ".repeat(opts.indent),
         )

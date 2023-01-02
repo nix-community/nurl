@@ -32,11 +32,24 @@ fn main() -> Result<()> {
 
     if opts.list_fetchers || opts.list_possible_fetchers {
         let mut out = stdout().lock();
-        for fetcher in FetcherFunction::value_variants() {
-            if let Some(fetcher) = fetcher.to_possible_value() {
+        let fetchers = FetcherFunction::value_variants()
+            .iter()
+            .filter_map(ValueEnum::to_possible_value);
+
+        if let Some(sep) = opts.list_sep {
+            let mut fetchers = fetchers;
+            if let Some(fetcher) = fetchers.next() {
+                write!(out, "{}", fetcher.get_name())?;
+            }
+            for fetcher in fetchers {
+                write!(out, "{}{}", sep, fetcher.get_name())?;
+            }
+        } else {
+            for fetcher in fetchers {
                 writeln!(out, "{}", fetcher.get_name())?;
             }
         }
+
         return Ok(());
     }
 

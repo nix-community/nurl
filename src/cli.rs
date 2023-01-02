@@ -70,6 +70,11 @@ pub struct Opts {
     /// List all fetchers that can be generated without --fetcher
     #[arg(short = 'L', long, group = "command")]
     pub list_possible_fetchers: bool,
+
+    /// Print out the listed fetchers with the specified separator,
+    /// only used when --list-fetchers or --list-possible-fetchers is specified
+    #[arg(short = 's', long, value_name = "SEPERATOR")]
+    pub list_sep: Option<String>,
 }
 
 #[derive(Clone, Debug, ValueEnum)]

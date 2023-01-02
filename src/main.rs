@@ -50,10 +50,14 @@ fn main() -> Result<()> {
         (Some(FetcherFunction::FetchFromGitHub), Some(host)) => FetchFromGitHub(Some(host)).into(),
 
         (None | Some(FetcherFunction::FetchFromGitLab), Some("gitlab.com")) => {
-            FetchFromGitLab(None).into()
+            FetchFromGitLab::new(None).into()
         }
-        (None, Some(host)) if host.starts_with("gitlab.") => FetchFromGitLab(Some(host)).into(),
-        (Some(FetcherFunction::FetchFromGitLab), Some(host)) => FetchFromGitLab(Some(host)).into(),
+        (None, Some(host)) if host.starts_with("gitlab.") => {
+            FetchFromGitLab::new(Some(host)).into()
+        }
+        (Some(FetcherFunction::FetchFromGitLab), Some(host)) => {
+            FetchFromGitLab::new(Some(host)).into()
+        }
 
         (None | Some(FetcherFunction::FetchFromGitea), Some(host @ "codeberg.org")) => {
             FetchFromGitea(host).into()

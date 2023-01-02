@@ -237,6 +237,7 @@ dependencies = [
  "clap_mangen",
  "enum_dispatch",
  "itertools",
+ "once_cell",
  "owo-colors",
  "rustc-hash",
  "serde",

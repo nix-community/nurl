@@ -26,11 +26,11 @@ use url::Url;
 use std::io::Write;
 
 #[enum_dispatch]
-pub trait Fetcher {
+pub trait Fetcher<'a> {
     fn fetch_nix(
-        &self,
+        &'a self,
         out: &mut impl Write,
-        url: &Url,
+        url: &'a Url,
         rev: String,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
@@ -39,9 +39,9 @@ pub trait Fetcher {
     ) -> Result<()>;
 
     fn fetch_json(
-        &self,
+        &'a self,
         out: &mut impl Write,
-        url: &Url,
+        url: &'a Url,
         rev: String,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
@@ -65,12 +65,12 @@ pub enum FetcherDispatch<'a> {
 
 #[macro_export]
 macro_rules! impl_fetcher {
-    ($t:ident $($tt:tt)*) => {
-        impl $($tt)* $crate::fetcher::Fetcher for $t $($tt)* {
+    ($t:ty) => {
+        impl<'a> $crate::fetcher::Fetcher<'a> for $t {
             fn fetch_nix(
-                &self,
+                &'a self,
                 out: &mut impl ::std::io::Write,
-                url: &::url::Url,
+                url: &'a ::url::Url,
                 rev: String,
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,
@@ -82,9 +82,9 @@ macro_rules! impl_fetcher {
             }
 
             fn fetch_json(
-                &self,
+                &'a self,
                 out: &mut impl ::std::io::Write,
-                url: &::url::Url,
+                url: &'a ::url::Url,
                 rev: String,
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,

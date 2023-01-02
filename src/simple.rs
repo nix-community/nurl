@@ -17,6 +17,10 @@ pub trait SimpleFetcher<'a, const N: usize> {
         None
     }
 
+    fn group(&'a self) -> Option<&'a str> {
+        None
+    }
+
     fn get_values(&self, url: &'a Url) -> Option<[&'a str; N]> {
         let mut xs: [_; N] = url
             .path_segments()?
@@ -44,7 +48,11 @@ pub trait SimpleFetcher<'a, const N: usize> {
         let mut expr = format!(r#"(import <nixpkgs> {{}}).{}{{"#, Self::NAME);
 
         if let Some(host) = self.host() {
-            write!(expr, r#"{}="{host}""#, Self::HOST_KEY)?;
+            write!(expr, r#"{}="{host}";"#, Self::HOST_KEY)?;
+        }
+
+        if let Some(group) = self.group() {
+            write!(expr, r#"group="{group}";"#)?;
         }
 
         for (key, value) in Self::KEYS.iter().zip(values) {
@@ -89,6 +97,12 @@ pub trait SimpleFetcher<'a, const N: usize> {
             writeln!(out, r#"{indent}  {} = {host};"#, Self::HOST_KEY)?;
         } else if let Some(host) = self.host() {
             writeln!(out, r#"{indent}  {} = "{host}";"#, Self::HOST_KEY)?;
+        }
+
+        if let Some(group) = overwrites.remove("group") {
+            writeln!(out, r#"{indent}  group = {group};"#)?;
+        } else if let Some(group) = self.group() {
+            writeln!(out, r#"{indent}  group = "{group}";"#)?;
         }
 
         for (key, value) in Self::KEYS.iter().zip(values) {
@@ -148,7 +162,11 @@ pub trait SimpleFetcher<'a, const N: usize> {
         });
 
         if let Some(host) = self.host() {
-            fetcher_args["host"] = json!(host);
+            fetcher_args[Self::HOST_KEY] = json!(host);
+        }
+
+        if let Some(group) = self.group() {
+            fetcher_args["group"] = json!(group);
         }
 
         for (key, value) in Self::KEYS.iter().zip(values) {

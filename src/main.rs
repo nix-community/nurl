@@ -65,9 +65,11 @@ fn main() -> Result<()> {
             FetchFromGitLab::new(Some(host)).into()
         }
 
-        (None | Some(FetcherFunction::FetchFromGitea), Some(host @ "codeberg.org"), _) => {
-            FetchFromGitea(host).into()
-        }
+        (
+            None | Some(FetcherFunction::FetchFromGitea),
+            Some(host @ ("codeberg.org" | "gitea.com" | "notabug.org")),
+            _,
+        ) => FetchFromGitea(host).into(),
         (Some(FetcherFunction::FetchFromGitea), Some(host), _) => FetchFromGitea(host).into(),
 
         (None | Some(FetcherFunction::FetchFromGitiles), Some(host), _)

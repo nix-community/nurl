@@ -38,6 +38,27 @@ pub struct Opts {
     #[arg(short, long = "arg", num_args = 2, value_names = ["KEY", "VALUE"])]
     pub args: Vec<String>,
 
+    /// overwrite arguments in the final output,
+    /// not taken into consideration when fetching the hash
+    ///
+    /// Note that nurl does not verify any of the overwrites,
+    /// for the final output to be valid,
+    /// the user should not overwrite anything that would change the hash
+    ///
+    /// examples:
+    /// {n}  --overwrite repo pname
+    /// {n}  --overwrite rev version
+    #[arg(short, long = "overwrite", num_args = 2, value_names = ["NAME", "EXPR"])]
+    pub overwrites: Vec<String>,
+
+    /// same as --overwrite, but accepts strings instead Nix expressions
+    ///
+    /// examples:
+    /// {n}  --overwrite-str rev 'v${version}'
+    /// {n}  --overwrite-str meta.homepage https://example.org
+    #[arg(short = 'O', long = "overwrite-str", num_args = 2, value_names = ["NAME", "STRING"])]
+    pub overwrites_str: Vec<String>,
+
     /// List all available fetchers
     #[arg(short, long, group = "command")]
     pub list_fetchers: bool,

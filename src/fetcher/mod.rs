@@ -20,6 +20,7 @@ pub use sourcehut::FetchFromSourcehut;
 
 use anyhow::Result;
 use enum_dispatch::enum_dispatch;
+use rustc_hash::FxHashMap;
 use url::Url;
 
 use std::io::Write;
@@ -32,6 +33,7 @@ pub trait Fetcher {
         url: &Url,
         rev: String,
         args: Vec<(String, String)>,
+        overwrites: FxHashMap<String, String>,
         indent: String,
     ) -> Result<()>;
     fn fetch_json(
@@ -40,6 +42,8 @@ pub trait Fetcher {
         url: &Url,
         rev: String,
         args: Vec<(String, String)>,
+        overwrites: Vec<(String, String)>,
+        overwrites_str: Vec<(String, String)>,
     ) -> Result<()>;
 }
 
@@ -66,9 +70,10 @@ macro_rules! impl_fetcher {
                 url: &::url::Url,
                 rev: String,
                 args: Vec<(String, String)>,
+                overwrites: ::rustc_hash::FxHashMap<String, String>,
                 indent: String,
             ) -> ::anyhow::Result<()> {
-                self.fetch_nix_impl(out, url, rev, args, indent)
+                self.fetch_nix_impl(out, url, rev, args, overwrites, indent)
             }
 
             fn fetch_json(
@@ -77,8 +82,10 @@ macro_rules! impl_fetcher {
                 url: &::url::Url,
                 rev: String,
                 args: Vec<(String, String)>,
+                overwrites: Vec<(String, String)>,
+                overwrites_str: Vec<(String, String)>,
             ) -> ::anyhow::Result<()> {
-                self.fetch_json_impl(out, url, rev, args)
+                self.fetch_json_impl(out, url, rev, args, overwrites, overwrites_str)
             }
         }
     };

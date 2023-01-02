@@ -8,6 +8,7 @@ mod simple;
 use anyhow::{bail, Result};
 use clap::{Parser, ValueEnum};
 use itertools::Itertools;
+use rustc_hash::FxHashMap;
 
 use crate::{
     cli::{FetcherFunction, Opts},
@@ -100,9 +101,29 @@ fn main() -> Result<()> {
     let out = &mut stdout().lock();
     let args = opts.args.into_iter().tuples().collect();
     if opts.json {
-        fetcher.fetch_json(out, &opts.url, opts.rev, args)
+        fetcher.fetch_json(
+            out,
+            &opts.url,
+            opts.rev,
+            args,
+            opts.overwrites.into_iter().tuples().collect(),
+            opts.overwrites_str.into_iter().tuples().collect(),
+        )
     } else {
-        fetcher.fetch_nix(out, &opts.url, opts.rev, args, " ".repeat(opts.indent))
+        let mut overwrites: FxHashMap<_, _> = opts.overwrites.into_iter().tuples().collect();
+
+        for (key, value) in opts.overwrites_str.into_iter().tuples() {
+            overwrites.insert(key, format!(r#""{value}""#));
+        }
+
+        fetcher.fetch_nix(
+            out,
+            &opts.url,
+            opts.rev,
+            args,
+            overwrites,
+            " ".repeat(opts.indent),
+        )
     }?;
 
     Ok(())

@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
-use indoc::writedoc;
 use itertools::Itertools;
+use rustc_hash::FxHashMap;
 use serde_json::json;
 use url::Url;
 
@@ -73,27 +73,43 @@ pub trait SimpleFetcher<'a, const N: usize = 2> {
         rev: String,
         hash: String,
         args: Vec<(String, String)>,
+        overwrites: FxHashMap<String, String>,
         indent: String,
     ) -> Result<()> {
+        let mut overwrites = overwrites;
+
         writeln!(out, "{} {{", Self::NAME)?;
 
-        if let Some(host) = self.host() {
+        if let Some(host) = overwrites.remove(Self::HOST_KEY) {
+            writeln!(out, r#"{indent}  {} = {host};"#, Self::HOST_KEY)?;
+        } else if let Some(host) = self.host() {
             writeln!(out, r#"{indent}  {} = "{host}";"#, Self::HOST_KEY)?;
         }
 
         for (key, value) in Self::KEYS.iter().zip(values) {
-            writeln!(out, r#"{indent}  {key} = "{value}";"#)?;
+            if let Some(value) = overwrites.remove(*key) {
+                writeln!(out, r#"{indent}  {key} = {value};"#)?;
+            } else {
+                writeln!(out, r#"{indent}  {key} = "{value}";"#)?;
+            }
         }
 
-        writedoc!(
-            out,
-            r#"
-                {indent}  rev = "{rev}";
-                {indent}  hash = "{hash}";
-            "#
-        )?;
+        if let Some(rev) = overwrites.remove("rev") {
+            writeln!(out, "{indent}  rev = {rev};")?;
+        } else {
+            writeln!(out, r#"{indent}  rev = "{rev}";"#)?;
+        }
+        if let Some(hash) = overwrites.remove("hash") {
+            writeln!(out, "{indent}  hash = {hash};")?;
+        } else {
+            writeln!(out, r#"{indent}  hash = "{hash}";"#)?;
+        }
 
         for (key, value) in args {
+            let value = overwrites.remove(&key).unwrap_or(value);
+            writeln!(out, "{indent}  {key} = {value};")?;
+        }
+        for (key, value) in overwrites {
             writeln!(out, "{indent}  {key} = {value};")?;
         }
 
@@ -109,6 +125,8 @@ pub trait SimpleFetcher<'a, const N: usize = 2> {
         rev: String,
         hash: String,
         args: Vec<(String, String)>,
+        overwrites: Vec<(String, String)>,
+        overwrites_str: Vec<(String, String)>,
     ) -> Result<()> {
         let mut fetcher_args = json! ({
             "rev": rev,
@@ -130,6 +148,16 @@ pub trait SimpleFetcher<'a, const N: usize = 2> {
             });
         }
 
+        for (key, value) in overwrites {
+            fetcher_args[key] = json!({
+                "type": "nix",
+                "value": value,
+            })
+        }
+        for (key, value) in overwrites_str {
+            fetcher_args[key] = json!(value);
+        }
+
         serde_json::to_writer(
             out,
             &json!({
@@ -149,10 +177,11 @@ pub trait SimpleFodFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
         url: &'a Url,
         rev: String,
         args: Vec<(String, String)>,
+        overwrites: FxHashMap<String, String>,
         indent: String,
     ) -> Result<()> {
         let (values, hash) = self.fetch_fod(url, &rev, &args)?;
-        self.write_nix(out, values, rev, hash, args, indent)
+        self.write_nix(out, values, rev, hash, args, overwrites, indent)
     }
 
     fn fetch_json_impl(
@@ -161,9 +190,11 @@ pub trait SimpleFodFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
         url: &'a Url,
         rev: String,
         args: Vec<(String, String)>,
+        overwrites: Vec<(String, String)>,
+        overwrites_str: Vec<(String, String)>,
     ) -> Result<()> {
         let (values, hash) = self.fetch_fod(url, &rev, &args)?;
-        self.write_json(out, values, rev, hash, args)
+        self.write_json(out, values, rev, hash, args, overwrites, overwrites_str)
     }
 }
 
@@ -198,6 +229,7 @@ pub trait SimpleFlakeFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
         url: &'a Url,
         rev: String,
         args: Vec<(String, String)>,
+        overwrites: FxHashMap<String, String>,
         indent: String,
     ) -> Result<()> {
         let (values, hash) = if args.is_empty() {
@@ -206,7 +238,7 @@ pub trait SimpleFlakeFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
             self.fetch_fod(url, &rev, &args)?
         };
 
-        self.write_nix(out, values, rev, hash, args, indent)
+        self.write_nix(out, values, rev, hash, args, overwrites, indent)
     }
 
     fn fetch_json_impl(
@@ -215,13 +247,15 @@ pub trait SimpleFlakeFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
         url: &'a Url,
         rev: String,
         args: Vec<(String, String)>,
+        overwrites: Vec<(String, String)>,
+        overwrites_str: Vec<(String, String)>,
     ) -> Result<()> {
         let (values, hash) = if args.is_empty() {
             self.fetch(url, &rev)?
         } else {
             self.fetch_fod(url, &rev, &args)?
         };
-        self.write_json(out, values, rev, hash, args)
+        self.write_json(out, values, rev, hash, args, overwrites, overwrites_str)
     }
 }
 
@@ -242,6 +276,7 @@ pub trait SimpleUrlFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
         url: &'a Url,
         rev: String,
         args: Vec<(String, String)>,
+        overwrites: FxHashMap<String, String>,
         indent: String,
     ) -> Result<()> {
         let (values, hash) = if args.is_empty() {
@@ -250,7 +285,7 @@ pub trait SimpleUrlFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
             self.fetch_fod(url, &rev, &args)?
         };
 
-        self.write_nix(out, values, rev, hash, args, indent)
+        self.write_nix(out, values, rev, hash, args, overwrites, indent)
     }
 
     fn fetch_json_impl(
@@ -259,12 +294,14 @@ pub trait SimpleUrlFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
         url: &'a Url,
         rev: String,
         args: Vec<(String, String)>,
+        overwrites: Vec<(String, String)>,
+        overwrites_str: Vec<(String, String)>,
     ) -> Result<()> {
         let (values, hash) = if args.is_empty() {
             self.fetch(url, &rev)?
         } else {
             self.fetch_fod(url, &rev, &args)?
         };
-        self.write_json(out, values, rev, hash, args)
+        self.write_json(out, values, rev, hash, args, overwrites, overwrites_str)
     }
 }

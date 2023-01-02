@@ -21,20 +21,18 @@ use crate::{
 
 use std::io::{stdout, Write};
 
+pub enum GitScheme {
+    Yes,
+    No,
+    Plus,
+}
+
 fn main() -> Result<()> {
     let opts = Opts::parse();
 
     if opts.list_fetchers || opts.list_possible_fetchers {
         let mut out = stdout().lock();
         for fetcher in FetcherFunction::value_variants() {
-            if opts.list_possible_fetchers
-                && matches!(
-                    fetcher,
-                    FetcherFunction::Fetchhg | FetcherFunction::Fetchsvn
-                )
-            {
-                continue;
-            }
             if let Some(fetcher) = fetcher.to_possible_value() {
                 writeln!(out, "{}", fetcher.get_name())?;
             }
@@ -42,52 +40,54 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
-    let fetcher: FetcherDispatch = match (opts.fetcher, opts.url.host_str()) {
-        (None | Some(FetcherFunction::FetchFromBitbucket), Some("bitbucket.org")) => {
+    let fetcher: FetcherDispatch = match (opts.fetcher, opts.url.host_str(), opts.url.scheme()) {
+        (None | Some(FetcherFunction::FetchFromBitbucket), Some("bitbucket.org"), _) => {
             FetchFromBitbucket.into()
         }
-        (Some(FetcherFunction::FetchFromBitbucket), _) => {
+        (Some(FetcherFunction::FetchFromBitbucket), ..) => {
             bail!("fetchFromBitbucket only supports bitbucket.org");
         }
 
-        (None | Some(FetcherFunction::FetchFromGitHub), Some("github.com")) => {
+        (None | Some(FetcherFunction::FetchFromGitHub), Some("github.com"), _) => {
             FetchFromGitHub(None).into()
         }
-        (Some(FetcherFunction::FetchFromGitHub), Some(host)) => FetchFromGitHub(Some(host)).into(),
+        (Some(FetcherFunction::FetchFromGitHub), Some(host), _) => {
+            FetchFromGitHub(Some(host)).into()
+        }
 
-        (None | Some(FetcherFunction::FetchFromGitLab), Some("gitlab.com")) => {
+        (None | Some(FetcherFunction::FetchFromGitLab), Some("gitlab.com"), _) => {
             FetchFromGitLab::new(None).into()
         }
-        (None, Some(host)) if host.starts_with("gitlab.") => {
+        (None, Some(host), _) if host.starts_with("gitlab.") => {
             FetchFromGitLab::new(Some(host)).into()
         }
-        (Some(FetcherFunction::FetchFromGitLab), Some(host)) => {
+        (Some(FetcherFunction::FetchFromGitLab), Some(host), _) => {
             FetchFromGitLab::new(Some(host)).into()
         }
 
-        (None | Some(FetcherFunction::FetchFromGitea), Some(host @ "codeberg.org")) => {
+        (None | Some(FetcherFunction::FetchFromGitea), Some(host @ "codeberg.org"), _) => {
             FetchFromGitea(host).into()
         }
-        (Some(FetcherFunction::FetchFromGitea), Some(host)) => FetchFromGitea(host).into(),
+        (Some(FetcherFunction::FetchFromGitea), Some(host), _) => FetchFromGitea(host).into(),
 
-        (None | Some(FetcherFunction::FetchFromGitiles), Some(host))
+        (None | Some(FetcherFunction::FetchFromGitiles), Some(host), _)
             if host.ends_with(".googlesource.com") =>
         {
             FetchFromGitiles.into()
         }
-        (Some(FetcherFunction::FetchFromGitiles), _) => FetchFromGitiles.into(),
+        (Some(FetcherFunction::FetchFromGitiles), ..) => FetchFromGitiles.into(),
 
-        (None | Some(FetcherFunction::FetchFromRepoOrCz), Some("repo.or.cz")) => {
+        (None | Some(FetcherFunction::FetchFromRepoOrCz), Some("repo.or.cz"), _) => {
             FetchFromRepoOrCz.into()
         }
-        (Some(FetcherFunction::FetchFromRepoOrCz), _) => {
+        (Some(FetcherFunction::FetchFromRepoOrCz), ..) => {
             bail!("fetchFromRepoOrCz only supports repo.or.cz");
         }
 
-        (None | Some(FetcherFunction::FetchFromSourcehut), Some("git.sr.ht")) => {
+        (None | Some(FetcherFunction::FetchFromSourcehut), Some("git.sr.ht"), _) => {
             FetchFromSourcehut(None).into()
         }
-        (Some(FetcherFunction::FetchFromSourcehut), Some(host)) => {
+        (Some(FetcherFunction::FetchFromSourcehut), Some(host), _) => {
             FetchFromSourcehut(Some(host)).into()
         }
 
@@ -99,15 +99,26 @@ fn main() -> Result<()> {
                 | FetcherFunction::FetchFromSourcehut),
             ),
             None,
+            _,
         ) => {
             bail!("{fetcher:?} does not support URLs without a host");
         }
 
-        (None | Some(FetcherFunction::Fetchgit), _) => Fetchgit.into(),
+        (None | Some(FetcherFunction::Fetchgit), _, "git") => Fetchgit(GitScheme::Yes).into(),
+        (None | Some(FetcherFunction::Fetchgit), _, scheme) if scheme.starts_with("git+") => {
+            Fetchgit(GitScheme::Plus).into()
+        }
+        (Some(FetcherFunction::Fetchgit), ..) => Fetchgit(GitScheme::No).into(),
 
-        (Some(FetcherFunction::Fetchhg), _) => Fetchhg.into(),
+        (None | Some(FetcherFunction::Fetchhg), _, scheme) if scheme.starts_with("hg+") => {
+            Fetchhg(true).into()
+        }
+        (Some(FetcherFunction::Fetchhg), ..) => Fetchhg(false).into(),
 
-        (Some(FetcherFunction::Fetchsvn), _) => Fetchsvn.into(),
+        (None, _, "svn") => Fetchsvn.into(),
+        (Some(FetcherFunction::Fetchsvn), ..) => Fetchsvn.into(),
+
+        (None, ..) => Fetchgit(GitScheme::No).into(),
     };
 
     let out = &mut stdout().lock();

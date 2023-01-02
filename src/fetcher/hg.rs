@@ -5,7 +5,7 @@ use crate::{
     simple::{SimpleFetcher, SimpleFlakeFetcher},
 };
 
-pub struct Fetchhg;
+pub struct Fetchhg(pub bool);
 impl_fetcher!(Fetchhg);
 
 impl<'a> SimpleFetcher<'a, 1> for Fetchhg {
@@ -13,7 +13,11 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchhg {
     const NAME: &'static str = "fetchhg";
 
     fn get_values(&self, url: &'a Url) -> Option<[&'a str; 1]> {
-        Some([url.as_ref()])
+        Some([if self.0 {
+            url.as_ref().strip_prefix("hg+")?
+        } else {
+            url.as_ref()
+        }])
     }
 }
 

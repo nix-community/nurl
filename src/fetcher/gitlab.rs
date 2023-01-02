@@ -6,7 +6,7 @@ use crate::{
 pub struct FetchFromGitLab<'a>(pub Option<&'a str>);
 impl_fetcher!(FetchFromGitLab<'a>);
 
-impl<'a> SimpleFetcher<'a> for FetchFromGitLab<'a> {
+impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
     const KEYS: [&'static str; 2] = ["owner", "repo"];
     const NAME: &'static str = "fetchFromGitLab";
 
@@ -15,6 +15,6 @@ impl<'a> SimpleFetcher<'a> for FetchFromGitLab<'a> {
     }
 }
 
-impl<'a> SimpleFlakeFetcher<'a> for FetchFromGitLab<'a> {
+impl<'a> SimpleFlakeFetcher<'a, 2> for FetchFromGitLab<'a> {
     const FLAKE_TYPE: &'static str = "gitlab";
 }

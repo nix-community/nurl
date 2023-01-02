@@ -37,6 +37,7 @@ pub trait Fetcher {
         overwrites: FxHashMap<String, String>,
         indent: String,
     ) -> Result<()>;
+
     fn fetch_json(
         &self,
         out: &mut impl Write,
@@ -76,7 +77,8 @@ macro_rules! impl_fetcher {
                 overwrites: ::rustc_hash::FxHashMap<String, String>,
                 indent: String,
             ) -> ::anyhow::Result<()> {
-                self.fetch_nix_impl(out, url, rev, args, args_str, overwrites, indent)
+                let (values, hash) = self.fetch(url, &rev, &args, &args_str)?;
+                self.write_nix(out, values, rev, hash, args, args_str, overwrites, indent)
             }
 
             fn fetch_json(
@@ -89,7 +91,17 @@ macro_rules! impl_fetcher {
                 overwrites: Vec<(String, String)>,
                 overwrites_str: Vec<(String, String)>,
             ) -> ::anyhow::Result<()> {
-                self.fetch_json_impl(out, url, rev, args, args_str, overwrites, overwrites_str)
+                let (values, hash) = self.fetch(url, &rev, &args, &args_str)?;
+                self.write_json(
+                    out,
+                    values,
+                    rev,
+                    hash,
+                    args,
+                    args_str,
+                    overwrites,
+                    overwrites_str,
+                )
             }
         }
     };

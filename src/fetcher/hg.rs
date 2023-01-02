@@ -3,7 +3,6 @@ use url::Url;
 
 use crate::{
     impl_fetcher,
-    prefetch::flake_prefetch,
     simple::{SimpleFetcher, SimpleFlakeFetcher},
 };
 
@@ -22,14 +21,10 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchhg {
 impl<'a> SimpleFlakeFetcher<'a, 1> for Fetchhg {
     const FLAKE_TYPE: &'static str = "hg";
 
-    fn fetch(&'a self, url: &'a Url, rev: &str) -> Result<([&'a str; 1], String)> {
-        Ok((
-            [url.as_ref()],
-            flake_prefetch(format!(
-                "{}+{url}?{}={rev}",
-                Self::FLAKE_TYPE,
-                if rev.len() == 40 { "rev" } else { "ref" },
-            ))?,
+    fn get_flake_ref(&self, [url]: [&str; 1], rev: &str) -> Result<String> {
+        Ok(format!(
+            "hg+{url}?{}={rev}",
+            if rev.len() == 40 { "rev" } else { "ref" },
         ))
     }
 }

@@ -6,7 +6,7 @@ use crate::{
 pub struct FetchFromGitea<'a>(pub &'a str);
 impl_fetcher!(FetchFromGitea<'a>);
 
-impl<'a> SimpleFetcher<'a> for FetchFromGitea<'a> {
+impl<'a> SimpleFetcher<'a, 2> for FetchFromGitea<'a> {
     const KEYS: [&'static str; 2] = ["owner", "repo"];
     const NAME: &'static str = "fetchFromGitea";
 
@@ -15,7 +15,7 @@ impl<'a> SimpleFetcher<'a> for FetchFromGitea<'a> {
     }
 }
 
-impl<'a> SimpleUrlFetcher<'a> for FetchFromGitea<'a> {
+impl<'a> SimpleUrlFetcher<'a, 2> for FetchFromGitea<'a> {
     fn get_url(&self, [owner, repo]: [&str; 2], rev: &str) -> String {
         format!("https://{}/{owner}/{repo}/archive/{rev}.tar.gz", self.0)
     }

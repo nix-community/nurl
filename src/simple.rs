@@ -8,7 +8,7 @@ use std::{fmt::Write as _, io::Write};
 
 use crate::prefetch::{flake_prefetch, fod_prefetch, url_prefetch};
 
-pub trait SimpleFetcher<'a, const N: usize = 2> {
+pub trait SimpleFetcher<'a, const N: usize> {
     const HOST_KEY: &'static str = "domain";
     const KEYS: [&'static str; N];
     const NAME: &'static str;
@@ -35,6 +35,7 @@ pub trait SimpleFetcher<'a, const N: usize = 2> {
         url: &'a Url,
         rev: &str,
         args: &[(String, String)],
+        args_str: &[(String, String)],
     ) -> Result<([&str; N], String)> {
         let values = self
             .get_values(url)
@@ -57,6 +58,9 @@ pub trait SimpleFetcher<'a, const N: usize = 2> {
 
         for (key, value) in args {
             write!(expr, "{key}={value};")?;
+        }
+        for (key, value) in args_str {
+            write!(expr, r#"{key}="{value}";"#)?;
         }
 
         expr.push('}');
@@ -183,53 +187,22 @@ pub trait SimpleFetcher<'a, const N: usize = 2> {
     }
 }
 
-pub trait SimpleFodFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
-    fn fetch_nix_impl(
+pub trait SimpleFodFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
+    fn fetch(
         &'a self,
-        out: &mut impl Write,
         url: &'a Url,
-        rev: String,
-        args: Vec<(String, String)>,
-        args_str: Vec<(String, String)>,
-        overwrites: FxHashMap<String, String>,
-        indent: String,
-    ) -> Result<()> {
-        let (values, hash) = self.fetch_fod(url, &rev, &args)?;
-        self.write_nix(out, values, rev, hash, args, args_str, overwrites, indent)
-    }
-
-    fn fetch_json_impl(
-        &'a self,
-        out: &mut impl Write,
-        url: &'a Url,
-        rev: String,
-        args: Vec<(String, String)>,
-        args_str: Vec<(String, String)>,
-        overwrites: Vec<(String, String)>,
-        overwrites_str: Vec<(String, String)>,
-    ) -> Result<()> {
-        let (values, hash) = self.fetch_fod(url, &rev, &args)?;
-        self.write_json(
-            out,
-            values,
-            rev,
-            hash,
-            args,
-            args_str,
-            overwrites,
-            overwrites_str,
-        )
+        rev: &str,
+        args: &[(String, String)],
+        args_str: &[(String, String)],
+    ) -> Result<([&str; N], String)> {
+        self.fetch_fod(url, rev, args, args_str)
     }
 }
 
-pub trait SimpleFlakeFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
+pub trait SimpleFlakeFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
     const FLAKE_TYPE: &'static str;
 
-    fn fetch(&'a self, url: &'a Url, rev: &str) -> Result<([&str; N], String)> {
-        let values = self
-            .get_values(url)
-            .with_context(|| format!("failed to parse {url} as a {} url", Self::FLAKE_TYPE))?;
-
+    fn get_flake_ref(&'a self, values: [&str; N], rev: &str) -> Result<String> {
         let mut flake_ref = format!("{}:", Self::FLAKE_TYPE);
         for value in values {
             flake_ref.push_str(value);
@@ -242,112 +215,46 @@ pub trait SimpleFlakeFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
             flake_ref.push_str(host);
         }
 
-        let hash = flake_prefetch(flake_ref)?;
-
-        Ok((values, hash))
+        Ok(flake_ref)
     }
 
-    fn fetch_nix_impl(
+    fn fetch(
         &'a self,
-        out: &mut impl Write,
         url: &'a Url,
-        rev: String,
-        args: Vec<(String, String)>,
-        args_str: Vec<(String, String)>,
-        overwrites: FxHashMap<String, String>,
-        indent: String,
-    ) -> Result<()> {
-        let (values, hash) = if args.is_empty() {
-            self.fetch(url, &rev)?
+        rev: &str,
+        args: &[(String, String)],
+        args_str: &[(String, String)],
+    ) -> Result<([&str; N], String)> {
+        if args.is_empty() && args_str.is_empty() {
+            let values = self
+                .get_values(url)
+                .with_context(|| format!("failed to parse {url} as a {} url", Self::FLAKE_TYPE))?;
+            let hash = flake_prefetch(self.get_flake_ref(values, rev)?)?;
+            Ok((values, hash))
         } else {
-            self.fetch_fod(url, &rev, &args)?
-        };
-
-        self.write_nix(out, values, rev, hash, args, args_str, overwrites, indent)
-    }
-
-    fn fetch_json_impl(
-        &'a self,
-        out: &mut impl Write,
-        url: &'a Url,
-        rev: String,
-        args: Vec<(String, String)>,
-        args_str: Vec<(String, String)>,
-        overwrites: Vec<(String, String)>,
-        overwrites_str: Vec<(String, String)>,
-    ) -> Result<()> {
-        let (values, hash) = if args.is_empty() {
-            self.fetch(url, &rev)?
-        } else {
-            self.fetch_fod(url, &rev, &args)?
-        };
-        self.write_json(
-            out,
-            values,
-            rev,
-            hash,
-            args,
-            args_str,
-            overwrites,
-            overwrites_str,
-        )
+            self.fetch_fod(url, rev, args, args_str)
+        }
     }
 }
 
-pub trait SimpleUrlFetcher<'a, const N: usize = 2>: SimpleFetcher<'a, N> {
+pub trait SimpleUrlFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
     fn get_url(&self, values: [&str; N], rev: &str) -> String;
 
-    fn fetch(&'a self, url: &'a Url, rev: &str) -> Result<([&str; N], String)> {
-        let values = self
-            .get_values(url)
-            .with_context(|| format!("failed to parse {url}"))?;
-        let hash = url_prefetch(self.get_url(values, rev))?;
-        Ok((values, hash))
-    }
-
-    fn fetch_nix_impl(
+    fn fetch(
         &'a self,
-        out: &mut impl Write,
         url: &'a Url,
-        rev: String,
-        args: Vec<(String, String)>,
-        args_str: Vec<(String, String)>,
-        overwrites: FxHashMap<String, String>,
-        indent: String,
-    ) -> Result<()> {
-        let (values, hash) = if args.is_empty() {
-            self.fetch(url, &rev)?
+        rev: &str,
+        args: &[(String, String)],
+        args_str: &[(String, String)],
+    ) -> Result<([&str; N], String)> {
+        if args.is_empty() {
+            let values = self
+                .get_values(url)
+                .with_context(|| format!("failed to parse {url}"))?;
+            let hash = url_prefetch(self.get_url(values, rev))?;
+            Ok((values, hash))
         } else {
-            self.fetch_fod(url, &rev, &args)?
-        };
-
-        self.write_nix(out, values, rev, hash, args, args_str, overwrites, indent)
-    }
-
-    fn fetch_json_impl(
-        &'a self,
-        out: &mut impl Write,
-        url: &'a Url,
-        rev: String,
-        args: Vec<(String, String)>,
-        args_str: Vec<(String, String)>,
-        overwrites: Vec<(String, String)>,
-        overwrites_str: Vec<(String, String)>,
-    ) -> Result<()> {
-        let (values, hash) = if args.is_empty() {
-            self.fetch(url, &rev)?
-        } else {
-            self.fetch_fod(url, &rev, &args)?
-        };
-        self.write_json(
-            out,
-            values,
-            rev,
-            hash,
-            args,
-            args_str,
-            overwrites,
-            overwrites_str,
-        )
+            self.fetch_fod(url, rev, args, args_str)
+        }
     }
 }

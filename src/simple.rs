@@ -142,7 +142,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
         overwrites: Vec<(String, String)>,
         overwrites_str: Vec<(String, String)>,
     ) -> Result<()> {
-        let mut fetcher_args = json! ({
+        let mut fetcher_args = json!({
             "rev": rev,
             "hash": hash,
         });
@@ -247,7 +247,7 @@ pub trait SimpleUrlFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         args: &[(String, String)],
         args_str: &[(String, String)],
     ) -> Result<([&str; N], String)> {
-        if args.is_empty() {
+        if args.is_empty() && args_str.is_empty() {
             let values = self
                 .get_values(url)
                 .with_context(|| format!("failed to parse {url}"))?;

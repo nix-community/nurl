@@ -38,7 +38,7 @@ pub struct Opts {
     #[arg(short, long = "arg", num_args = 2, value_names = ["NAME", "EXPR"])]
     pub args: Vec<String>,
 
-    /// same as --overwrite, but accepts strings instead Nix expressions
+    /// same as --arg, but accepts strings instead Nix expressions
     #[arg(short = 'A', long = "arg-str", num_args = 2, value_names = ["NAME", "STRING"])]
     pub args_str: Vec<String>,
 

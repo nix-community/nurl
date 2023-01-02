@@ -47,8 +47,7 @@ Options:
   -i, --indent <INDENT>                extra indentation (in number of spaces) [default: 0]
   -j, --json                           output in json format
   -a, --arg <NAME> <EXPR>              additional arguments to pass to the fetcher
-  -A, --arg-str <NAME> <STRING>        same as --overwrite, but accepts strings instead Nix
-                                       expressions
+  -A, --arg-str <NAME> <STRING>        same as --arg, but accepts strings instead Nix expressions
   -o, --overwrite <NAME> <EXPR>        overwrite arguments in the final output, not taken into
                                        consideration when fetching the hash
   -O, --overwrite-str <NAME> <STRING>  same as --overwrite, but accepts strings instead Nix

@@ -53,7 +53,6 @@ Options:
   -O, --overwrite-str <NAME> <STRING>  same as --overwrite, but accepts strings instead Nix
                                        expressions
   -l, --list-fetchers                  List all available fetchers
-  -L, --list-possible-fetchers         List all fetchers that can be generated without --fetcher
   -h, --help                           Print help information
   -V, --version                        Print version information
 ```
@@ -64,7 +63,7 @@ Options:
 - `nix-prefetch` relies on FOD which is slow, `nurl` tries to use alternatives when possible.
 - `nix-prefetch` supports arbitrary expressions (planned for `nurl`) and file attributes.
 - `nix-prefetch` is more configurable and has an interface similar to `nix-build`.
-- `nurl` has some nice features dedicated to generated packages (`--indent`, `--list-possible-fetchers`).
+- `nurl` has some nice features dedicated to generated packages (`--indent`, `--list-fetchers`).
 
 ## Changelog
 

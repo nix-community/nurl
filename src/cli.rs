@@ -66,10 +66,6 @@ pub struct Opts {
     /// List all available fetchers
     #[arg(short, long, group = "command")]
     pub list_fetchers: bool,
-
-    /// List all fetchers that can be generated without --fetcher
-    #[arg(short = 'L', long, group = "command")]
-    pub list_possible_fetchers: bool,
 }
 
 #[derive(Clone, Debug, ValueEnum)]

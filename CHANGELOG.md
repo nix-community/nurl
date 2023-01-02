@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.1 - 2023-01-02
+
+### Fixes
+
+- Correctly fetch with FOD when `--arg-str` is specified for URL fetchers
+
 ## v0.3.0 - 2023-01-02
 
 ### Changes

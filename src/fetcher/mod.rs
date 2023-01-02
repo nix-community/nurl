@@ -7,6 +7,7 @@ mod gitlab;
 mod hg;
 mod repo_or_cz;
 mod sourcehut;
+mod svn;
 
 pub use bitbucket::FetchFromBitbucket;
 pub use git::Fetchgit;
@@ -17,6 +18,7 @@ pub use gitlab::FetchFromGitLab;
 pub use hg::Fetchhg;
 pub use repo_or_cz::FetchFromRepoOrCz;
 pub use sourcehut::FetchFromSourcehut;
+pub use svn::Fetchsvn;
 
 use anyhow::Result;
 use enum_dispatch::enum_dispatch;
@@ -61,6 +63,7 @@ pub enum FetcherDispatch<'a> {
     FetchFromSourcehut(FetchFromSourcehut<'a>),
     Fetchgit(Fetchgit),
     Fetchhg(Fetchhg),
+    Fetchsvn(Fetchsvn),
 }
 
 #[macro_export]

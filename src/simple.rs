@@ -10,6 +10,7 @@ use crate::prefetch::{flake_prefetch, fod_prefetch, url_prefetch};
 
 pub trait SimpleFetcher<'a, const N: usize> {
     const HOST_KEY: &'static str = "domain";
+    const HASH_KEY: &'static str = "hash";
     const KEYS: [&'static str; N];
     const NAME: &'static str;
 
@@ -61,7 +62,8 @@ pub trait SimpleFetcher<'a, const N: usize> {
 
         write!(
             expr,
-            r#"rev="{rev}";hash="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";"#
+            r#"rev="{rev}";{}="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";"#,
+            Self::HASH_KEY,
         )?;
 
         for (key, value) in args {
@@ -118,10 +120,10 @@ pub trait SimpleFetcher<'a, const N: usize> {
         } else {
             writeln!(out, r#"{indent}  rev = "{rev}";"#)?;
         }
-        if let Some(hash) = overwrites.remove("hash") {
-            writeln!(out, "{indent}  hash = {hash};")?;
+        if let Some(hash) = overwrites.remove(Self::HASH_KEY) {
+            writeln!(out, "{indent}  {} = {hash};", Self::HASH_KEY)?;
         } else {
-            writeln!(out, r#"{indent}  hash = "{hash}";"#)?;
+            writeln!(out, r#"{indent}  {} = "{hash}";"#, Self::HASH_KEY)?;
         }
 
         for (key, value) in args {
@@ -158,7 +160,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
     ) -> Result<()> {
         let mut fetcher_args = json!({
             "rev": rev,
-            "hash": hash,
+            Self::HASH_KEY: hash,
         });
 
         if let Some(host) = self.host() {

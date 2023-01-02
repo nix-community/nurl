@@ -84,4 +84,5 @@ pub enum FetcherFunction {
     FetchFromSourcehut,
     Fetchgit,
     Fetchhg,
+    Fetchsvn,
 }

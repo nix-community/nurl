@@ -15,6 +15,7 @@ use crate::{
     fetcher::{
         FetchFromBitbucket, FetchFromGitHub, FetchFromGitLab, FetchFromGitea, FetchFromGitiles,
         FetchFromRepoOrCz, FetchFromSourcehut, Fetcher, FetcherDispatch, Fetchgit, Fetchhg,
+        Fetchsvn,
     },
 };
 
@@ -26,7 +27,12 @@ fn main() -> Result<()> {
     if opts.list_fetchers || opts.list_possible_fetchers {
         let mut out = stdout().lock();
         for fetcher in FetcherFunction::value_variants() {
-            if matches!(fetcher, FetcherFunction::Fetchhg) && opts.list_possible_fetchers {
+            if opts.list_possible_fetchers
+                && matches!(
+                    fetcher,
+                    FetcherFunction::Fetchhg | FetcherFunction::Fetchsvn
+                )
+            {
                 continue;
             }
             if let Some(fetcher) = fetcher.to_possible_value() {
@@ -100,6 +106,8 @@ fn main() -> Result<()> {
         (None | Some(FetcherFunction::Fetchgit), _) => Fetchgit.into(),
 
         (Some(FetcherFunction::Fetchhg), _) => Fetchhg.into(),
+
+        (Some(FetcherFunction::Fetchsvn), _) => Fetchsvn.into(),
     };
 
     let out = &mut stdout().lock();

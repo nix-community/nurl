@@ -4,7 +4,7 @@
 
 ### Changes
 
-- with `--json`, values specified `--arg` are wrapped like this: `{"type": "nix", "value": "<Nix expression>"}` to differentiate from strings
+- with `--json`, values specified by `--arg` are wrapped like this: `{"type": "nix", "value": "<Nix expression>"}` to differentiate from strings
 
 ### Fixes
 

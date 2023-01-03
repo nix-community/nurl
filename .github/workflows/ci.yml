@@ -24,7 +24,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cargo build and test
+      - name: Cargo build
         run: |
           rustup toolchain install stable --profile minimal -t ${{ matrix.target }}
           cargo +stable build --target ${{ matrix.target }}

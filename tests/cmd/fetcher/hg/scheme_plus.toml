@@ -1,0 +1,1 @@
+args = ["hg+https://hg.sr.ht/~scoopta/wofi", "v1.3", "--fetcher", "fetchhg"]

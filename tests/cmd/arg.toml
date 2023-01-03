@@ -1,0 +1,7 @@
+args = [
+    "https://github.com/Koihik/LuaFormatter",
+    "1.3.0",
+    "--arg",
+    "fetchSubmodules",
+    "true",
+]

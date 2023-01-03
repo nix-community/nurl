@@ -1,0 +1,6 @@
+args = [
+    "git://git.kernel.org/pub/scm/linux/kernel/git/jejb/efitools.git",
+    "refs/tags/v1.9.0",
+    "--fetcher",
+    "fetchgit",
+]

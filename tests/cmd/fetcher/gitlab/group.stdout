@@ -1,0 +1,8 @@
+fetchFromGitLab {
+  domain = "gitlab.gnome.org";
+  group = "World";
+  owner = "Phosh";
+  repo = "phosh";
+  rev = "v0.20.0";
+  hash = "sha256-KKoRAUqy9l/Y/R7iLqZe6sHcyHHvRRTj+WeVmyAm7+I=";
+}

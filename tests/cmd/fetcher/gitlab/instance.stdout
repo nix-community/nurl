@@ -1,0 +1,7 @@
+fetchFromGitLab {
+  domain = "gitlab.gnome.org";
+  owner = "GNOME";
+  repo = "libadwaita";
+  rev = "1.2.0";
+  hash = "sha256-3lH7Vi9M8k+GSrCpvruRpLrIpMoOakKbcJlaAc/FK+U=";
+}

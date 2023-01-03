@@ -1,0 +1,7 @@
+args = [
+    "https://github.com/nix-community/nurl",
+    "v0.3.0",
+    "--arg-str",
+    "name",
+    "nurl-src",
+]

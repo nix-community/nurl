@@ -1,0 +1,6 @@
+fetchFromBitbucket {
+  owner = "asbuch";
+  repo = "lrcalc";
+  rev = "lrcalc-2.0";
+  hash = "sha256-9u2tNAp1DDPHu7FtFZWDrVkqCeFCyz0RI8oXmmSwj5I=";
+}

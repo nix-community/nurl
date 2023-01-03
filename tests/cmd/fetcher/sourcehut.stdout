@@ -1,0 +1,6 @@
+fetchFromSourcehut {
+  owner = "~sircmpwn";
+  repo = "core.sr.ht";
+  rev = "0.60.0";
+  hash = "sha256-d2lfBMf5dJeqvTT6NWPNDSuYC3Hgof8PanYwSHqOCEk=";
+}

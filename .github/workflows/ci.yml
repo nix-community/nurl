@@ -28,7 +28,6 @@ jobs:
         run: |
           rustup toolchain install stable --profile minimal -t ${{ matrix.target }}
           cargo +stable build --target ${{ matrix.target }}
-          cargo +stable test --target ${{ matrix.target }}
         env:
           GEN_ARTIFACTS: artifacts
 
@@ -41,6 +40,8 @@ jobs:
 
       - name: Install nix
         uses: cachix/install-nix-action@v18
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
 
       - name: Cargo test
         run: cargo test

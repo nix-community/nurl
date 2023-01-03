@@ -39,6 +39,9 @@
               makeWrapper
             ];
 
+            # tests require internet access
+            doCheck = false;
+
             postInstall = ''
               wrapProgram $out/bin/nurl \
                 --prefix PATH : ${makeBinPath [ gitMinimal mercurial nix ]}

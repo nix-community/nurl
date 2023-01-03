@@ -20,6 +20,11 @@
       formatter = forEachSystem
         (system: nixpkgs.legacyPackages.${system}.nixpkgs-fmt);
 
+      herculesCI.ciSystems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+
       packages = forEachSystem (system:
         let
           inherit (nixpkgs.legacyPackages.${system})

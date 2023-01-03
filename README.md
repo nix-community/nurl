@@ -43,7 +43,8 @@ Options:
   -f, --fetcher <FETCHER>              specify the fetcher function instead of inferring from the
                                        URL [possible values: fetchFromBitbucket, fetchFromGitHub,
                                        fetchFromGitLab, fetchFromGitea, fetchFromGitiles,
-                                       fetchFromRepoOrCz, fetchFromSourcehut, fetchgit, fetchhg]
+                                       fetchFromRepoOrCz, fetchFromSourcehut, fetchgit, fetchhg,
+                                       fetchsvn]
   -i, --indent <INDENT>                extra indentation (in number of spaces) [default: 0]
   -j, --json                           output in json format
   -a, --arg <NAME> <EXPR>              additional arguments to pass to the fetcher
@@ -54,7 +55,10 @@ Options:
                                        expressions
   -l, --list-fetchers                  List all available fetchers
   -L, --list-possible-fetchers         List all fetchers that can be generated without --fetcher
-  -h, --help                           Print help information
+  -s, --list-sep <SEPARATOR>           Print out the listed fetchers with the specified separator,
+                                       only used when --list-fetchers or --list-possible-fetchers is
+                                       specified
+  -h, --help                           Print help information (use `--help` for more detail)
   -V, --version                        Print version information
 ```
 

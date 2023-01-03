@@ -1,1 +1,1 @@
-args = ["https://gitlab.gnome.org/GNOME/libadwaita", "1.2.0"]
+args = ["https://gitlab.gnome.org/GNOME/libadwaita.git", "1.2.0"]

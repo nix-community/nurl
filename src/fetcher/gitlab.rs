@@ -40,9 +40,9 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
         Some(match xs.next() {
             Some(z) if !z.is_empty() => {
                 let _ = self.group.set(x);
-                [y, z]
+                [y, z.strip_suffix(".git").unwrap_or(z)]
             }
-            _ => [x, y],
+            _ => [x, y.strip_suffix(".git").unwrap_or(y)],
         })
     }
 }

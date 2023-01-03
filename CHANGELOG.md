@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.3.2 - 2023-01-03
+
+### Fixes
+
+- Fix `fetchhg` output: `hash` -> `sha256`
+
+### Features
+
+- Support GitLab repositories under groups
+- `--list-sep` to print out the listed fetchers with the specified separator
+- `fetchsvn` support
+- `fetchFromGitea` support for <https://gitea.com> and <https://notabug.org>
+- Better support for URL schemes
+
+### Internal
+
+- Lots of tests
+
 ## v0.3.1 - 2023-01-02
 
 ### Fixes

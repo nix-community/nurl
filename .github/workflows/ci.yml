@@ -24,10 +24,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cargo build
+      - name: Cargo build and test
         run: |
           rustup toolchain install stable --profile minimal -t ${{ matrix.target }}
           cargo +stable build --target ${{ matrix.target }}
+          cargo +stable test --target ${{ matrix.target }}
         env:
           GEN_ARTIFACTS: artifacts
 

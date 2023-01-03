@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.3 - 2023-01-03
+
+### Fixes
+
+- Correctly handle trailing `.git` with `fetchFromGitLab`
+
 ## v0.3.2 - 2023-01-03
 
 ### Fixes

@@ -73,7 +73,12 @@ pub struct Opts {
 
     /// Print out the listed fetchers with the specified separator,
     /// only used when --list-fetchers or --list-possible-fetchers is specified
-    #[arg(short = 's', long, value_name = "SEPARATOR")]
+    #[arg(
+        short = 's',
+        long,
+        value_name = "SEPARATOR",
+        allow_hyphen_values = true
+    )]
     pub list_sep: Option<String>,
 }
 

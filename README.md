@@ -28,7 +28,8 @@ fetchFromGitHub {
 - fetchFromRepoOrCz
 - fetchFromSourcehut
 - fetchgit
-- fetchhg (requires `--fetcher fetchhg`)
+- fetchhg
+- fetchsvn
 
 ## Usage
 

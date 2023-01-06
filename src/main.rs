@@ -74,6 +74,7 @@ fn main() -> Result<()> {
         (None, Some(host), _) if host.starts_with("gitlab.") => {
             FetchFromGitLab::new(Some(host)).into()
         }
+        (None, Some(host @ "salsa.debian.org"), _) => FetchFromGitLab::new(Some(host)).into(),
         (Some(FetcherFunction::FetchFromGitLab), Some(host), _) => {
             FetchFromGitLab::new(Some(host)).into()
         }

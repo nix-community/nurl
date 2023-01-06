@@ -38,11 +38,11 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
         let x = xs.next()?;
         let y = xs.next()?;
         Some(match xs.next() {
-            Some(z) if !z.is_empty() => {
+            None | Some("" | "-") => [x, y.strip_suffix(".git").unwrap_or(y)],
+            Some(z) => {
                 let _ = self.group.set(x);
                 [y, z.strip_suffix(".git").unwrap_or(z)]
             }
-            _ => [x, y.strip_suffix(".git").unwrap_or(y)],
         })
     }
 }

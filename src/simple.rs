@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{bail, Result};
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
 use serde_json::json;
@@ -33,6 +33,13 @@ pub trait SimpleFetcher<'a, const N: usize> {
             .ok()?;
         xs[N - 1] = xs[N - 1].strip_suffix(".git").unwrap_or(xs[N - 1]);
         Some(xs)
+    }
+
+    fn fetch_rev(&self, _: &[&str; N]) -> Result<String> {
+        bail!(
+            "{} does not support fetching the latest revision",
+            Self::NAME,
+        );
     }
 
     fn fetch_fod(

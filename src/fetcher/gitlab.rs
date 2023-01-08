@@ -1,5 +1,9 @@
+use anyhow::{anyhow, Result};
 use once_cell::unsync::OnceCell;
+use serde::Deserialize;
 use url::Url;
+
+use std::fmt::Write;
 
 use crate::{
     impl_fetcher,
@@ -19,6 +23,11 @@ impl<'a> FetchFromGitLab<'a> {
             group: OnceCell::new(),
         }
     }
+}
+
+#[derive(Deserialize)]
+struct Commit {
+    id: String,
 }
 
 impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
@@ -44,6 +53,35 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
                 [y, z.strip_suffix(".git").unwrap_or(z)]
             }
         })
+    }
+
+    fn fetch_rev(&self, [owner, repo]: &[&str; 2]) -> Result<String> {
+        let host = self.host.unwrap_or("gitlab.com");
+
+        let mut url = format!("https://{host}/api/v4/projects/");
+        if let Some(group) = self.group.get() {
+            url.push_str(group);
+            url.push_str("%2F");
+        }
+        write!(url, "{owner}%2F{repo}/repository/commits")?;
+
+        Ok(ureq::get(&url)
+            .call()?
+            .into_json::<Vec<Commit>>()?
+            .into_iter()
+            .next()
+            .ok_or_else(|| {
+                let mut msg = format!("no commits found for https://{host}/");
+                if let Some(group) = self.group.get() {
+                    msg.push_str(group);
+                    msg.push('/');
+                }
+                msg.push_str(owner);
+                msg.push('/');
+                msg.push_str(repo);
+                anyhow!(msg)
+            })?
+            .id)
     }
 }
 

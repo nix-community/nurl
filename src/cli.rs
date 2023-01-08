@@ -15,12 +15,7 @@ pub struct Opts {
     pub url: Url,
 
     /// the revision or reference to be fetched
-    #[arg(
-        required_unless_present = "command",
-        default_value_t,
-        hide_default_value = true
-    )]
-    pub rev: String,
+    pub rev: Option<String>,
 
     /// specify the fetcher function instead of inferring from the URL
     #[arg(short, long)]

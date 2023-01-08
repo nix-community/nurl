@@ -33,7 +33,7 @@ pub trait Fetcher<'a> {
         &'a self,
         out: &mut impl Write,
         url: &'a Url,
-        rev: String,
+        rev: Option<String>,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
         overwrites: FxHashMap<String, String>,
@@ -44,7 +44,7 @@ pub trait Fetcher<'a> {
         &'a self,
         out: &mut impl Write,
         url: &'a Url,
-        rev: String,
+        rev: Option<String>,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
         overwrites: Vec<(String, String)>,
@@ -74,7 +74,7 @@ macro_rules! impl_fetcher {
                 &'a self,
                 out: &mut impl ::std::io::Write,
                 url: &'a ::url::Url,
-                rev: String,
+                rev: Option<String>,
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,
                 overwrites: ::rustc_hash::FxHashMap<String, String>,
@@ -85,7 +85,14 @@ macro_rules! impl_fetcher {
                 let values = &self
                     .get_values(url)
                     .with_context(|| format!("failed to parse {url}"))?;
+
+                let rev = match rev {
+                    Some(rev) => rev,
+                    None => self.fetch_rev(values)?,
+                };
+
                 let hash = self.fetch(values, &rev, &args, &args_str)?;
+
                 self.write_nix(out, values, rev, hash, args, args_str, overwrites, indent)
             }
 
@@ -93,7 +100,7 @@ macro_rules! impl_fetcher {
                 &'a self,
                 out: &mut impl ::std::io::Write,
                 url: &'a ::url::Url,
-                rev: String,
+                rev: Option<String>,
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,
                 overwrites: Vec<(String, String)>,
@@ -104,7 +111,14 @@ macro_rules! impl_fetcher {
                 let values = &self
                     .get_values(url)
                     .with_context(|| format!("failed to parse {url}"))?;
+
+                let rev = match rev {
+                    Some(rev) => rev,
+                    None => self.fetch_rev(values)?,
+                };
+
                 let hash = self.fetch(values, &rev, &args, &args_str)?;
+
                 self.write_json(
                     out,
                     values,

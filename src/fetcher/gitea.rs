@@ -16,7 +16,7 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitea<'a> {
 }
 
 impl<'a> SimpleUrlFetcher<'a, 2> for FetchFromGitea<'a> {
-    fn get_url(&self, [owner, repo]: [&str; 2], rev: &str) -> String {
+    fn get_url(&self, [owner, repo]: &[&str; 2], rev: &str) -> String {
         format!("https://{}/{owner}/{repo}/archive/{rev}.tar.gz", self.0)
     }
 }

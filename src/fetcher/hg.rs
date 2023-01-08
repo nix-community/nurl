@@ -23,7 +23,7 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchhg {
 }
 
 impl<'a> SimpleFlakeFetcher<'a, 1> for Fetchhg {
-    fn get_flake_ref(&self, [url]: [&str; 1], rev: &str) -> String {
+    fn get_flake_ref(&self, [url]: &[&str; 1], rev: &str) -> String {
         format!(
             "hg+{url}?{}={rev}",
             if rev.len() == 40 { "rev" } else { "ref" },

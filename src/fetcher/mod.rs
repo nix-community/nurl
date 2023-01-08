@@ -80,7 +80,12 @@ macro_rules! impl_fetcher {
                 overwrites: ::rustc_hash::FxHashMap<String, String>,
                 indent: String,
             ) -> ::anyhow::Result<()> {
-                let (values, hash) = self.fetch(url, &rev, &args, &args_str)?;
+                use anyhow::Context;
+
+                let values = &self
+                    .get_values(url)
+                    .with_context(|| format!("failed to parse {url}"))?;
+                let hash = self.fetch(values, &rev, &args, &args_str)?;
                 self.write_nix(out, values, rev, hash, args, args_str, overwrites, indent)
             }
 
@@ -94,7 +99,12 @@ macro_rules! impl_fetcher {
                 overwrites: Vec<(String, String)>,
                 overwrites_str: Vec<(String, String)>,
             ) -> ::anyhow::Result<()> {
-                let (values, hash) = self.fetch(url, &rev, &args, &args_str)?;
+                use anyhow::Context;
+
+                let values = &self
+                    .get_values(url)
+                    .with_context(|| format!("failed to parse {url}"))?;
+                let hash = self.fetch(values, &rev, &args, &args_str)?;
                 self.write_json(
                     out,
                     values,

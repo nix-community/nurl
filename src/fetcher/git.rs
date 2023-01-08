@@ -23,7 +23,7 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchgit {
 }
 
 impl<'a> SimpleFlakeFetcher<'a, 1> for Fetchgit {
-    fn get_flake_ref(&self, [url]: [&str; 1], rev: &str) -> String {
+    fn get_flake_ref(&self, [url]: &[&str; 1], rev: &str) -> String {
         let rev_type = if rev.len() == 40 { "rev" } else { "ref" };
         if matches!(self.0, GitScheme::Yes) {
             format!("{url}?{rev_type}={rev}&submodules=1")

@@ -48,7 +48,7 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
 }
 
 impl<'a> SimpleFlakeFetcher<'a, 2> for FetchFromGitLab<'a> {
-    fn get_flake_ref(&'a self, [owner, repo]: [&str; 2], rev: &str) -> String {
+    fn get_flake_ref(&'a self, [owner, repo]: &[&str; 2], rev: &str) -> String {
         let mut flake_ref = String::from("gitlab:");
         if let Some(group) = self.group.get() {
             flake_ref.push_str(group);

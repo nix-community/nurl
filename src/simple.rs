@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
 use serde_json::json;
@@ -37,15 +37,11 @@ pub trait SimpleFetcher<'a, const N: usize> {
 
     fn fetch_fod(
         &'a self,
-        url: &'a Url,
+        values: &[&str; N],
         rev: &str,
         args: &[(String, String)],
         args_str: &[(String, String)],
-    ) -> Result<([&str; N], String)> {
-        let values = self
-            .get_values(url)
-            .with_context(|| format!("failed to parse {url}"))?;
-
+    ) -> Result<String> {
         let mut expr = format!(r#"(import <nixpkgs> {{}}).{}{{"#, Self::NAME);
 
         if let Some(host) = self.host() {
@@ -75,15 +71,13 @@ pub trait SimpleFetcher<'a, const N: usize> {
 
         expr.push('}');
 
-        let hash = fod_prefetch(expr)?;
-
-        Ok((values, hash))
+        fod_prefetch(expr)
     }
 
     fn write_nix(
         &'a self,
         out: &mut impl Write,
-        values: [&str; N],
+        values: &[&str; N],
         rev: String,
         hash: String,
         args: Vec<(String, String)>,
@@ -150,7 +144,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
     fn write_json(
         &'a self,
         out: &mut impl Write,
-        values: [&str; N],
+        values: &[&str; N],
         rev: String,
         hash: String,
         args: Vec<(String, String)>,
@@ -210,55 +204,47 @@ pub trait SimpleFetcher<'a, const N: usize> {
 pub trait SimpleFodFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
     fn fetch(
         &'a self,
-        url: &'a Url,
+        values: &[&str; N],
         rev: &str,
         args: &[(String, String)],
         args_str: &[(String, String)],
-    ) -> Result<([&str; N], String)> {
-        self.fetch_fod(url, rev, args, args_str)
+    ) -> Result<String> {
+        self.fetch_fod(values, rev, args, args_str)
     }
 }
 
 pub trait SimpleFlakeFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
-    fn get_flake_ref(&'a self, values: [&str; N], rev: &str) -> String;
+    fn get_flake_ref(&'a self, values: &[&str; N], rev: &str) -> String;
 
     fn fetch(
         &'a self,
-        url: &'a Url,
+        values: &[&str; N],
         rev: &str,
         args: &[(String, String)],
         args_str: &[(String, String)],
-    ) -> Result<([&str; N], String)> {
+    ) -> Result<String> {
         if args.is_empty() && args_str.is_empty() {
-            let values = self
-                .get_values(url)
-                .with_context(|| format!("failed to parse {url}"))?;
-            let hash = flake_prefetch(self.get_flake_ref(values, rev))?;
-            Ok((values, hash))
+            flake_prefetch(self.get_flake_ref(values, rev))
         } else {
-            self.fetch_fod(url, rev, args, args_str)
+            self.fetch_fod(values, rev, args, args_str)
         }
     }
 }
 
 pub trait SimpleUrlFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
-    fn get_url(&self, values: [&str; N], rev: &str) -> String;
+    fn get_url(&self, values: &[&str; N], rev: &str) -> String;
 
     fn fetch(
         &'a self,
-        url: &'a Url,
+        values: &[&str; N],
         rev: &str,
         args: &[(String, String)],
         args_str: &[(String, String)],
-    ) -> Result<([&str; N], String)> {
+    ) -> Result<String> {
         if args.is_empty() && args_str.is_empty() {
-            let values = self
-                .get_values(url)
-                .with_context(|| format!("failed to parse {url}"))?;
-            let hash = url_prefetch(self.get_url(values, rev))?;
-            Ok((values, hash))
+            url_prefetch(self.get_url(values, rev))
         } else {
-            self.fetch_fod(url, rev, args, args_str)
+            self.fetch_fod(values, rev, args, args_str)
         }
     }
 }

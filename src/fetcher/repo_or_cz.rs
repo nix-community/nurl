@@ -12,7 +12,7 @@ impl<'a> SimpleFetcher<'a, 1> for FetchFromRepoOrCz {
 }
 
 impl<'a> SimpleUrlFetcher<'a, 1> for FetchFromRepoOrCz {
-    fn get_url(&self, [repo]: [&str; 1], rev: &str) -> String {
+    fn get_url(&self, [repo]: &[&str; 1], rev: &str) -> String {
         format!("https://repo.or.cz/{repo}.git/snapshot/{rev}.tar.gz")
     }
 }

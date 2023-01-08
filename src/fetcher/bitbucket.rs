@@ -12,7 +12,7 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromBitbucket {
 }
 
 impl<'a> SimpleUrlFetcher<'a, 2> for FetchFromBitbucket {
-    fn get_url(&self, [owner, repo]: [&str; 2], rev: &str) -> String {
+    fn get_url(&self, [owner, repo]: &[&str; 2], rev: &str) -> String {
         format!("https://bitbucket.org/{owner}/{repo}/get/{rev}.tar.gz")
     }
 }

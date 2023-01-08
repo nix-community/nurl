@@ -18,7 +18,7 @@ impl<'a> SimpleFetcher<'a, 1> for FetchFromGitiles {
 }
 
 impl<'a> SimpleUrlFetcher<'a, 1> for FetchFromGitiles {
-    fn get_url(&self, [url]: [&str; 1], rev: &str) -> String {
+    fn get_url(&self, [url]: &[&str; 1], rev: &str) -> String {
         format!("{url}/+archive/{rev}.tar.gz")
     }
 }

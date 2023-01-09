@@ -970,9 +970,9 @@ dependencies = [
 
 [[package]]
 name = "trycmd"
-version = "0.14.8"
+version = "0.14.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "efc283953d490e63682af2551b2c85b475f3c8d9cafda427a2b198936024ef86"
+checksum = "01662d21325d18cd4acae7e1dc9f29a2a88b7fbb7f9bc427c4a692aaec5773ac"
 dependencies = [
  "glob",
  "humantime",

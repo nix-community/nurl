@@ -34,7 +34,7 @@ clap_mangen = "0.2.6"
 url = "2.3.1"
 
 [dev-dependencies]
-assert_cmd = "2.0.7"
+assert_cmd = "2.0.8"
 nu-glob = "0.73.0"
 trycmd = "0.14.10"
 

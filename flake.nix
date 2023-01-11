@@ -6,7 +6,7 @@
   outputs = { self, nixpkgs }:
     let
       inherit (nixpkgs.lib)
-        genAttrs importTOML licenses makeBinPath maintainers;
+        genAttrs importTOML licenses makeBinPath maintainers optionals;
       inherit (importTOML (self + "/Cargo.toml")) package;
 
       forEachSystem = genAttrs [
@@ -28,7 +28,7 @@
       packages = forEachSystem (system:
         let
           inherit (nixpkgs.legacyPackages.${system})
-            gitMinimal installShellFiles makeWrapper mercurial nix rustPlatform;
+            darwin gitMinimal installShellFiles makeWrapper mercurial nix rustPlatform stdenv;
         in
         {
           default = rustPlatform.buildRustPackage {
@@ -42,6 +42,10 @@
             nativeBuildInputs = [
               installShellFiles
               makeWrapper
+            ];
+
+            buildInputs = optionals stdenv.isDarwin [
+              darwin.apple_sdk.frameworks.Security
             ];
 
             # tests require internet access

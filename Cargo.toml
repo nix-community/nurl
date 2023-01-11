@@ -1,6 +1,6 @@
 [package]
 name = "nurl"
-version = "0.3.3"
+version = "0.3.4"
 authors = ["figsoda <figsoda@pm.me>"]
 edition = "2021"
 description = "Generate Nix fetcher calls from repository URLs"
@@ -35,7 +35,7 @@ url = "2.3.1"
 
 [dev-dependencies]
 assert_cmd = "2.0.8"
-nu-glob = "0.73.0"
+nu-glob = "0.74.0"
 trycmd = "0.14.10"
 
 [profile.release]

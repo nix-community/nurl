@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.3.4 - 2023-01-11
+
+### Fixes
+
+- Correctly handle GitLab URLs that point to something other than the root (e.g. issues) of a project without a group
+
+### Features
+
+- Support fetching the latest revision for `fetchFromGitHub`, `fetchFromGitLab`, and `fetchFromGitea`
+- Allow hyphen-separated values for `--lisp-sep`
+- Recognize `salsa.debian.org` as a GitLab instance
+
 ## v0.3.3 - 2023-01-03
 
 ### Fixes

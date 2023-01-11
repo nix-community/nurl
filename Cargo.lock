@@ -323,9 +323,9 @@ dependencies = [
 
 [[package]]
 name = "glob"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
+checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 
 [[package]]
 name = "hashbrown"
@@ -516,9 +516,9 @@ checksum = "61807f77802ff30975e01f4f071c8ba10c022052f98b3294119f3e615d13e5be"
 
 [[package]]
 name = "nu-glob"
-version = "0.73.0"
+version = "0.74.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "611efd57cc139f149eff12415368b819581c0b0e86944bc8011753e5680a674d"
+checksum = "378231a732b160ac69cfe44c585f5c09edfe2328f63a24282e7ecf0ee6da6bb4"
 
 [[package]]
 name = "num_cpus"
@@ -532,7 +532,7 @@ dependencies = [
 
 [[package]]
 name = "nurl"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "anyhow",
  "assert_cmd",

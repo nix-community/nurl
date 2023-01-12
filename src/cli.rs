@@ -25,8 +25,12 @@ pub struct Opts {
     #[arg(short, long, default_value_t = 0)]
     pub indent: usize,
 
+    /// only output the hash
+    #[arg(short = 'H', long, group = "format")]
+    pub hash: bool,
+
     /// output in json format
-    #[arg(short, long)]
+    #[arg(short, long, group = "format")]
     pub json: bool,
 
     /// additional arguments to pass to the fetcher

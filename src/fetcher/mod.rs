@@ -40,6 +40,15 @@ pub trait Fetcher<'a> {
         indent: String,
     ) -> Result<()>;
 
+    fn fetch_hash(
+        &'a self,
+        out: &mut impl ::std::io::Write,
+        url: &'a Url,
+        rev: Option<String>,
+        args: Vec<(String, String)>,
+        args_str: Vec<(String, String)>,
+    ) -> Result<()>;
+
     fn fetch_json(
         &'a self,
         out: &mut impl Write,
@@ -94,6 +103,31 @@ macro_rules! impl_fetcher {
                 let hash = self.fetch(values, &rev, &args, &args_str)?;
 
                 self.write_nix(out, values, rev, hash, args, args_str, overwrites, indent)
+            }
+
+            fn fetch_hash(
+                &'a self,
+                out: &mut impl ::std::io::Write,
+                url: &'a ::url::Url,
+                rev: Option<String>,
+                args: Vec<(String, String)>,
+                args_str: Vec<(String, String)>,
+            ) -> ::anyhow::Result<()> {
+                use anyhow::Context;
+
+                let values = &self
+                    .get_values(url)
+                    .with_context(|| format!("failed to parse {url}"))?;
+
+                let rev = match rev {
+                    Some(rev) => rev,
+                    None => self.fetch_rev(values)?,
+                };
+
+                let hash = self.fetch(values, &rev, &args, &args_str)?;
+                write!(out, "{}", hash)?;
+
+                Ok(())
             }
 
             fn fetch_json(

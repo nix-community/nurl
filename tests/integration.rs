@@ -15,9 +15,15 @@ fn integration() {
 fn verify_outputs() {
     for path in glob("tests/cmd/**/*.stdout").unwrap() {
         let path = path.unwrap();
-        let name = path.file_name().unwrap();
+        let name = path
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .strip_suffix(".stdout")
+            .unwrap();
 
-        if name == "json.stdout" {
+        if matches!(name, "hash" | "json") {
             eprintln!("skipping {}", path.display());
             continue;
         }
@@ -27,9 +33,9 @@ fn verify_outputs() {
         let mut expr = String::from_utf8(fs::read(&path).unwrap()).unwrap();
         expr.insert_str(0, "(import <nixpkgs> { }).");
 
-        if name == "overwrite.stdout" {
+        if name == "overwrite" {
             expr.insert_str(0, r#"let pname = "nurl"; in "#);
-        } else if name == "overwrite_str.stdout" {
+        } else if name == "overwrite_str" {
             expr.insert_str(0, r#"let version = "0.3.0"; in "#);
         }
 

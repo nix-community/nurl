@@ -140,7 +140,9 @@ fn main() -> Result<()> {
     let out = &mut stdout().lock();
     let args = opts.args.into_iter().tuples().collect();
     let args_str = opts.args_str.into_iter().tuples().collect();
-    if opts.json {
+    if opts.hash {
+        fetcher.fetch_hash(out, &opts.url, opts.rev, args, args_str)
+    } else if opts.json {
         fetcher.fetch_json(
             out,
             &opts.url,
@@ -166,7 +168,5 @@ fn main() -> Result<()> {
             overwrites,
             " ".repeat(opts.indent),
         )
-    }?;
-
-    Ok(())
+    }
 }

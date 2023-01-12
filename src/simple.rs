@@ -1,7 +1,7 @@
 use anyhow::{bail, Result};
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
-use serde_json::json;
+use serde_json::{json, Value};
 use url::Url;
 
 use std::{fmt::Write as _, io::Write};
@@ -159,10 +159,12 @@ pub trait SimpleFetcher<'a, const N: usize> {
         overwrites: Vec<(String, String)>,
         overwrites_str: Vec<(String, String)>,
     ) -> Result<()> {
-        let mut fetcher_args = json!({
-            "rev": rev,
-            Self::HASH_KEY: hash,
-        });
+        let mut fetcher_args = Value::from_iter(
+            Self::KEYS
+                .into_iter()
+                .zip(*values)
+                .chain([("rev", rev.as_ref()), (Self::HASH_KEY, hash.as_ref())]),
+        );
 
         if let Some(host) = self.host() {
             fetcher_args[Self::HOST_KEY] = json!(host);
@@ -170,10 +172,6 @@ pub trait SimpleFetcher<'a, const N: usize> {
 
         if let Some(group) = self.group() {
             fetcher_args["group"] = json!(group);
-        }
-
-        for (key, value) in Self::KEYS.iter().zip(values) {
-            fetcher_args[key] = json!(value);
         }
 
         for (key, value) in args {

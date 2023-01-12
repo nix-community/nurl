@@ -9,10 +9,11 @@ use std::{fmt::Write as _, io::Write};
 use crate::prefetch::{flake_prefetch, fod_prefetch, url_prefetch};
 
 pub trait SimpleFetcher<'a, const N: usize> {
-    const HOST_KEY: &'static str = "domain";
     const HASH_KEY: &'static str = "hash";
+    const HOST_KEY: &'static str = "domain";
     const KEYS: [&'static str; N];
     const NAME: &'static str;
+    const REV_KEY: &'static str = "rev";
 
     fn host(&'a self) -> Option<&'a str> {
         None
@@ -65,7 +66,8 @@ pub trait SimpleFetcher<'a, const N: usize> {
 
         write!(
             expr,
-            r#"rev="{rev}";{}="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";"#,
+            r#"{}="{rev}";{}="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";"#,
+            Self::REV_KEY,
             Self::HASH_KEY,
         )?;
 
@@ -116,10 +118,10 @@ pub trait SimpleFetcher<'a, const N: usize> {
             }
         }
 
-        if let Some(rev) = overwrites.remove("rev") {
-            writeln!(out, "{indent}  rev = {rev};")?;
+        if let Some(rev) = overwrites.remove(Self::REV_KEY) {
+            writeln!(out, "{indent}  {} = {rev};", Self::REV_KEY)?;
         } else {
-            writeln!(out, r#"{indent}  rev = "{rev}";"#)?;
+            writeln!(out, r#"{indent}  {} = "{rev}";"#, Self::REV_KEY)?;
         }
         if let Some(hash) = overwrites.remove(Self::HASH_KEY) {
             writeln!(out, "{indent}  {} = {hash};", Self::HASH_KEY)?;
@@ -159,12 +161,10 @@ pub trait SimpleFetcher<'a, const N: usize> {
         overwrites: Vec<(String, String)>,
         overwrites_str: Vec<(String, String)>,
     ) -> Result<()> {
-        let mut fetcher_args = Value::from_iter(
-            Self::KEYS
-                .into_iter()
-                .zip(*values)
-                .chain([("rev", rev.as_ref()), (Self::HASH_KEY, hash.as_ref())]),
-        );
+        let mut fetcher_args = Value::from_iter(Self::KEYS.into_iter().zip(*values).chain([
+            (Self::REV_KEY, rev.as_ref()),
+            (Self::HASH_KEY, hash.as_ref()),
+        ]));
 
         if let Some(host) = self.host() {
             fetcher_args[Self::HOST_KEY] = json!(host);

@@ -1,0 +1,5 @@
+fetchCrate {
+  pname = "nurl";
+  version = "0.3.0";
+  hash = "sha256-B6T4DEhE2Jq3YSL+b//27gRkQlvqhynSMBCGdYD5Gog=";
+}

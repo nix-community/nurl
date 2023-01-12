@@ -13,9 +13,9 @@ use rustc_hash::FxHashMap;
 use crate::{
     cli::{FetcherFunction, Opts},
     fetcher::{
-        FetchFromBitbucket, FetchFromGitHub, FetchFromGitLab, FetchFromGitea, FetchFromGitiles,
-        FetchFromRepoOrCz, FetchFromSourcehut, Fetcher, FetcherDispatch, Fetchgit, Fetchhg,
-        Fetchsvn,
+        FetchCrate, FetchFromBitbucket, FetchFromGitHub, FetchFromGitLab, FetchFromGitea,
+        FetchFromGitiles, FetchFromRepoOrCz, FetchFromSourcehut, Fetcher, FetcherDispatch,
+        Fetchgit, Fetchhg, Fetchsvn,
     },
 };
 
@@ -54,6 +54,12 @@ fn main() -> Result<()> {
     }
 
     let fetcher: FetcherDispatch = match (opts.fetcher, opts.url.host_str(), opts.url.scheme()) {
+        (None | Some(FetcherFunction::FetchCrate), Some("crates.io"), _) => FetchCrate(true).into(),
+        (None | Some(FetcherFunction::FetchCrate), Some("lib.rs"), _) => FetchCrate(false).into(),
+        (Some(FetcherFunction::FetchCrate), ..) => {
+            bail!("fetchCrate only supports crates.io and lib.rs");
+        }
+
         (None | Some(FetcherFunction::FetchFromBitbucket), Some("bitbucket.org"), _) => {
             FetchFromBitbucket.into()
         }

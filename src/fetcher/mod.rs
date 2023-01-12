@@ -1,4 +1,5 @@
 mod bitbucket;
+mod crates_io;
 mod git;
 mod gitea;
 mod github;
@@ -10,6 +11,7 @@ mod sourcehut;
 mod svn;
 
 pub use bitbucket::FetchFromBitbucket;
+pub use crates_io::FetchCrate;
 pub use git::Fetchgit;
 pub use gitea::FetchFromGitea;
 pub use github::FetchFromGitHub;
@@ -70,6 +72,7 @@ pub trait Fetcher<'a> {
 
 #[enum_dispatch(Fetcher)]
 pub enum FetcherDispatch<'a> {
+    FetchCrate(FetchCrate),
     FetchFromBitbucket(FetchFromBitbucket),
     FetchFromGitHub(FetchFromGitHub<'a>),
     FetchFromGitLab(FetchFromGitLab<'a>),
@@ -194,7 +197,7 @@ macro_rules! impl_fetcher {
                     fetcher_args["group"] = json!(group);
                 }
                 if let Some(rev) = rev {
-                    fetcher_args["rev"] = json!(rev);
+                    fetcher_args[Self::REV_KEY] = json!(rev);
                 }
 
                 serde_json::to_writer(

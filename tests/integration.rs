@@ -23,7 +23,7 @@ fn verify_outputs() {
             .strip_suffix(".stdout")
             .unwrap();
 
-        if matches!(name, "hash" | "json") {
+        if matches!(name, "hash" | "json" | "parse") {
             eprintln!("skipping {}", path.display());
             continue;
         }

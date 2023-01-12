@@ -33,6 +33,12 @@ pub struct Opts {
     #[arg(short, long, group = "format")]
     pub json: bool,
 
+    /// parse the url without fetching the hash, similar to --json
+    ///
+    /// note that --arg(-str) and --overwrite(-str) will be ignored silently
+    #[arg(short, long, group = "format")]
+    pub parse: bool,
+
     /// additional arguments to pass to the fetcher
     #[arg(short, long = "arg", num_args = 2, value_names = ["NAME", "EXPR"])]
     pub args: Vec<String>,

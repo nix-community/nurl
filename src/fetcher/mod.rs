@@ -59,6 +59,13 @@ pub trait Fetcher<'a> {
         overwrites: Vec<(String, String)>,
         overwrites_str: Vec<(String, String)>,
     ) -> Result<()>;
+
+    fn to_json(
+        &'a self,
+        out: &mut impl ::std::io::Write,
+        url: &'a ::url::Url,
+        rev: Option<String>,
+    ) -> ::anyhow::Result<()>;
 }
 
 #[enum_dispatch(Fetcher)]
@@ -163,6 +170,42 @@ macro_rules! impl_fetcher {
                     overwrites,
                     overwrites_str,
                 )
+            }
+
+            fn to_json(
+                &'a self,
+                out: &mut impl ::std::io::Write,
+                url: &'a ::url::Url,
+                rev: Option<String>,
+            ) -> ::anyhow::Result<()> {
+                use anyhow::Context;
+                use serde_json::{json, Value};
+
+                let values = self
+                    .get_values(url)
+                    .with_context(|| format!("failed to parse {url}"))?;
+
+                let mut fetcher_args = Value::from_iter(Self::KEYS.into_iter().zip(values));
+
+                if let Some(host) = self.host() {
+                    fetcher_args[Self::HOST_KEY] = json!(host);
+                }
+                if let Some(group) = self.group() {
+                    fetcher_args["group"] = json!(group);
+                }
+                if let Some(rev) = rev {
+                    fetcher_args["rev"] = json!(rev);
+                }
+
+                serde_json::to_writer(
+                    out,
+                    &json!({
+                        "fetcher": Self::NAME,
+                        "args": fetcher_args,
+                    }),
+                )?;
+
+                Ok(())
             }
         }
     };

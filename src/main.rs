@@ -152,6 +152,8 @@ fn main() -> Result<()> {
             opts.overwrites.into_iter().tuples().collect(),
             opts.overwrites_str.into_iter().tuples().collect(),
         )
+    } else if opts.parse {
+        fetcher.to_json(out, &opts.url, opts.rev)
     } else {
         let mut overwrites: FxHashMap<_, _> = opts.overwrites.into_iter().tuples().collect();
 

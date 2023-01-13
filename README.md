@@ -20,6 +20,7 @@ fetchFromGitHub {
 
 ## Supported Fetchers
 
+- fetchCrate
 - fetchFromBitbucket
 - fetchFromGitHub
 - fetchFromGitLab
@@ -27,6 +28,7 @@ fetchFromGitHub {
 - fetchFromGitiles
 - fetchFromRepoOrCz
 - fetchFromSourcehut
+- fetchHex
 - fetchgit
 - fetchhg
 - fetchsvn
@@ -38,28 +40,31 @@ Usage: nurl [OPTIONS] [URL] [REV]
 
 Arguments:
   [URL]  URL to the repository to be fetched
-  [REV]  the revision or reference to be fetched
+  [REV]  The revision or reference to be fetched
 
 Options:
-  -f, --fetcher <FETCHER>              specify the fetcher function instead of inferring from the
-                                       URL [possible values: fetchFromBitbucket, fetchFromGitHub,
-                                       fetchFromGitLab, fetchFromGitea, fetchFromGitiles,
-                                       fetchFromRepoOrCz, fetchFromSourcehut, fetchgit, fetchhg,
-                                       fetchsvn]
-  -i, --indent <INDENT>                extra indentation (in number of spaces) [default: 0]
-  -j, --json                           output in json format
-  -a, --arg <NAME> <EXPR>              additional arguments to pass to the fetcher
-  -A, --arg-str <NAME> <STRING>        same as --arg, but accepts strings instead Nix expressions
-  -o, --overwrite <NAME> <EXPR>        overwrite arguments in the final output, not taken into
+  -f, --fetcher <FETCHER>              Specify the fetcher function instead of inferring from the
+                                       URL [possible values: fetchCrate, fetchFromBitbucket,
+                                       fetchFromGitHub, fetchFromGitLab, fetchFromGitea,
+                                       fetchFromGitiles, fetchFromRepoOrCz, fetchFromSourcehut,
+                                       fetchHex, fetchgit, fetchhg, fetchsvn]
+  -i, --indent <INDENT>                Extra indentation (in number of spaces) [default: 0]
+  -H, --hash                           Only output the hash
+  -j, --json                           Output in json format
+  -p, --parse                          Parse the url without fetching the hash, output in json
+                                       format
+  -a, --arg <NAME> <EXPR>              Additional arguments to pass to the fetcher
+  -A, --arg-str <NAME> <STRING>        Same as --arg, but accepts strings instead Nix expressions
+  -o, --overwrite <NAME> <EXPR>        Overwrite arguments in the final output, not taken into
                                        consideration when fetching the hash
-  -O, --overwrite-str <NAME> <STRING>  same as --overwrite, but accepts strings instead Nix
+  -O, --overwrite-str <NAME> <STRING>  Same as --overwrite, but accepts strings instead Nix
                                        expressions
   -l, --list-fetchers                  List all available fetchers
   -L, --list-possible-fetchers         List all fetchers that can be generated without --fetcher
   -s, --list-sep <SEPARATOR>           Print out the listed fetchers with the specified separator,
                                        only used when --list-fetchers or --list-possible-fetchers is
                                        specified
-  -h, --help                           Print help information (use `--help` for more detail)
+  -h, --help                           Print help information
   -V, --version                        Print version information
 ```
 

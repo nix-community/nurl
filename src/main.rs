@@ -14,8 +14,8 @@ use crate::{
     cli::{FetcherFunction, Opts},
     fetcher::{
         FetchCrate, FetchFromBitbucket, FetchFromGitHub, FetchFromGitLab, FetchFromGitea,
-        FetchFromGitiles, FetchFromRepoOrCz, FetchFromSourcehut, Fetcher, FetcherDispatch,
-        Fetchgit, Fetchhg, Fetchsvn,
+        FetchFromGitiles, FetchFromRepoOrCz, FetchFromSourcehut, FetchHex, Fetcher,
+        FetcherDispatch, Fetchgit, Fetchhg, Fetchsvn,
     },
 };
 
@@ -124,6 +124,11 @@ fn main() -> Result<()> {
             _,
         ) => {
             bail!("{fetcher:?} does not support URLs without a host");
+        }
+
+        (None | Some(FetcherFunction::FetchHex), Some("hex.pm"), _) => FetchHex.into(),
+        (Some(FetcherFunction::FetchHex), ..) => {
+            bail!("fetchHex only supports hex.pm");
         }
 
         (None | Some(FetcherFunction::Fetchgit), _, "git") => Fetchgit(GitScheme::Yes).into(),

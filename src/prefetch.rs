@@ -51,14 +51,17 @@ pub fn flake_prefetch(flake_ref: String) -> Result<String> {
     .hash)
 }
 
-pub fn url_prefetch(url: String) -> Result<String> {
-    info!("$ nix-prefetch-url --unpack {url}");
-    let hash = String::from_utf8(
-        Command::new("nix-prefetch-url")
-            .arg("--unpack")
-            .arg(url)
-            .get_stdout()?,
-    )?;
+pub fn url_prefetch(url: String, unpack: bool) -> Result<String> {
+    let mut cmd = Command::new("nix-prefetch-url");
+    if unpack {
+        cmd.arg("--unpack");
+        info!("$ nix-prefetch-url --unpack {url}");
+    } else {
+        info!("$ nix-prefetch-url {url}");
+    }
+    cmd.arg(url);
+
+    let hash = String::from_utf8(cmd.get_stdout()?)?;
     let hash = hash.trim_end();
 
     info!("$ nix hash to-sri --experimental-features nix-command --type sha256 {hash}");

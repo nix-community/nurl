@@ -1,0 +1,5 @@
+fetchHex {
+  pkg = "phoenix";
+  version = "1.6.0";
+  sha256 = "sha256-Uv/dMfLa6zmbLh61fUaPmaGtbu5djqGdI1NJLwbJ/JY=";
+}

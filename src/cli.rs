@@ -98,6 +98,7 @@ pub enum FetcherFunction {
     FetchFromGitiles,
     FetchFromRepoOrCz,
     FetchFromSourcehut,
+    FetchHex,
     Fetchgit,
     Fetchhg,
     Fetchsvn,

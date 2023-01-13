@@ -237,6 +237,8 @@ pub trait SimpleFlakeFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
 }
 
 pub trait SimpleUrlFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
+    const UNPACK: bool = true;
+
     fn get_url(&self, values: &[&str; N], rev: &str) -> String;
 
     fn fetch(
@@ -247,7 +249,7 @@ pub trait SimpleUrlFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         args_str: &[(String, String)],
     ) -> Result<String> {
         if args.is_empty() && args_str.is_empty() {
-            url_prefetch(self.get_url(values, rev))
+            url_prefetch(self.get_url(values, rev), Self::UNPACK)
         } else {
             self.fetch_fod(values, rev, args, args_str)
         }

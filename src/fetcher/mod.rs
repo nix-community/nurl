@@ -5,6 +5,7 @@ mod gitea;
 mod github;
 mod gitiles;
 mod gitlab;
+mod hex;
 mod hg;
 mod repo_or_cz;
 mod sourcehut;
@@ -17,6 +18,7 @@ pub use gitea::FetchFromGitea;
 pub use github::FetchFromGitHub;
 pub use gitiles::FetchFromGitiles;
 pub use gitlab::FetchFromGitLab;
+pub use hex::FetchHex;
 pub use hg::Fetchhg;
 pub use repo_or_cz::FetchFromRepoOrCz;
 pub use sourcehut::FetchFromSourcehut;
@@ -80,6 +82,7 @@ pub enum FetcherDispatch<'a> {
     FetchFromGitiles(FetchFromGitiles),
     FetchFromRepoOrCz(FetchFromRepoOrCz),
     FetchFromSourcehut(FetchFromSourcehut<'a>),
+    FetchHex(FetchHex),
     Fetchgit(Fetchgit),
     Fetchhg(Fetchhg),
     Fetchsvn(Fetchsvn),

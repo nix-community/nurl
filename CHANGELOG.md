@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.5 - 2023-01-13
+
+### Features
+
+- `--hash` to only output the hash
+- `--parse` to parse the URL into JSON without fetching the hash
+- `fetchCrate` support
+- `fetchHex` support
+
 ## v0.3.4 - 2023-01-11
 
 ### Fixes

@@ -14,55 +14,55 @@ pub struct Opts {
     )]
     pub url: Url,
 
-    /// the revision or reference to be fetched
+    /// The revision or reference to be fetched
     pub rev: Option<String>,
 
-    /// specify the fetcher function instead of inferring from the URL
+    /// Specify the fetcher function instead of inferring from the URL
     #[arg(short, long)]
     pub fetcher: Option<FetcherFunction>,
 
-    /// extra indentation (in number of spaces)
+    /// Extra indentation (in number of spaces)
     #[arg(short, long, default_value_t = 0)]
     pub indent: usize,
 
-    /// only output the hash
+    /// Only output the hash
     #[arg(short = 'H', long, group = "format")]
     pub hash: bool,
 
-    /// output in json format
+    /// Output in json format
     #[arg(short, long, group = "format")]
     pub json: bool,
 
-    /// parse the url without fetching the hash, similar to --json
+    /// Parse the url without fetching the hash, output in json format
     ///
-    /// note that --arg(-str) and --overwrite(-str) will be ignored silently
+    /// Note that --arg(-str) and --overwrite(-str) will be ignored silently
     #[arg(short, long, group = "format")]
     pub parse: bool,
 
-    /// additional arguments to pass to the fetcher
+    /// Additional arguments to pass to the fetcher
     #[arg(short, long = "arg", num_args = 2, value_names = ["NAME", "EXPR"])]
     pub args: Vec<String>,
 
-    /// same as --arg, but accepts strings instead Nix expressions
+    /// Same as --arg, but accepts strings instead Nix expressions
     #[arg(short = 'A', long = "arg-str", num_args = 2, value_names = ["NAME", "STRING"])]
     pub args_str: Vec<String>,
 
-    /// overwrite arguments in the final output,
+    /// Overwrite arguments in the final output,
     /// not taken into consideration when fetching the hash
     ///
     /// Note that nurl does not verify any of the overwrites,
     /// for the final output to be valid,
     /// the user should not overwrite anything that would change the hash
     ///
-    /// examples:
+    /// Examples:
     /// {n}  --overwrite repo pname
     /// {n}  --overwrite rev version
     #[arg(short, long = "overwrite", num_args = 2, value_names = ["NAME", "EXPR"])]
     pub overwrites: Vec<String>,
 
-    /// same as --overwrite, but accepts strings instead Nix expressions
+    /// Same as --overwrite, but accepts strings instead Nix expressions
     ///
-    /// examples:
+    /// Examples:
     /// {n}  --overwrite-str rev 'v${version}'
     /// {n}  --overwrite-str meta.homepage https://example.org
     #[arg(short = 'O', long = "overwrite-str", num_args = 2, value_names = ["NAME", "STRING"])]

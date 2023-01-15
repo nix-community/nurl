@@ -31,12 +31,15 @@ fn verify_outputs() {
         eprintln!("testing {}", path.display());
 
         let mut expr = String::from_utf8(fs::read(&path).unwrap()).unwrap();
-        expr.insert_str(0, "(import <nixpkgs> { }).");
 
-        if name == "overwrite" {
-            expr.insert_str(0, r#"let pname = "nurl"; in "#);
-        } else if name == "overwrite_str" {
-            expr.insert_str(0, r#"let version = "0.3.0"; in "#);
+        if name != "builtin_git" {
+            expr.insert_str(0, "(import <nixpkgs> { }).");
+
+            if name == "overwrite" {
+                expr.insert_str(0, r#"let pname = "nurl"; in "#);
+            } else if name == "overwrite_str" {
+                expr.insert_str(0, r#"let version = "0.3.0"; in "#);
+            }
         }
 
         Command::new("nix")

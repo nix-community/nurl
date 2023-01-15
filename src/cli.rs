@@ -90,6 +90,8 @@ pub struct Opts {
 #[derive(Clone, Debug, ValueEnum)]
 #[clap(rename_all = "camelCase")]
 pub enum FetcherFunction {
+    #[clap(name = "builtins.fetchGit")]
+    BuiltinsFetchGit,
     FetchCrate,
     FetchFromBitbucket,
     FetchFromGitHub,

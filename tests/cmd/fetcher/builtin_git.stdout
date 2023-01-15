@@ -1,0 +1,4 @@
+builtins.fetchGit {
+  url = "https://github.com/nix-community/nurl";
+  ref = "refs/tags/v0.3.0";
+}

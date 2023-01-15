@@ -1,4 +1,5 @@
 mod bitbucket;
+mod builtin_git;
 mod crates_io;
 mod git;
 mod gitea;
@@ -12,6 +13,7 @@ mod sourcehut;
 mod svn;
 
 pub use bitbucket::FetchFromBitbucket;
+pub use builtin_git::BuiltinsFetchGit;
 pub use crates_io::FetchCrate;
 pub use git::Fetchgit;
 pub use gitea::FetchFromGitea;
@@ -74,6 +76,7 @@ pub trait Fetcher<'a> {
 
 #[enum_dispatch(Fetcher)]
 pub enum FetcherDispatch<'a> {
+    BuiltinsFetchGit(BuiltinsFetchGit),
     FetchCrate(FetchCrate),
     FetchFromBitbucket(FetchFromBitbucket),
     FetchFromGitHub(FetchFromGitHub<'a>),

@@ -1,0 +1,6 @@
+args = [
+    "https://github.com/nix-community/nurl",
+    "refs/tags/v0.3.0",
+    "--fetcher",
+    "builtins.fetchGit",
+]

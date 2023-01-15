@@ -13,8 +13,8 @@ use rustc_hash::FxHashMap;
 use crate::{
     cli::{FetcherFunction, Opts},
     fetcher::{
-        FetchCrate, FetchFromBitbucket, FetchFromGitHub, FetchFromGitLab, FetchFromGitea,
-        FetchFromGitiles, FetchFromRepoOrCz, FetchFromSourcehut, FetchHex, Fetcher,
+        BuiltinsFetchGit, FetchCrate, FetchFromBitbucket, FetchFromGitHub, FetchFromGitLab,
+        FetchFromGitea, FetchFromGitiles, FetchFromRepoOrCz, FetchFromSourcehut, FetchHex, Fetcher,
         FetcherDispatch, Fetchgit, Fetchhg, Fetchsvn,
     },
 };
@@ -34,6 +34,9 @@ fn main() -> Result<()> {
         let mut out = stdout().lock();
         let fetchers = FetcherFunction::value_variants()
             .iter()
+            .filter(|fetcher| {
+                opts.list_fetchers || !matches!(fetcher, FetcherFunction::BuiltinsFetchGit)
+            })
             .filter_map(ValueEnum::to_possible_value);
 
         if let Some(sep) = opts.list_sep {
@@ -54,6 +57,8 @@ fn main() -> Result<()> {
     }
 
     let fetcher: FetcherDispatch = match (opts.fetcher, opts.url.host_str(), opts.url.scheme()) {
+        (Some(FetcherFunction::BuiltinsFetchGit), ..) => BuiltinsFetchGit.into(),
+
         (None | Some(FetcherFunction::FetchCrate), Some("crates.io"), _) => FetchCrate(true).into(),
         (None | Some(FetcherFunction::FetchCrate), Some("lib.rs"), _) => FetchCrate(false).into(),
         (Some(FetcherFunction::FetchCrate), ..) => {

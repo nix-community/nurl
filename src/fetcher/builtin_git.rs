@@ -33,9 +33,9 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
         }
 
         if let Some(rev) = overwrites.remove(rev_type) {
-            writeln!(out, "{indent}  {} = {rev};", rev_type)?;
+            writeln!(out, "{indent}  {rev_type} = {rev};")?;
         } else {
-            writeln!(out, r#"{indent}  {} = "{rev}";"#, rev_type)?;
+            writeln!(out, r#"{indent}  {rev_type} = "{rev}";"#)?;
         }
 
         for (key, value) in args {

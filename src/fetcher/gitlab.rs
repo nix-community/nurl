@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Context, Result};
 use once_cell::unsync::OnceCell;
 use serde::Deserialize;
 use url::Url;
@@ -63,14 +63,12 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
             url.push_str(group);
             url.push_str("%2F");
         }
-        write!(url, "{owner}%2F{repo}/repository/commits")?;
+        write!(url, "{owner}%2F{repo}/repository/commits?per_page=1")?;
 
-        Ok(ureq::get(&url)
+        let [Commit { id }] = ureq::get(&url)
             .call()?
-            .into_json::<Vec<Commit>>()?
-            .into_iter()
-            .next()
-            .ok_or_else(|| {
+            .into_json::<[_; 1]>()
+            .with_context(|| {
                 let mut msg = format!("no commits found for https://{host}/");
                 if let Some(group) = self.group.get() {
                     msg.push_str(group);
@@ -79,9 +77,10 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
                 msg.push_str(owner);
                 msg.push('/');
                 msg.push_str(repo);
-                anyhow!(msg)
-            })?
-            .id)
+                msg
+            })?;
+
+        Ok(id)
     }
 }
 

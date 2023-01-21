@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Context, Result};
 use serde::Deserialize;
 
 use crate::{
@@ -25,16 +25,14 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitHub<'a> {
 
     fn fetch_rev(&self, [owner, repo]: &[&str; 2]) -> Result<String> {
         let host = self.0.unwrap_or("github.com");
+        let url = format!("https://api.{host}/repos/{owner}/{repo}/commits?per_page=1");
 
-        Ok(
-            ureq::get(&format!("https://api.{host}/repos/{owner}/{repo}/commits"))
-                .call()?
-                .into_json::<Vec<Commit>>()?
-                .into_iter()
-                .next()
-                .ok_or_else(|| anyhow!("no commits found for https://{host}/{owner}/{repo}"))?
-                .sha,
-        )
+        let [Commit { sha }] = ureq::get(&url)
+            .call()?
+            .into_json::<[_; 1]>()
+            .with_context(|| format!("no commits found for https://{host}/{owner}/{repo}"))?;
+
+        Ok(sha)
     }
 }
 

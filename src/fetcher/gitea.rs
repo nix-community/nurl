@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Context, Result};
 use serde::Deserialize;
 
 use crate::{
@@ -23,14 +23,17 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitea<'a> {
     }
 
     fn fetch_rev(&self, [owner, repo]: &[&str; 2]) -> Result<String> {
-        let url = format!("https://{}/api/v1/repos/{owner}/{repo}/commits", self.0);
-        Ok(ureq::get(&url)
+        let url = format!(
+            "https://{}/api/v1/repos/{owner}/{repo}/commits?limit=1&stat=false",
+            self.0,
+        );
+
+        let [Commit { sha }] = ureq::get(&url)
             .call()?
-            .into_json::<Vec<Commit>>()?
-            .into_iter()
-            .next()
-            .ok_or_else(|| anyhow!("no commits found for https://{}/{owner}/{repo}", self.0))?
-            .sha)
+            .into_json::<[_; 1]>()
+            .with_context(|| format!("no commits found for https://{}/{owner}/{repo}", self.0))?;
+
+        Ok(sha)
     }
 }
 

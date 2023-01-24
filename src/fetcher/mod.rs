@@ -26,10 +26,10 @@ pub use repo_or_cz::FetchFromRepoOrCz;
 pub use sourcehut::FetchFromSourcehut;
 pub use svn::Fetchsvn;
 
+use crate::Url;
 use anyhow::Result;
 use enum_dispatch::enum_dispatch;
 use rustc_hash::FxHashMap;
-use url::Url;
 
 use std::io::Write;
 
@@ -49,7 +49,7 @@ pub trait Fetcher<'a> {
     fn fetch_hash(
         &'a self,
         out: &mut impl ::std::io::Write,
-        url: &'a Url,
+        url: &'a Url<'a>,
         rev: Option<String>,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
@@ -58,7 +58,7 @@ pub trait Fetcher<'a> {
     fn fetch_json(
         &'a self,
         out: &mut impl Write,
-        url: &'a Url,
+        url: &'a Url<'a>,
         rev: Option<String>,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
@@ -69,7 +69,7 @@ pub trait Fetcher<'a> {
     fn to_json(
         &'a self,
         out: &mut impl ::std::io::Write,
-        url: &'a ::url::Url,
+        url: &'a Url<'a>,
         rev: Option<String>,
     ) -> ::anyhow::Result<()>;
 }
@@ -98,7 +98,7 @@ macro_rules! impl_fetcher {
             fn fetch_nix(
                 &'a self,
                 out: &mut impl ::std::io::Write,
-                url: &'a ::url::Url,
+                url: &'a $crate::Url<'a>,
                 rev: Option<String>,
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,
@@ -124,7 +124,7 @@ macro_rules! impl_fetcher {
             fn fetch_hash(
                 &'a self,
                 out: &mut impl ::std::io::Write,
-                url: &'a ::url::Url,
+                url: &'a $crate::Url<'a>,
                 rev: Option<String>,
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,
@@ -149,7 +149,7 @@ macro_rules! impl_fetcher {
             fn fetch_json(
                 &'a self,
                 out: &mut impl ::std::io::Write,
-                url: &'a ::url::Url,
+                url: &'a $crate::Url<'a>,
                 rev: Option<String>,
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,
@@ -184,7 +184,7 @@ macro_rules! impl_fetcher {
             fn to_json(
                 &'a self,
                 out: &mut impl ::std::io::Write,
-                url: &'a ::url::Url,
+                url: &'a $crate::Url<'a>,
                 rev: Option<String>,
             ) -> ::anyhow::Result<()> {
                 use anyhow::Context;

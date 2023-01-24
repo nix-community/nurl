@@ -1,8 +1,7 @@
-use url::Url;
-
 use crate::{
     impl_fetcher,
     simple::{SimpleFetcher, SimpleFodFetcher},
+    Url,
 };
 
 pub struct Fetchsvn;
@@ -14,7 +13,7 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchsvn {
     const NAME: &'static str = "fetchsvn";
 
     fn get_values(&self, url: &'a Url) -> Option<[&'a str; 1]> {
-        Some([url.as_ref()])
+        Some([url.as_str()])
     }
 }
 

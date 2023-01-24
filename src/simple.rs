@@ -1,8 +1,8 @@
+use crate::Url;
 use anyhow::{bail, Result};
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
 use serde_json::{json, Value};
-use url::Url;
 
 use std::{fmt::Write as _, io::Write};
 
@@ -23,9 +23,9 @@ pub trait SimpleFetcher<'a, const N: usize> {
         None
     }
 
-    fn get_values(&self, url: &'a Url) -> Option<[&'a str; N]> {
+    fn get_values(&self, url: &'a Url<'a>) -> Option<[&'a str; N]> {
         let mut xs: [_; N] = url
-            .path_segments()?
+            .path_segments()
             .chunks(N)
             .into_iter()
             .next()?

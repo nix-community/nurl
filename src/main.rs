@@ -6,7 +6,9 @@ mod prefetch;
 mod simple;
 
 use anyhow::{bail, Result};
+use bstr::ByteSlice;
 use clap::{Parser, ValueEnum};
+use git_url::Scheme;
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
 
@@ -19,7 +21,32 @@ use crate::{
     },
 };
 
-use std::io::{stdout, Write};
+use std::{
+    fmt::{self, Display, Formatter},
+    io::{stdout, Write},
+    str::Split,
+};
+
+pub struct Url<'a> {
+    url: &'a str,
+    path: &'a str,
+}
+
+impl<'a> Url<'a> {
+    fn as_str(&'a self) -> &str {
+        self.url
+    }
+
+    fn path_segments(&self) -> Split<char> {
+        self.path.split('/')
+    }
+}
+
+impl<'a> Display for Url<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
 
 pub enum GitScheme {
     Yes,
@@ -56,7 +83,9 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
-    let fetcher: FetcherDispatch = match (opts.fetcher, opts.url.host_str(), opts.url.scheme()) {
+    let url: git_url::Url = opts.url.try_into()?;
+
+    let fetcher: FetcherDispatch = match (opts.fetcher, url.host(), &url.scheme) {
         (Some(FetcherFunction::BuiltinsFetchGit), ..) => BuiltinsFetchGit.into(),
 
         (None | Some(FetcherFunction::FetchCrate), Some("crates.io"), _) => FetchCrate(true).into(),
@@ -136,32 +165,43 @@ fn main() -> Result<()> {
             bail!("fetchHex only supports hex.pm");
         }
 
-        (None | Some(FetcherFunction::Fetchgit), _, "git") => Fetchgit(GitScheme::Yes).into(),
-        (None | Some(FetcherFunction::Fetchgit), _, scheme) if scheme.starts_with("git+") => {
+        (None | Some(FetcherFunction::Fetchgit), _, Scheme::Git) => Fetchgit(GitScheme::Yes).into(),
+        (None | Some(FetcherFunction::Fetchgit), _, Scheme::Ext(scheme))
+            if scheme.starts_with("git+") =>
+        {
             Fetchgit(GitScheme::Plus).into()
         }
         (Some(FetcherFunction::Fetchgit), ..) => Fetchgit(GitScheme::No).into(),
 
-        (None | Some(FetcherFunction::Fetchhg), _, scheme) if scheme.starts_with("hg+") => {
+        (None | Some(FetcherFunction::Fetchhg), _, Scheme::Ext(scheme))
+            if scheme.starts_with("hg+") =>
+        {
             Fetchhg(true).into()
         }
         (Some(FetcherFunction::Fetchhg), ..) => Fetchhg(false).into(),
 
-        (None, _, "svn") => Fetchsvn.into(),
+        (None, _, Scheme::Ext(scheme)) if scheme == "svn" => Fetchsvn.into(),
         (Some(FetcherFunction::Fetchsvn), ..) => Fetchsvn.into(),
 
         (None, ..) => Fetchgit(GitScheme::No).into(),
+    };
+
+    let url_bstring = url.to_bstring();
+    let path = url.path.to_str()?;
+    let url = Url {
+        url: url_bstring.to_str()?,
+        path: path.strip_prefix('/').unwrap_or(path),
     };
 
     let out = &mut stdout().lock();
     let args = opts.args.into_iter().tuples().collect();
     let args_str = opts.args_str.into_iter().tuples().collect();
     if opts.hash {
-        fetcher.fetch_hash(out, &opts.url, opts.rev, args, args_str)
+        fetcher.fetch_hash(out, &url, opts.rev, args, args_str)
     } else if opts.json {
         fetcher.fetch_json(
             out,
-            &opts.url,
+            &url,
             opts.rev,
             args,
             args_str,
@@ -169,7 +209,7 @@ fn main() -> Result<()> {
             opts.overwrites_str.into_iter().tuples().collect(),
         )
     } else if opts.parse {
-        fetcher.to_json(out, &opts.url, opts.rev)
+        fetcher.to_json(out, &url, opts.rev)
     } else {
         let mut overwrites: FxHashMap<_, _> = opts.overwrites.into_iter().tuples().collect();
 
@@ -179,7 +219,7 @@ fn main() -> Result<()> {
 
         fetcher.fetch_nix(
             out,
-            &opts.url,
+            &url,
             opts.rev,
             args,
             args_str,

@@ -1,8 +1,7 @@
-use url::Url;
-
 use crate::{
     impl_fetcher,
     simple::{SimpleFetcher, SimpleFlakeFetcher},
+    Url,
 };
 
 pub struct Fetchhg(pub bool);
@@ -13,11 +12,11 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchhg {
     const KEYS: [&'static str; 1] = ["url"];
     const NAME: &'static str = "fetchhg";
 
-    fn get_values(&self, url: &'a Url) -> Option<[&'a str; 1]> {
+    fn get_values(&self, url: &'a Url<'a>) -> Option<[&'a str; 1]> {
         Some([if self.0 {
-            url.as_ref().strip_prefix("hg+")?
+            url.as_str().strip_prefix("hg+")?
         } else {
-            url.as_ref()
+            url.as_str()
         }])
     }
 }

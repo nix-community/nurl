@@ -1,8 +1,7 @@
-use url::Url;
-
 use crate::{
     impl_fetcher,
     simple::{SimpleFetcher, SimpleUrlFetcher},
+    Url,
 };
 
 pub struct FetchHex;
@@ -14,8 +13,8 @@ impl<'a> SimpleFetcher<'a, 1> for FetchHex {
     const NAME: &'static str = "fetchHex";
     const REV_KEY: &'static str = "version";
 
-    fn get_values(&self, url: &'a Url) -> Option<[&'a str; 1]> {
-        Some([url.path_segments()?.nth(1)?])
+    fn get_values(&self, url: &'a Url<'a>) -> Option<[&'a str; 1]> {
+        Some([url.path_segments().nth(1)?])
     }
 }
 

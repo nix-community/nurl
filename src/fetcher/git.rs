@@ -1,9 +1,7 @@
-use url::Url;
-
 use crate::{
     impl_fetcher,
     simple::{SimpleFetcher, SimpleFlakeFetcher},
-    GitScheme,
+    GitScheme, Url,
 };
 
 pub struct Fetchgit(pub GitScheme);
@@ -15,9 +13,9 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchgit {
 
     fn get_values(&self, url: &'a Url) -> Option<[&'a str; 1]> {
         Some([if matches!(self.0, GitScheme::Plus) {
-            url.as_ref().strip_prefix("git+")?
+            url.as_str().strip_prefix("git+")?
         } else {
-            url.as_ref()
+            url.as_str()
         }])
     }
 }

@@ -1,5 +1,4 @@
 use clap::{Parser, ValueEnum};
-use url::Url;
 
 /// Generate Nix fetcher calls from repository URLs
 /// https://github.com/nix-community/nurl
@@ -9,10 +8,10 @@ pub struct Opts {
     /// URL to the repository to be fetched
     #[arg(
         required_unless_present = "command",
-        default_value = "x:", // placeholder value, will not be accessed
+        default_value_t, // placeholder, will not be accessed
         hide_default_value = true
     )]
-    pub url: Url,
+    pub url: String,
 
     /// The revision or reference to be fetched
     pub rev: Option<String>,

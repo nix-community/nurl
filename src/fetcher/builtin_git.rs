@@ -1,11 +1,10 @@
 use anyhow::{bail, Context, Result};
 use rustc_hash::FxHashMap;
 use serde_json::json;
-use url::Url;
 
 use std::io::Write;
 
-use crate::fetcher::Fetcher;
+use crate::{fetcher::Fetcher, Url};
 
 pub struct BuiltinsFetchGit;
 

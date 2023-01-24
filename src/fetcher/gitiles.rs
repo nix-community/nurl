@@ -1,8 +1,7 @@
-use url::Url;
-
 use crate::{
     impl_fetcher,
     simple::{SimpleFetcher, SimpleUrlFetcher},
+    Url,
 };
 
 pub struct FetchFromGitiles;
@@ -12,8 +11,8 @@ impl<'a> SimpleFetcher<'a, 1> for FetchFromGitiles {
     const KEYS: [&'static str; 1] = ["url"];
     const NAME: &'static str = "fetchFromGitiles";
 
-    fn get_values(&self, url: &'a Url) -> Option<[&'a str; 1]> {
-        Some([url.as_ref()])
+    fn get_values(&self, url: &'a Url<'a>) -> Option<[&'a str; 1]> {
+        Some([url.as_str()])
     }
 }
 

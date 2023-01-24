@@ -1,8 +1,7 @@
-use url::Url;
-
 use crate::{
     impl_fetcher,
     simple::{SimpleFetcher, SimpleUrlFetcher},
+    Url,
 };
 
 pub struct FetchCrate(pub bool);
@@ -14,7 +13,7 @@ impl<'a> SimpleFetcher<'a, 1> for FetchCrate {
     const REV_KEY: &'static str = "version";
 
     fn get_values(&self, url: &'a Url) -> Option<[&'a str; 1]> {
-        let mut xs = url.path_segments()?;
+        let mut xs = url.path_segments();
         Some([if self.0 {
             xs.nth(1)?
         } else {

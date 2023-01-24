@@ -1,13 +1,13 @@
 use anyhow::{Context, Result};
 use once_cell::unsync::OnceCell;
 use serde::Deserialize;
-use url::Url;
 
 use std::fmt::Write;
 
 use crate::{
     impl_fetcher,
     simple::{SimpleFetcher, SimpleFlakeFetcher},
+    Url,
 };
 
 pub struct FetchFromGitLab<'a> {
@@ -42,8 +42,8 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
         self.group.get().copied()
     }
 
-    fn get_values(&self, url: &'a Url) -> Option<[&'a str; 2]> {
-        let mut xs = url.path_segments()?;
+    fn get_values(&self, url: &'a Url<'a>) -> Option<[&'a str; 2]> {
+        let mut xs = url.path_segments();
         let x = xs.next()?;
         let y = xs.next()?;
         Some(match xs.next() {

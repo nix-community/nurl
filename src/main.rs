@@ -16,8 +16,8 @@ use crate::{
     cli::{FetcherFunction, Opts},
     fetcher::{
         BuiltinsFetchGit, FetchCrate, FetchFromBitbucket, FetchFromGitHub, FetchFromGitLab,
-        FetchFromGitea, FetchFromGitiles, FetchFromRepoOrCz, FetchFromSourcehut, FetchHex, Fetcher,
-        FetcherDispatch, Fetchgit, Fetchhg, Fetchsvn,
+        FetchFromGitea, FetchFromGitiles, FetchFromRepoOrCz, FetchFromSourcehut, FetchHex,
+        FetchPypi, Fetcher, FetcherDispatch, Fetchgit, Fetchhg, Fetchsvn,
     },
 };
 
@@ -165,6 +165,11 @@ fn main() -> Result<()> {
             bail!("fetchHex only supports hex.pm");
         }
 
+        (None | Some(FetcherFunction::FetchPypi), Some("pypi.org"), _) => FetchPypi.into(),
+        (Some(FetcherFunction::FetchPypi), ..) => {
+            bail!("fetchPypi only supports pypi.org");
+        }
+
         (None | Some(FetcherFunction::Fetchgit), _, Scheme::Git) => Fetchgit(GitScheme::Yes).into(),
         (None | Some(FetcherFunction::Fetchgit), _, Scheme::Ext(scheme))
             if scheme.starts_with("git+") =>
@@ -201,7 +206,12 @@ fn main() -> Result<()> {
             FetcherFunction::FetchFromRepoOrCz => {
                 bail!("fetchFromRepoOrCz only supports repo.or.cz");
             }
-            FetcherFunction::FetchHex => FetchHex.into(),
+            FetcherFunction::FetchHex => {
+                bail!("fetchHex only supports hex.pm");
+            }
+            FetcherFunction::FetchPypi => {
+                bail!("fetchPypi only supports pypi.org");
+            }
             FetcherFunction::Fetchgit => Fetchgit(GitScheme::No).into(),
             FetcherFunction::Fetchhg => Fetchhg(false).into(),
             FetcherFunction::Fetchsvn => Fetchsvn.into(),

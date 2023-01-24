@@ -8,6 +8,7 @@ mod gitiles;
 mod gitlab;
 mod hex;
 mod hg;
+mod pypi;
 mod repo_or_cz;
 mod sourcehut;
 mod svn;
@@ -22,6 +23,7 @@ pub use gitiles::FetchFromGitiles;
 pub use gitlab::FetchFromGitLab;
 pub use hex::FetchHex;
 pub use hg::Fetchhg;
+pub use pypi::FetchPypi;
 pub use repo_or_cz::FetchFromRepoOrCz;
 pub use sourcehut::FetchFromSourcehut;
 pub use svn::Fetchsvn;
@@ -86,6 +88,7 @@ pub enum FetcherDispatch<'a> {
     FetchFromRepoOrCz(FetchFromRepoOrCz),
     FetchFromSourcehut(FetchFromSourcehut<'a>),
     FetchHex(FetchHex),
+    FetchPypi(FetchPypi),
     Fetchgit(Fetchgit),
     Fetchhg(Fetchhg),
     Fetchsvn(Fetchsvn),

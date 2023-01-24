@@ -1,0 +1,5 @@
+fetchPypi {
+  pname = "requests";
+  version = "2.20.0";
+  hash = "sha256-mdz9qusXyvblJvMrant4BGFRKrPx2ZIYeAFpTLpCdww=";
+}

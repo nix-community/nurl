@@ -20,6 +20,7 @@ fetchFromGitHub {
 
 ## Supported Fetchers
 
+- builtins.fetchGit
 - fetchCrate
 - fetchFromBitbucket
 - fetchFromGitHub
@@ -29,6 +30,7 @@ fetchFromGitHub {
 - fetchFromRepoOrCz
 - fetchFromSourcehut
 - fetchHex
+- fetchPypi
 - fetchgit
 - fetchhg
 - fetchsvn
@@ -44,10 +46,17 @@ Arguments:
 
 Options:
   -f, --fetcher <FETCHER>              Specify the fetcher function instead of inferring from the
-                                       URL [possible values: fetchCrate, fetchFromBitbucket,
+                                       URL [possible values: builtins.fetchGit, fetchCrate,
+                                       fetchFromBitbucket, fetchFromGitHub, fetchFromGitLab,
+                                       fetchFromGitea, fetchFromGitiles, fetchFromRepoOrCz,
+                                       fetchFromSourcehut, fetchHex, fetchPypi, fetchgit, fetchhg,
+                                       fetchsvn]
+  -F, --fallback <FALLBACK>            The fetcher to fall back to when nurl fails to infer it from
+                                       the URL [default: fetchgit] [possible values:
+                                       builtins.fetchGit, fetchCrate, fetchFromBitbucket,
                                        fetchFromGitHub, fetchFromGitLab, fetchFromGitea,
                                        fetchFromGitiles, fetchFromRepoOrCz, fetchFromSourcehut,
-                                       fetchHex, fetchgit, fetchhg, fetchsvn]
+                                       fetchHex, fetchPypi, fetchgit, fetchhg, fetchsvn]
   -i, --indent <INDENT>                Extra indentation (in number of spaces) [default: 0]
   -H, --hash                           Only output the hash
   -j, --json                           Output in json format
@@ -64,8 +73,8 @@ Options:
   -s, --list-sep <SEPARATOR>           Print out the listed fetchers with the specified separator,
                                        only used when --list-fetchers or --list-possible-fetchers is
                                        specified
-  -h, --help                           Print help information
-  -V, --version                        Print version information
+  -h, --help                           Print help
+  -V, --version                        Print version
 ```
 
 ## Comparison to [nix-prefetch](https://github.com/msteen/nix-prefetch)

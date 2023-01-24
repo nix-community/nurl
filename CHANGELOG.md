@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.6 - 2023-01-24
+
+### Features
+
+- `--fallback` to specify a fetcher to fall back to
+- `fetchPypi` support
+- `builtins.fetchGit` support
+
 ## v0.3.5 - 2023-01-13
 
 ### Features

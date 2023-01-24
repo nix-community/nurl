@@ -183,7 +183,29 @@ fn main() -> Result<()> {
         (None, _, Scheme::Ext(scheme)) if scheme == "svn" => Fetchsvn.into(),
         (Some(FetcherFunction::Fetchsvn), ..) => Fetchsvn.into(),
 
-        (None, ..) => Fetchgit(GitScheme::No).into(),
+        (None, ..) => match opts.fallback {
+            FetcherFunction::BuiltinsFetchGit => BuiltinsFetchGit.into(),
+            FetcherFunction::FetchCrate => {
+                bail!("fetchCrate only supports crates.io and lib.rs");
+            }
+            FetcherFunction::FetchFromBitbucket => {
+                bail!("fetchFromBitbucket only supports bitbucket.org");
+            }
+            fetcher @ (FetcherFunction::FetchFromGitHub
+            | FetcherFunction::FetchFromGitLab
+            | FetcherFunction::FetchFromGitea
+            | FetcherFunction::FetchFromSourcehut) => {
+                bail!("{fetcher:?} does not support URLs without a host");
+            }
+            FetcherFunction::FetchFromGitiles => FetchFromGitiles.into(),
+            FetcherFunction::FetchFromRepoOrCz => {
+                bail!("fetchFromRepoOrCz only supports repo.or.cz");
+            }
+            FetcherFunction::FetchHex => FetchHex.into(),
+            FetcherFunction::Fetchgit => Fetchgit(GitScheme::No).into(),
+            FetcherFunction::Fetchhg => Fetchhg(false).into(),
+            FetcherFunction::Fetchsvn => Fetchsvn.into(),
+        },
     };
 
     let url_bstring = url.to_bstring();

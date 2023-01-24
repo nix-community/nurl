@@ -20,6 +20,10 @@ pub struct Opts {
     #[arg(short, long)]
     pub fetcher: Option<FetcherFunction>,
 
+    /// The fetcher to fall back to when nurl fails to infer it from the URL
+    #[arg(short = 'F', long, default_value = "fetchgit")]
+    pub fallback: FetcherFunction,
+
     /// Extra indentation (in number of spaces)
     #[arg(short, long, default_value_t = 0)]
     pub indent: usize,

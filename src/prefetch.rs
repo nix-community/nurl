@@ -51,6 +51,24 @@ pub fn flake_prefetch(flake_ref: String) -> Result<String> {
     .hash)
 }
 
+// work around for https://github.com/NixOS/nix/issues/5291
+pub fn git_prefetch(git_scheme: bool, url: &str, rev: &str) -> Result<String> {
+    let prefix = if git_scheme { "" } else { "git+" };
+
+    if rev.len() == 40 {
+        flake_prefetch(format!("{prefix}{url}?rev={rev}&submodules=1"))
+    } else {
+        if !rev.starts_with("refs/") {
+            if let hash @ Ok(_) =
+                flake_prefetch(format!("{prefix}{url}?ref=refs/tags/{rev}&submodules=1"))
+            {
+                return hash;
+            }
+        }
+        flake_prefetch(format!("{prefix}{url}?ref={rev}&submodules=1"))
+    }
+}
+
 pub fn url_prefetch(url: String, unpack: bool) -> Result<String> {
     let mut cmd = Command::new("nix-prefetch-url");
     if unpack {

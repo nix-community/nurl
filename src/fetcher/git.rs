@@ -1,8 +1,6 @@
-use crate::{
-    impl_fetcher,
-    simple::{SimpleFetcher, SimpleFlakeFetcher},
-    GitScheme, Url,
-};
+use anyhow::Result;
+
+use crate::{impl_fetcher, prefetch::git_prefetch, simple::SimpleFetcher, GitScheme, Url};
 
 pub struct Fetchgit(pub GitScheme);
 impl_fetcher!(Fetchgit);
@@ -20,13 +18,18 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchgit {
     }
 }
 
-impl<'a> SimpleFlakeFetcher<'a, 1> for Fetchgit {
-    fn get_flake_ref(&self, [url]: &[&str; 1], rev: &str) -> String {
-        let rev_type = if rev.len() == 40 { "rev" } else { "ref" };
-        if matches!(self.0, GitScheme::Yes) {
-            format!("{url}?{rev_type}={rev}&submodules=1")
+impl<'a> Fetchgit {
+    fn fetch(
+        &'a self,
+        values @ [url]: &[&str; 1],
+        rev: &str,
+        args: &[(String, String)],
+        args_str: &[(String, String)],
+    ) -> Result<String> {
+        if args.is_empty() && args_str.is_empty() {
+            git_prefetch(matches!(self.0, GitScheme::Yes), url, rev)
         } else {
-            format!("git+{url}?{rev_type}={rev}&submodules=1")
+            self.fetch_fod(values, rev, args, args_str)
         }
     }
 }

@@ -15,15 +15,15 @@ pub trait SimpleFetcher<'a, const N: usize> {
     const NAME: &'static str;
     const REV_KEY: &'static str = "rev";
 
-    fn host(&'a self) -> Option<&'a str> {
+    fn host(&self) -> Option<&str> {
         None
     }
 
-    fn group(&'a self) -> Option<&'a str> {
+    fn group(&self) -> Option<&str> {
         None
     }
 
-    fn get_values(&self, url: &'a Url<'a>) -> Option<[&'a str; N]> {
+    fn get_values(&self, url: &'a Url) -> Option<[&'a str; N]> {
         let mut xs: [_; N] = url
             .path_segments()
             .chunks(N)
@@ -44,7 +44,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
     }
 
     fn fetch_fod(
-        &'a self,
+        &self,
         values: &[&str; N],
         rev: &str,
         args: &[(String, String)],
@@ -84,7 +84,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
     }
 
     fn write_nix(
-        &'a self,
+        &self,
         out: &mut impl Write,
         values: &[&str; N],
         rev: String,
@@ -151,7 +151,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
     }
 
     fn write_json(
-        &'a self,
+        &self,
         out: &mut impl Write,
         values: &[&str; N],
         rev: String,
@@ -208,7 +208,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
 
 pub trait SimpleFodFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
     fn fetch(
-        &'a self,
+        &self,
         values: &[&str; N],
         rev: &str,
         args: &[(String, String)],
@@ -219,10 +219,10 @@ pub trait SimpleFodFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
 }
 
 pub trait SimpleFlakeFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
-    fn get_flake_ref(&'a self, values: &[&str; N], rev: &str) -> String;
+    fn get_flake_ref(&self, values: &[&str; N], rev: &str) -> String;
 
     fn fetch(
-        &'a self,
+        &self,
         values: &[&str; N],
         rev: &str,
         args: &[(String, String)],
@@ -242,7 +242,7 @@ pub trait SimpleUrlFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
     fn get_url(&self, values: &[&str; N], rev: &str) -> String;
 
     fn fetch(
-        &'a self,
+        &self,
         values: &[&str; N],
         rev: &str,
         args: &[(String, String)],

@@ -14,11 +14,11 @@ struct Commit {
     sha: String,
 }
 
-impl<'a> SimpleFetcher<'a, 2> for FetchFromGitea<'a> {
+impl SimpleFetcher<'_, 2> for FetchFromGitea<'_> {
     const KEYS: [&'static str; 2] = ["owner", "repo"];
     const NAME: &'static str = "fetchFromGitea";
 
-    fn host(&'a self) -> Option<&'a str> {
+    fn host(&self) -> Option<&str> {
         Some(self.0)
     }
 

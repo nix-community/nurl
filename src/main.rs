@@ -32,8 +32,8 @@ pub struct Url<'a> {
     path: &'a str,
 }
 
-impl<'a> Url<'a> {
-    fn as_str(&'a self) -> &str {
+impl Url<'_> {
+    fn as_str(&self) -> &str {
         self.url
     }
 
@@ -42,7 +42,7 @@ impl<'a> Url<'a> {
     }
 }
 
-impl<'a> Display for Url<'a> {
+impl Display for Url<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
     }

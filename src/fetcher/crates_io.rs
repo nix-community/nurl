@@ -7,12 +7,12 @@ use crate::{
 pub struct FetchCrate(pub bool);
 impl_fetcher!(FetchCrate);
 
-impl<'a> SimpleFetcher<'a, 1> for FetchCrate {
+impl SimpleFetcher<'_, 1> for FetchCrate {
     const KEYS: [&'static str; 1] = ["pname"];
     const NAME: &'static str = "fetchCrate";
     const REV_KEY: &'static str = "version";
 
-    fn get_values(&self, url: &'a Url) -> Option<[&'a str; 1]> {
+    fn get_values<'a>(&self, url: &'a Url) -> Option<[&'a str; 1]> {
         let mut xs = url.path_segments();
         Some([if self.0 {
             xs.nth(1)?
@@ -25,7 +25,7 @@ impl<'a> SimpleFetcher<'a, 1> for FetchCrate {
     }
 }
 
-impl<'a> SimpleUrlFetcher<'a, 1> for FetchCrate {
+impl SimpleUrlFetcher<'_, 1> for FetchCrate {
     fn get_url(&self, [pname]: &[&str; 1], version: &str) -> String {
         format!("https://crates.io/api/v1/crates/{pname}/{version}/download")
     }

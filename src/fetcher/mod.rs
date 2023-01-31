@@ -38,7 +38,7 @@ use std::io::Write;
 #[enum_dispatch]
 pub trait Fetcher<'a> {
     fn fetch_nix(
-        &'a self,
+        &self,
         out: &mut impl Write,
         url: &'a Url,
         rev: Option<String>,
@@ -49,18 +49,18 @@ pub trait Fetcher<'a> {
     ) -> Result<()>;
 
     fn fetch_hash(
-        &'a self,
-        out: &mut impl ::std::io::Write,
-        url: &'a Url<'a>,
+        &self,
+        out: &mut impl Write,
+        url: &'a Url,
         rev: Option<String>,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
     ) -> Result<()>;
 
     fn fetch_json(
-        &'a self,
+        &self,
         out: &mut impl Write,
-        url: &'a Url<'a>,
+        url: &'a Url,
         rev: Option<String>,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
@@ -68,12 +68,7 @@ pub trait Fetcher<'a> {
         overwrites_str: Vec<(String, String)>,
     ) -> Result<()>;
 
-    fn to_json(
-        &'a self,
-        out: &mut impl ::std::io::Write,
-        url: &'a Url<'a>,
-        rev: Option<String>,
-    ) -> ::anyhow::Result<()>;
+    fn to_json(&'a self, out: &mut impl Write, url: &'a Url, rev: Option<String>) -> Result<()>;
 }
 
 #[enum_dispatch(Fetcher)]
@@ -99,9 +94,9 @@ macro_rules! impl_fetcher {
     ($t:ty) => {
         impl<'a> $crate::fetcher::Fetcher<'a> for $t {
             fn fetch_nix(
-                &'a self,
+                &self,
                 out: &mut impl ::std::io::Write,
-                url: &'a $crate::Url<'a>,
+                url: &'a $crate::Url,
                 rev: Option<String>,
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,
@@ -125,9 +120,9 @@ macro_rules! impl_fetcher {
             }
 
             fn fetch_hash(
-                &'a self,
+                &self,
                 out: &mut impl ::std::io::Write,
-                url: &'a $crate::Url<'a>,
+                url: &'a $crate::Url,
                 rev: Option<String>,
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,
@@ -150,9 +145,9 @@ macro_rules! impl_fetcher {
             }
 
             fn fetch_json(
-                &'a self,
+                &self,
                 out: &mut impl ::std::io::Write,
-                url: &'a $crate::Url<'a>,
+                url: &'a $crate::Url,
                 rev: Option<String>,
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,
@@ -187,7 +182,7 @@ macro_rules! impl_fetcher {
             fn to_json(
                 &'a self,
                 out: &mut impl ::std::io::Write,
-                url: &'a $crate::Url<'a>,
+                url: &'a $crate::Url,
                 rev: Option<String>,
             ) -> ::anyhow::Result<()> {
                 use anyhow::Context;

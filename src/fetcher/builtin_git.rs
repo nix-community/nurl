@@ -10,7 +10,7 @@ pub struct BuiltinsFetchGit;
 
 impl<'a> Fetcher<'a> for BuiltinsFetchGit {
     fn fetch_nix(
-        &'a self,
+        &self,
         out: &mut impl Write,
         url: &'a Url,
         rev: Option<String>,
@@ -59,7 +59,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
     }
 
     fn fetch_hash(
-        &'a self,
+        &self,
         _: &mut impl Write,
         _: &'a Url,
         _: Option<String>,
@@ -70,7 +70,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
     }
 
     fn fetch_json(
-        &'a self,
+        &self,
         out: &mut impl Write,
         url: &'a Url,
         rev: Option<String>,

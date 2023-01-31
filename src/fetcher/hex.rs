@@ -13,12 +13,12 @@ impl<'a> SimpleFetcher<'a, 1> for FetchHex {
     const NAME: &'static str = "fetchHex";
     const REV_KEY: &'static str = "version";
 
-    fn get_values(&self, url: &'a Url<'a>) -> Option<[&'a str; 1]> {
+    fn get_values(&self, url: &'a Url) -> Option<[&'a str; 1]> {
         Some([url.path_segments().nth(1)?])
     }
 }
 
-impl<'a> SimpleUrlFetcher<'a, 1> for FetchHex {
+impl SimpleUrlFetcher<'_, 1> for FetchHex {
     const UNPACK: bool = false;
 
     fn get_url(&self, [pkg]: &[&str; 1], version: &str) -> String {

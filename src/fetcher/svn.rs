@@ -17,4 +17,4 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchsvn {
     }
 }
 
-impl<'a> SimpleFodFetcher<'a, 1> for Fetchsvn {}
+impl SimpleFodFetcher<'_, 1> for Fetchsvn {}

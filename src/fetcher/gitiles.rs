@@ -11,12 +11,12 @@ impl<'a> SimpleFetcher<'a, 1> for FetchFromGitiles {
     const KEYS: [&'static str; 1] = ["url"];
     const NAME: &'static str = "fetchFromGitiles";
 
-    fn get_values(&self, url: &'a Url<'a>) -> Option<[&'a str; 1]> {
+    fn get_values(&self, url: &'a Url) -> Option<[&'a str; 1]> {
         Some([url.as_str()])
     }
 }
 
-impl<'a> SimpleUrlFetcher<'a, 1> for FetchFromGitiles {
+impl SimpleUrlFetcher<'_, 1> for FetchFromGitiles {
     fn get_url(&self, [url]: &[&str; 1], rev: &str) -> String {
         format!("{url}/+archive/{rev}.tar.gz")
     }

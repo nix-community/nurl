@@ -34,15 +34,15 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
     const KEYS: [&'static str; 2] = ["owner", "repo"];
     const NAME: &'static str = "fetchFromGitLab";
 
-    fn host(&'a self) -> Option<&'a str> {
+    fn host(&self) -> Option<&str> {
         self.host
     }
 
-    fn group(&'a self) -> Option<&'a str> {
+    fn group(&self) -> Option<&str> {
         self.group.get().copied()
     }
 
-    fn get_values(&self, url: &'a Url<'a>) -> Option<[&'a str; 2]> {
+    fn get_values(&self, url: &'a Url) -> Option<[&'a str; 2]> {
         let mut xs = url.path_segments();
         let x = xs.next()?;
         let y = xs.next()?;
@@ -85,7 +85,7 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
 }
 
 impl<'a> SimpleFlakeFetcher<'a, 2> for FetchFromGitLab<'a> {
-    fn get_flake_ref(&'a self, [owner, repo]: &[&str; 2], rev: &str) -> String {
+    fn get_flake_ref(&self, [owner, repo]: &[&str; 2], rev: &str) -> String {
         let mut flake_ref = String::from("gitlab:");
         if let Some(group) = self.group.get() {
             flake_ref.push_str(group);

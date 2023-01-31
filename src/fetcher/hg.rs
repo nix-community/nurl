@@ -12,7 +12,7 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchhg {
     const KEYS: [&'static str; 1] = ["url"];
     const NAME: &'static str = "fetchhg";
 
-    fn get_values(&self, url: &'a Url<'a>) -> Option<[&'a str; 1]> {
+    fn get_values(&self, url: &'a Url) -> Option<[&'a str; 1]> {
         Some([if self.0 {
             url.as_str().strip_prefix("hg+")?
         } else {
@@ -21,7 +21,7 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchhg {
     }
 }
 
-impl<'a> SimpleFlakeFetcher<'a, 1> for Fetchhg {
+impl SimpleFlakeFetcher<'_, 1> for Fetchhg {
     fn get_flake_ref(&self, [url]: &[&str; 1], rev: &str) -> String {
         format!(
             "hg+{url}?{}={rev}",

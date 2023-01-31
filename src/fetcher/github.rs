@@ -14,12 +14,12 @@ struct Commit {
     sha: String,
 }
 
-impl<'a> SimpleFetcher<'a, 2> for FetchFromGitHub<'a> {
+impl SimpleFetcher<'_, 2> for FetchFromGitHub<'_> {
     const HOST_KEY: &'static str = "githubBase";
     const KEYS: [&'static str; 2] = ["owner", "repo"];
     const NAME: &'static str = "fetchFromGitHub";
 
-    fn host(&'a self) -> Option<&'a str> {
+    fn host(&self) -> Option<&str> {
         self.0
     }
 
@@ -37,7 +37,7 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitHub<'a> {
 }
 
 impl<'a> SimpleFlakeFetcher<'a, 2> for FetchFromGitHub<'a> {
-    fn get_flake_ref(&'a self, [owner, repo]: &[&str; 2], rev: &str) -> String {
+    fn get_flake_ref(&self, [owner, repo]: &[&str; 2], rev: &str) -> String {
         if let Some(host) = self.0 {
             format!("github:{owner}/{repo}/{rev}?host={host}")
         } else {

@@ -12,13 +12,13 @@ impl<'a> SimpleFetcher<'a, 1> for FetchPypi {
     const NAME: &'static str = "fetchPypi";
     const REV_KEY: &'static str = "version";
 
-    fn get_values(&self, url: &'a Url<'a>) -> Option<[&'a str; 1]> {
+    fn get_values(&self, url: &'a Url) -> Option<[&'a str; 1]> {
         let pname = url.path_segments().nth(1)?;
         (!pname.is_empty()).then_some([pname])
     }
 }
 
-impl<'a> SimpleUrlFetcher<'a, 1> for FetchPypi {
+impl SimpleUrlFetcher<'_, 1> for FetchPypi {
     const UNPACK: bool = false;
 
     fn get_url(&self, [pname]: &[&str; 1], version: &str) -> String {

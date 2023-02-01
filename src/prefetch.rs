@@ -52,20 +52,21 @@ pub fn flake_prefetch(flake_ref: String) -> Result<String> {
 }
 
 // work around for https://github.com/NixOS/nix/issues/5291
-pub fn git_prefetch(git_scheme: bool, url: &str, rev: &str) -> Result<String> {
+pub fn git_prefetch(git_scheme: bool, url: &str, rev: &str, submodules: bool) -> Result<String> {
     let prefix = if git_scheme { "" } else { "git+" };
+    let submodules = if submodules { "&submodules=1" } else { "" };
 
     if rev.len() == 40 {
-        flake_prefetch(format!("{prefix}{url}?rev={rev}&submodules=1"))
+        flake_prefetch(format!("{prefix}{url}?rev={rev}{submodules}"))
     } else {
         if !rev.starts_with("refs/") {
             if let hash @ Ok(_) =
-                flake_prefetch(format!("{prefix}{url}?ref=refs/tags/{rev}&submodules=1"))
+                flake_prefetch(format!("{prefix}{url}?ref=refs/tags/{rev}{submodules}"))
             {
                 return hash;
             }
         }
-        flake_prefetch(format!("{prefix}{url}?ref={rev}&submodules=1"))
+        flake_prefetch(format!("{prefix}{url}?ref={rev}{submodules}"))
     }
 }
 

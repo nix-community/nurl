@@ -42,6 +42,7 @@ pub trait Fetcher<'a> {
         out: &mut impl Write,
         url: &'a Url,
         rev: Option<String>,
+        submodules: Option<bool>,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
         overwrites: FxHashMap<String, String>,
@@ -53,6 +54,7 @@ pub trait Fetcher<'a> {
         out: &mut impl Write,
         url: &'a Url,
         rev: Option<String>,
+        submodules: Option<bool>,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
     ) -> Result<()>;
@@ -62,6 +64,7 @@ pub trait Fetcher<'a> {
         out: &mut impl Write,
         url: &'a Url,
         rev: Option<String>,
+        submodules: Option<bool>,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
         overwrites: Vec<(String, String)>,
@@ -98,6 +101,7 @@ macro_rules! impl_fetcher {
                 out: &mut impl ::std::io::Write,
                 url: &'a $crate::Url,
                 rev: Option<String>,
+                submodules: Option<bool>,
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,
                 overwrites: ::rustc_hash::FxHashMap<String, String>,
@@ -114,9 +118,10 @@ macro_rules! impl_fetcher {
                     None => self.fetch_rev(values)?,
                 };
 
-                let hash = self.fetch(values, &rev, &args, &args_str)?;
+                let submodules = self.resolve_submodules(submodules);
+                let hash = self.fetch(values, &rev, submodules, &args, &args_str)?;
 
-                self.write_nix(out, values, rev, hash, args, args_str, overwrites, indent)
+                self.write_nix(out, values, rev, hash, submodules, args, args_str, overwrites, indent)
             }
 
             fn fetch_hash(
@@ -124,6 +129,7 @@ macro_rules! impl_fetcher {
                 out: &mut impl ::std::io::Write,
                 url: &'a $crate::Url,
                 rev: Option<String>,
+                submodules: Option<bool>,
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,
             ) -> ::anyhow::Result<()> {
@@ -138,7 +144,8 @@ macro_rules! impl_fetcher {
                     None => self.fetch_rev(values)?,
                 };
 
-                let hash = self.fetch(values, &rev, &args, &args_str)?;
+                let submodules = self.resolve_submodules(submodules);
+                let hash = self.fetch(values, &rev, submodules, &args, &args_str)?;
                 write!(out, "{}", hash)?;
 
                 Ok(())
@@ -149,6 +156,7 @@ macro_rules! impl_fetcher {
                 out: &mut impl ::std::io::Write,
                 url: &'a $crate::Url,
                 rev: Option<String>,
+                submodules: Option<bool>,
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,
                 overwrites: Vec<(String, String)>,
@@ -165,13 +173,15 @@ macro_rules! impl_fetcher {
                     None => self.fetch_rev(values)?,
                 };
 
-                let hash = self.fetch(values, &rev, &args, &args_str)?;
+                let submodules = self.resolve_submodules(submodules);
+                let hash = self.fetch(values, &rev, submodules, &args, &args_str)?;
 
                 self.write_json(
                     out,
                     values,
                     rev,
                     hash,
+                    submodules,
                     args,
                     args_str,
                     overwrites,

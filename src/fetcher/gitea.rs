@@ -3,7 +3,8 @@ use serde::Deserialize;
 
 use crate::{
     impl_fetcher,
-    simple::{SimpleFetcher, SimpleUrlFetcher},
+    prefetch::{git_prefetch, url_prefetch},
+    simple::SimpleFetcher,
 };
 
 pub struct FetchFromGitea<'a>(pub &'a str);
@@ -17,6 +18,7 @@ struct Commit {
 impl SimpleFetcher<'_, 2> for FetchFromGitea<'_> {
     const KEYS: [&'static str; 2] = ["owner", "repo"];
     const NAME: &'static str = "fetchFromGitea";
+    const SUBMODULES_KEY: Option<&'static str> = Some("fetchSubmodules");
 
     fn host(&self) -> Option<&str> {
         Some(self.0)
@@ -37,8 +39,31 @@ impl SimpleFetcher<'_, 2> for FetchFromGitea<'_> {
     }
 }
 
-impl<'a> SimpleUrlFetcher<'a, 2> for FetchFromGitea<'a> {
-    fn get_url(&self, [owner, repo]: &[&str; 2], rev: &str) -> String {
-        format!("https://{}/{owner}/{repo}/archive/{rev}.tar.gz", self.0)
+impl FetchFromGitea<'_> {
+    fn fetch(
+        &self,
+        values @ [owner, repo]: &[&str; 2],
+        rev: &str,
+        submodules: bool,
+        args: &[(String, String)],
+        args_str: &[(String, String)],
+    ) -> Result<String> {
+        if args.is_empty() && args_str.is_empty() {
+            if submodules {
+                git_prefetch(
+                    true,
+                    &format!("git+https://{}/{owner}/{repo}", self.0),
+                    rev,
+                    true,
+                )
+            } else {
+                url_prefetch(
+                    format!("https://{}/{owner}/{repo}/archive/{rev}.tar.gz", self.0),
+                    true,
+                )
+            }
+        } else {
+            self.fetch_fod(values, rev, submodules, args, args_str)
+        }
     }
 }

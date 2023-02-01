@@ -1,0 +1,5 @@
+args = [
+    "https://gitlab.com/librewolf-community/browser/source",
+    "100.0-1",
+    "--submodules",
+]

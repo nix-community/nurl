@@ -1,0 +1,7 @@
+args = [
+    "http://www.octave.org/hg/octave",
+    "release-7-1-0",
+    "--submodules",
+    "--fetcher",
+    "fetchhg",
+]

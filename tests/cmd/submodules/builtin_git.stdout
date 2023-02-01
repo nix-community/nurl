@@ -1,0 +1,5 @@
+builtins.fetchGit {
+  url = "https://github.com/Koihik/LuaFormatter";
+  ref = "refs/tags/1.3.0";
+  submodules = true;
+}

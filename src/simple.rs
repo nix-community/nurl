@@ -1,4 +1,4 @@
-use crate::Url;
+use crate::{prefetch::git_prefetch, Url};
 use anyhow::{bail, Result};
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
@@ -14,6 +14,8 @@ pub trait SimpleFetcher<'a, const N: usize> {
     const KEYS: [&'static str; N];
     const NAME: &'static str;
     const REV_KEY: &'static str = "rev";
+    const SUBMODULES_DEFAULT: bool = false;
+    const SUBMODULES_KEY: Option<&'static str> = None;
 
     fn host(&self) -> Option<&str> {
         None
@@ -36,6 +38,10 @@ pub trait SimpleFetcher<'a, const N: usize> {
         Some(xs)
     }
 
+    fn resolve_submodules(&self, submodules: Option<bool>) -> bool {
+        submodules.map_or(false, |submodules| submodules ^ Self::SUBMODULES_DEFAULT)
+    }
+
     fn fetch_rev(&self, _: &[&str; N]) -> Result<String> {
         bail!(
             "{} does not support fetching the latest revision",
@@ -47,6 +53,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
         &self,
         values: &[&str; N],
         rev: &str,
+        submodules: bool,
         args: &[(String, String)],
         args_str: &[(String, String)],
     ) -> Result<String> {
@@ -71,6 +78,12 @@ pub trait SimpleFetcher<'a, const N: usize> {
             Self::HASH_KEY,
         )?;
 
+        if submodules {
+            if let Some(key) = Self::SUBMODULES_KEY {
+                write!(expr, "{key}={};", !Self::SUBMODULES_DEFAULT)?;
+            }
+        }
+
         for (key, value) in args {
             write!(expr, "{key}={value};")?;
         }
@@ -89,6 +102,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
         values: &[&str; N],
         rev: String,
         hash: String,
+        submodules: bool,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
         overwrites: FxHashMap<String, String>,
@@ -129,6 +143,14 @@ pub trait SimpleFetcher<'a, const N: usize> {
             writeln!(out, r#"{indent}  {} = "{hash}";"#, Self::HASH_KEY)?;
         }
 
+        if let Some(key) = Self::SUBMODULES_KEY {
+            if let Some(submodules) = overwrites.remove(key) {
+                writeln!(out, "{indent}  {key} = {submodules};")?;
+            } else if submodules {
+                writeln!(out, "{indent}  {key} = {};", !Self::SUBMODULES_DEFAULT)?;
+            }
+        }
+
         for (key, value) in args {
             let value = overwrites.remove(&key).unwrap_or(value);
             writeln!(out, "{indent}  {key} = {value};")?;
@@ -156,6 +178,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
         values: &[&str; N],
         rev: String,
         hash: String,
+        submodules: bool,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
         overwrites: Vec<(String, String)>,
@@ -172,6 +195,12 @@ pub trait SimpleFetcher<'a, const N: usize> {
 
         if let Some(group) = self.group() {
             fetcher_args["group"] = json!(group);
+        }
+
+        if submodules {
+            if let Some(key) = Self::SUBMODULES_KEY {
+                fetcher_args[key] = json!(!Self::SUBMODULES_DEFAULT);
+            }
         }
 
         for (key, value) in args {
@@ -211,27 +240,59 @@ pub trait SimpleFodFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         &self,
         values: &[&str; N],
         rev: &str,
+        submodules: bool,
         args: &[(String, String)],
         args_str: &[(String, String)],
     ) -> Result<String> {
-        self.fetch_fod(values, rev, args, args_str)
+        self.fetch_fod(values, rev, submodules, args, args_str)
     }
 }
 
 pub trait SimpleFlakeFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
-    fn get_flake_ref(&self, values: &[&str; N], rev: &str) -> String;
+    fn get_flake_ref(&self, values: &[&str; N], rev: &str, submodules: bool) -> String;
 
     fn fetch(
         &self,
         values: &[&str; N],
         rev: &str,
+        submodules: bool,
         args: &[(String, String)],
         args_str: &[(String, String)],
     ) -> Result<String> {
         if args.is_empty() && args_str.is_empty() {
-            flake_prefetch(self.get_flake_ref(values, rev))
+            flake_prefetch(self.get_flake_ref(values, rev, submodules))
         } else {
-            self.fetch_fod(values, rev, args, args_str)
+            self.fetch_fod(values, rev, submodules, args, args_str)
+        }
+    }
+}
+
+pub trait SimpleGitFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
+    fn get_flake_ref(&self, values: &[&str; N], rev: &str) -> String;
+
+    fn get_repo_url(&self, values: &[&str; N]) -> String;
+
+    fn fetch(
+        &self,
+        values: &[&str; N],
+        rev: &str,
+        submodules: bool,
+        args: &[(String, String)],
+        args_str: &[(String, String)],
+    ) -> Result<String> {
+        if args.is_empty() && args_str.is_empty() {
+            if submodules {
+                git_prefetch(
+                    true,
+                    &self.get_repo_url(values),
+                    rev,
+                    !Self::SUBMODULES_DEFAULT,
+                )
+            } else {
+                flake_prefetch(self.get_flake_ref(values, rev))
+            }
+        } else {
+            self.fetch_fod(values, rev, submodules, args, args_str)
         }
     }
 }
@@ -245,13 +306,14 @@ pub trait SimpleUrlFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         &self,
         values: &[&str; N],
         rev: &str,
+        submodules: bool,
         args: &[(String, String)],
         args_str: &[(String, String)],
     ) -> Result<String> {
         if args.is_empty() && args_str.is_empty() {
             url_prefetch(self.get_url(values, rev), Self::UNPACK)
         } else {
-            self.fetch_fod(values, rev, args, args_str)
+            self.fetch_fod(values, rev, submodules, args, args_str)
         }
     }
 }

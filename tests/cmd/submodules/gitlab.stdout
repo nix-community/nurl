@@ -1,0 +1,8 @@
+fetchFromGitLab {
+  group = "librewolf-community";
+  owner = "browser";
+  repo = "source";
+  rev = "100.0-1";
+  hash = "sha256-ijqyZAEKyL7V/NFtI3ErHcSnj7VbBFvgCgK9NJren/U=";
+  fetchSubmodules = true;
+}

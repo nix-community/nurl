@@ -16,6 +16,10 @@ pub struct Opts {
     /// The revision or reference to be fetched
     pub rev: Option<String>,
 
+    /// Fetch submodules instead of using the fetcher's default
+    #[arg(short = 'S', long, num_args=0..=1, require_equals = true, default_missing_value = "true")]
+    pub submodules: Option<bool>,
+
     /// Specify the fetcher function instead of inferring from the URL
     #[arg(short, long)]
     pub fetcher: Option<FetcherFunction>,

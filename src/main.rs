@@ -229,12 +229,13 @@ fn main() -> Result<()> {
     let args = opts.args.into_iter().tuples().collect();
     let args_str = opts.args_str.into_iter().tuples().collect();
     if opts.hash {
-        fetcher.fetch_hash(out, &url, opts.rev, args, args_str)
+        fetcher.fetch_hash(out, &url, opts.rev, opts.submodules, args, args_str)
     } else if opts.json {
         fetcher.fetch_json(
             out,
             &url,
             opts.rev,
+            opts.submodules,
             args,
             args_str,
             opts.overwrites.into_iter().tuples().collect(),
@@ -253,6 +254,7 @@ fn main() -> Result<()> {
             out,
             &url,
             opts.rev,
+            opts.submodules,
             args,
             args_str,
             overwrites,

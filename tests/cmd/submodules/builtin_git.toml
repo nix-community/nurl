@@ -1,0 +1,7 @@
+args = [
+    "https://github.com/Koihik/LuaFormatter",
+    "refs/tags/1.3.0",
+    "--submodules",
+    "--fetcher",
+    "builtins.fetchGit",
+]

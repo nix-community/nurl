@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 use crate::{
     impl_fetcher,
-    simple::{SimpleFetcher, SimpleFlakeFetcher},
+    simple::{SimpleFetcher, SimpleGitFetcher},
 };
 
 pub struct FetchFromGitHub<'a>(pub Option<&'a str>);
@@ -18,6 +18,7 @@ impl SimpleFetcher<'_, 2> for FetchFromGitHub<'_> {
     const HOST_KEY: &'static str = "githubBase";
     const KEYS: [&'static str; 2] = ["owner", "repo"];
     const NAME: &'static str = "fetchFromGitHub";
+    const SUBMODULES_KEY: Option<&'static str> = Some("fetchSubmodules");
 
     fn host(&self) -> Option<&str> {
         self.0
@@ -36,12 +37,19 @@ impl SimpleFetcher<'_, 2> for FetchFromGitHub<'_> {
     }
 }
 
-impl<'a> SimpleFlakeFetcher<'a, 2> for FetchFromGitHub<'a> {
+impl<'a> SimpleGitFetcher<'a, 2> for FetchFromGitHub<'a> {
     fn get_flake_ref(&self, [owner, repo]: &[&str; 2], rev: &str) -> String {
         if let Some(host) = self.0 {
             format!("github:{owner}/{repo}/{rev}?host={host}")
         } else {
             format!("github:{owner}/{repo}/{rev}")
         }
+    }
+
+    fn get_repo_url(&self, [owner, repo]: &[&str; 2]) -> String {
+        format!(
+            "git+https://{}/{owner}/{repo}",
+            self.0.unwrap_or("github.com"),
+        )
     }
 }

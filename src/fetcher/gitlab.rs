@@ -6,7 +6,7 @@ use std::fmt::Write;
 
 use crate::{
     impl_fetcher,
-    simple::{SimpleFetcher, SimpleFlakeFetcher},
+    simple::{SimpleFetcher, SimpleGitFetcher},
     Url,
 };
 
@@ -33,6 +33,7 @@ struct Commit {
 impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
     const KEYS: [&'static str; 2] = ["owner", "repo"];
     const NAME: &'static str = "fetchFromGitLab";
+    const SUBMODULES_KEY: Option<&'static str> = Some("fetchSubmodules");
 
     fn host(&self) -> Option<&str> {
         self.host
@@ -84,7 +85,7 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
     }
 }
 
-impl<'a> SimpleFlakeFetcher<'a, 2> for FetchFromGitLab<'a> {
+impl<'a> SimpleGitFetcher<'a, 2> for FetchFromGitLab<'a> {
     fn get_flake_ref(&self, [owner, repo]: &[&str; 2], rev: &str) -> String {
         let mut flake_ref = String::from("gitlab:");
         if let Some(group) = self.group.get() {
@@ -100,6 +101,20 @@ impl<'a> SimpleFlakeFetcher<'a, 2> for FetchFromGitLab<'a> {
             flake_ref.push_str("?host=");
             flake_ref.push_str(host);
         }
+        flake_ref
+    }
+
+    fn get_repo_url(&self, [owner, repo]: &[&str; 2]) -> String {
+        let mut flake_ref = String::from("git+https://");
+        flake_ref.push_str(self.host.unwrap_or("gitlab.com"));
+        flake_ref.push('/');
+        if let Some(group) = self.group.get() {
+            flake_ref.push_str(group);
+            flake_ref.push('/');
+        }
+        flake_ref.push_str(owner);
+        flake_ref.push('/');
+        flake_ref.push_str(repo);
         flake_ref
     }
 }

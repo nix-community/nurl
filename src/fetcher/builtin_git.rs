@@ -14,6 +14,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
         out: &mut impl Write,
         url: &'a Url,
         rev: Option<String>,
+        submodules: Option<bool>,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
         overwrites: FxHashMap<String, String>,
@@ -35,6 +36,12 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
             writeln!(out, "{indent}  {rev_type} = {rev};")?;
         } else {
             writeln!(out, r#"{indent}  {rev_type} = "{rev}";"#)?;
+        }
+
+        if let Some(submodules) = overwrites.remove("submodules") {
+            writeln!(out, "{indent}  submodules = {submodules};")?;
+        } else if matches!(submodules, Some(true)) {
+            writeln!(out, "{indent}  submodules = true;")?;
         }
 
         for (key, value) in args {
@@ -63,6 +70,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
         _: &mut impl Write,
         _: &'a Url,
         _: Option<String>,
+        _: Option<bool>,
         _: Vec<(String, String)>,
         _: Vec<(String, String)>,
     ) -> Result<()> {
@@ -74,6 +82,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
         out: &mut impl Write,
         url: &'a Url,
         rev: Option<String>,
+        submodules: Option<bool>,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
         overwrites: Vec<(String, String)>,
@@ -86,6 +95,10 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
             "url": url.to_string(),
             rev_type: rev,
         });
+
+        if matches!(submodules, Some(true)) {
+            fetcher_args["submodules"] = json!(true);
+        }
 
         for (key, value) in args {
             fetcher_args[key] = json!({

@@ -2,6 +2,4 @@ args = [
     "https://repo.palemoon.org/MoonchildProductions/Pale-Moon",
     "31.0.0_Release",
     "--submodules",
-    "--fetcher",
-    "fetchFromGitea",
 ]

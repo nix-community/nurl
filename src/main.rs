@@ -121,7 +121,7 @@ fn main() -> Result<()> {
 
         (
             None | Some(FetcherFunction::FetchFromGitea),
-            Some(host @ ("codeberg.org" | "gitea.com" | "notabug.org")),
+            Some(host @ ("codeberg.org" | "gitea.com" | "notabug.org" | "repo.palemoon.org")),
             _,
         ) => FetchFromGitea(host).into(),
         (Some(FetcherFunction::FetchFromGitea), Some(host), _) => FetchFromGitea(host).into(),

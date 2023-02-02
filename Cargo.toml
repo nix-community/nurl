@@ -13,7 +13,7 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 anyhow = "1.0.68"
-bstr = "1.1.0"
+bstr = "1.2.0"
 enum_dispatch = "0.3.11"
 git-url = "0.13.1"
 itertools = "0.10.5"

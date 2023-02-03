@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.7 - 2023-02-03
+
+### Features
+
+- `--submodules` to fetch submodules instead of using the fetcher's default
+- `--nixpkgs` to override the nixpkgs used for fixed-output derivations
+- Recognize `invent.kde.org` as a GitLab instance
+- Recognize `repo.palemoon.org` as a Gitea instance
+
 ## v0.3.6 - 2023-01-24
 
 ### Features

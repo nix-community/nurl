@@ -45,6 +45,8 @@ Arguments:
   [REV]  The revision or reference to be fetched
 
 Options:
+  -S, --submodules[=<SUBMODULES>]      Fetch submodules instead of using the fetcher's default [possible
+                                       values: true, false]
   -f, --fetcher <FETCHER>              Specify the fetcher function instead of inferring from the
                                        URL [possible values: builtins.fetchGit, fetchCrate,
                                        fetchFromBitbucket, fetchFromGitHub, fetchFromGitLab,
@@ -57,6 +59,7 @@ Options:
                                        fetchFromGitHub, fetchFromGitLab, fetchFromGitea,
                                        fetchFromGitiles, fetchFromRepoOrCz, fetchFromSourcehut,
                                        fetchHex, fetchPypi, fetchgit, fetchhg, fetchsvn]
+  -n, --nixpkgs <NIXPKGS>              Path to nixpkgs (in nix) [default: <nixpkgs>]
   -i, --indent <INDENT>                Extra indentation (in number of spaces) [default: 0]
   -H, --hash                           Only output the hash
   -j, --json                           Output in json format

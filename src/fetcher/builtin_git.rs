@@ -18,6 +18,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
         overwrites: FxHashMap<String, String>,
+        _: String,
         indent: String,
     ) -> Result<()> {
         let mut overwrites = overwrites;
@@ -73,6 +74,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
         _: Option<bool>,
         _: Vec<(String, String)>,
         _: Vec<(String, String)>,
+        _: String,
     ) -> Result<()> {
         bail!("builtins.fetchGit does not support hashes");
     }
@@ -87,6 +89,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
         args_str: Vec<(String, String)>,
         overwrites: Vec<(String, String)>,
         overwrites_str: Vec<(String, String)>,
+        _: String,
     ) -> Result<()> {
         let rev = rev.context("builtins.fetchGit does not support feching the latest revision")?;
         let rev_type = if rev.len() == 40 { "rev" } else { "ref" };

@@ -46,6 +46,7 @@ pub trait Fetcher<'a> {
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
         overwrites: FxHashMap<String, String>,
+        nixpkgs: String,
         indent: String,
     ) -> Result<()>;
 
@@ -57,6 +58,7 @@ pub trait Fetcher<'a> {
         submodules: Option<bool>,
         args: Vec<(String, String)>,
         args_str: Vec<(String, String)>,
+        nixpkgs: String,
     ) -> Result<()>;
 
     fn fetch_json(
@@ -69,6 +71,7 @@ pub trait Fetcher<'a> {
         args_str: Vec<(String, String)>,
         overwrites: Vec<(String, String)>,
         overwrites_str: Vec<(String, String)>,
+        nixpkgs: String,
     ) -> Result<()>;
 
     fn to_json(&'a self, out: &mut impl Write, url: &'a Url, rev: Option<String>) -> Result<()>;
@@ -105,6 +108,7 @@ macro_rules! impl_fetcher {
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,
                 overwrites: ::rustc_hash::FxHashMap<String, String>,
+                nixpkgs: String,
                 indent: String,
             ) -> ::anyhow::Result<()> {
                 use anyhow::Context;
@@ -119,7 +123,7 @@ macro_rules! impl_fetcher {
                 };
 
                 let submodules = self.resolve_submodules(submodules);
-                let hash = self.fetch(values, &rev, submodules, &args, &args_str)?;
+                let hash = self.fetch(values, &rev, submodules, &args, &args_str, nixpkgs)?;
 
                 self.write_nix(out, values, rev, hash, submodules, args, args_str, overwrites, indent)
             }
@@ -132,6 +136,7 @@ macro_rules! impl_fetcher {
                 submodules: Option<bool>,
                 args: Vec<(String, String)>,
                 args_str: Vec<(String, String)>,
+                nixpkgs: String,
             ) -> ::anyhow::Result<()> {
                 use anyhow::Context;
 
@@ -145,7 +150,7 @@ macro_rules! impl_fetcher {
                 };
 
                 let submodules = self.resolve_submodules(submodules);
-                let hash = self.fetch(values, &rev, submodules, &args, &args_str)?;
+                let hash = self.fetch(values, &rev, submodules, &args, &args_str, nixpkgs)?;
                 write!(out, "{}", hash)?;
 
                 Ok(())
@@ -161,6 +166,7 @@ macro_rules! impl_fetcher {
                 args_str: Vec<(String, String)>,
                 overwrites: Vec<(String, String)>,
                 overwrites_str: Vec<(String, String)>,
+                nixpkgs: String,
             ) -> ::anyhow::Result<()> {
                 use anyhow::Context;
 
@@ -174,7 +180,7 @@ macro_rules! impl_fetcher {
                 };
 
                 let submodules = self.resolve_submodules(submodules);
-                let hash = self.fetch(values, &rev, submodules, &args, &args_str)?;
+                let hash = self.fetch(values, &rev, submodules, &args, &args_str, nixpkgs)?;
 
                 self.write_json(
                     out,

@@ -47,6 +47,7 @@ impl FetchFromGitea<'_> {
         submodules: bool,
         args: &[(String, String)],
         args_str: &[(String, String)],
+        nixpkgs: String,
     ) -> Result<String> {
         if args.is_empty() && args_str.is_empty() {
             if submodules {
@@ -63,7 +64,7 @@ impl FetchFromGitea<'_> {
                 )
             }
         } else {
-            self.fetch_fod(values, rev, submodules, args, args_str)
+            self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
         }
     }
 }

@@ -56,8 +56,9 @@ pub trait SimpleFetcher<'a, const N: usize> {
         submodules: bool,
         args: &[(String, String)],
         args_str: &[(String, String)],
+        nixpkgs: String,
     ) -> Result<String> {
-        let mut expr = format!(r#"(import <nixpkgs> {{}}).{}{{"#, Self::NAME);
+        let mut expr = format!(r#"(import({nixpkgs}){{}}).{}{{"#, Self::NAME);
 
         if let Some(host) = self.host() {
             write!(expr, r#"{}="{host}";"#, Self::HOST_KEY)?;
@@ -243,8 +244,9 @@ pub trait SimpleFodFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         submodules: bool,
         args: &[(String, String)],
         args_str: &[(String, String)],
+        nixpkgs: String,
     ) -> Result<String> {
-        self.fetch_fod(values, rev, submodules, args, args_str)
+        self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
     }
 }
 
@@ -258,11 +260,12 @@ pub trait SimpleFlakeFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         submodules: bool,
         args: &[(String, String)],
         args_str: &[(String, String)],
+        nixpkgs: String,
     ) -> Result<String> {
         if args.is_empty() && args_str.is_empty() {
             flake_prefetch(self.get_flake_ref(values, rev, submodules))
         } else {
-            self.fetch_fod(values, rev, submodules, args, args_str)
+            self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
         }
     }
 }
@@ -279,6 +282,7 @@ pub trait SimpleGitFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         submodules: bool,
         args: &[(String, String)],
         args_str: &[(String, String)],
+        nixpkgs: String,
     ) -> Result<String> {
         if args.is_empty() && args_str.is_empty() {
             if submodules {
@@ -292,7 +296,7 @@ pub trait SimpleGitFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
                 flake_prefetch(self.get_flake_ref(values, rev))
             }
         } else {
-            self.fetch_fod(values, rev, submodules, args, args_str)
+            self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
         }
     }
 }
@@ -309,11 +313,12 @@ pub trait SimpleUrlFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         submodules: bool,
         args: &[(String, String)],
         args_str: &[(String, String)],
+        nixpkgs: String,
     ) -> Result<String> {
         if args.is_empty() && args_str.is_empty() {
             url_prefetch(self.get_url(values, rev), Self::UNPACK)
         } else {
-            self.fetch_fod(values, rev, submodules, args, args_str)
+            self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
         }
     }
 }

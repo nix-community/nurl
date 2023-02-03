@@ -28,6 +28,10 @@ pub struct Opts {
     #[arg(short = 'F', long, default_value = "fetchgit")]
     pub fallback: FetcherFunction,
 
+    /// Path to nixpkgs (in nix)
+    #[arg(short, long, default_value = "<nixpkgs>")]
+    pub nixpkgs: String,
+
     /// Extra indentation (in number of spaces)
     #[arg(short, long, default_value_t = 0)]
     pub indent: usize,

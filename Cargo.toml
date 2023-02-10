@@ -15,7 +15,7 @@ categories = ["command-line-utilities"]
 anyhow = "1.0.69"
 bstr = "1.2.0"
 enum_dispatch = "0.3.11"
-git-url = "0.13.1"
+git-url = "0.13.2"
 itertools = "0.10.5"
 once_cell = "1.17.0"
 owo-colors = { version = "3.5.0", features = ["supports-colors"] }

@@ -1,0 +1,6 @@
+fetchPypi {
+  pname = "nltk";
+  version = "3.8";
+  hash = "sha256-dLMIJqN9eNU0JxBbvQN92IAlG+Jp/KZO5TCDikbtVfw=";
+  extension = "zip";
+}

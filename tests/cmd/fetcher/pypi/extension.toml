@@ -1,0 +1,1 @@
+args = ["https://pypi.org/project/nltk", "3.8", "--arg-str", "extension", "zip"]

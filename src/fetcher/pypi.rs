@@ -1,8 +1,6 @@
-use crate::{
-    impl_fetcher,
-    simple::{SimpleFetcher, SimpleUrlFetcher},
-    Url,
-};
+use anyhow::Result;
+
+use crate::{impl_fetcher, prefetch::url_prefetch, simple::SimpleFetcher, Url};
 
 pub struct FetchPypi;
 impl_fetcher!(FetchPypi);
@@ -18,11 +16,27 @@ impl<'a> SimpleFetcher<'a, 1> for FetchPypi {
     }
 }
 
-impl SimpleUrlFetcher<'_, 1> for FetchPypi {
-    const UNPACK: bool = false;
-
-    fn get_url(&self, [pname]: &[&str; 1], version: &str) -> String {
-        let Some(first) = pname.chars().next() else { unreachable!(); };
-        format!("https://pypi.org/packages/source/{first}/{pname}/{pname}-{version}.tar.gz")
+impl FetchPypi {
+    fn fetch(
+        &self,
+        values @ [pname]: &[&str; 1],
+        version: &str,
+        submodules: bool,
+        args: &[(String, String)],
+        args_str: &[(String, String)],
+        nixpkgs: String,
+    ) -> Result<String> {
+        match (args, args_str) {
+            ([], []) => url_prefetch(get_url(pname, version, "tar.gz"), false),
+            ([], [(key, ext)]) if key == "extension" => {
+                url_prefetch(get_url(pname, version, ext), false)
+            }
+            _ => self.fetch_fod(values, version, submodules, args, args_str, nixpkgs),
+        }
     }
+}
+
+fn get_url(pname: &str, version: &str, ext: &str) -> String {
+    let Some(first) = pname.chars().next() else { unreachable!(); };
+    format!("https://pypi.org/packages/source/{first}/{pname}/{pname}-{version}.{ext}")
 }

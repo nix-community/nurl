@@ -1,7 +1,7 @@
 fetchFromSourcehut {
   owner = "~cnx";
   repo = "blackshades";
-  rev = "2.4.0";
-  hash = "sha256-owsP50zYFV1Z+c0bSUaHmnvH+BywfJSp7oSk3ys/+GM=";
+  rev = "2.5.0";
+  hash = "sha256-cH9o1+43TvZ96SmPRDS5cLAzVSf16qohhKDgjHj8cQc=";
   fetchSubmodules = true;
 }

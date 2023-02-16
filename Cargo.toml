@@ -31,7 +31,7 @@ features = ["cargo", "derive", "unicode", "wrap_help"]
 [build-dependencies]
 clap = { version = "4.1.6", features = ["derive"] }
 clap_complete = "4.1.1"
-clap_mangen = "0.2.7"
+clap_mangen = "0.2.8"
 
 [dev-dependencies]
 assert_cmd = "2.0.8"

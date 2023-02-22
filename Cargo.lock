@@ -322,44 +322,44 @@ dependencies = [
 ]
 
 [[package]]
-name = "git-features"
+name = "gix-features"
 version = "0.26.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64be6a1e602760c2c83aac3d05553c90805748bba9cb0f0e944d66b0f85cea0d"
+checksum = "3402b831ea4bb3af36369d61dbf250eb0e1a8577d3cb77b9719c11a82485bfe9"
 dependencies = [
- "git-hash",
+ "gix-hash",
  "libc",
 ]
 
 [[package]]
-name = "git-hash"
+name = "gix-hash"
 version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c4af641a41fdb4b1d5c2be9783cd8ffcd4e22a6ad41581c1f0dc3e882000585"
+checksum = "0c0c5a9f4d621d4f4ea046bb331df5c746ca735b8cae5b234cc2be70ee4dbef0"
 dependencies = [
  "hex",
  "thiserror",
 ]
 
 [[package]]
-name = "git-path"
+name = "gix-path"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43803d7636b05fa395e019c696f67cd39915029f6505a7e710bc372b21dc397c"
+checksum = "f6c104a66dec149cb8f7aaafc6ab797654cf82d67f050fd0cb7e7294e328354b"
 dependencies = [
  "bstr",
  "thiserror",
 ]
 
 [[package]]
-name = "git-url"
+name = "gix-url"
 version = "0.13.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47d329ad9772efd73b54830c18c67e861b32a95f4ab5478e39803cbddfe5565f"
+checksum = "4d6e3e05267f7873099b3e510ab8eebdfc28920a915ab2e3d549493abe0fd9f0"
 dependencies = [
  "bstr",
- "git-features",
- "git-path",
+ "gix-features",
+ "gix-path",
  "home",
  "thiserror",
  "url",
@@ -606,7 +606,7 @@ dependencies = [
  "clap_complete",
  "clap_mangen",
  "enum_dispatch",
- "git-url",
+ "gix-url",
  "itertools",
  "nu-glob",
  "once_cell",

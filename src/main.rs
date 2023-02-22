@@ -8,7 +8,7 @@ mod simple;
 use anyhow::{bail, Result};
 use bstr::ByteSlice;
 use clap::{Parser, ValueEnum};
-use git_url::Scheme;
+use gix_url::Scheme;
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
 
@@ -83,7 +83,7 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
-    let url: git_url::Url = opts.url.try_into()?;
+    let url: gix_url::Url = opts.url.try_into()?;
 
     let fetcher: FetcherDispatch = match (opts.fetcher, url.host(), &url.scheme) {
         (Some(FetcherFunction::BuiltinsFetchGit), ..) => BuiltinsFetchGit.into(),

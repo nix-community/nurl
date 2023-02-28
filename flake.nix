@@ -42,8 +42,11 @@
               "build.rs"
             ];
 
-            cargoLock.lockFile = path {
-              path = self + "/Cargo.lock";
+            cargoLock = {
+              allowBuiltinFetchGit = true;
+              lockFile = path {
+                path = self + "/Cargo.lock";
+              };
             };
 
             nativeBuildInputs = [

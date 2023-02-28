@@ -1,4 +1,6 @@
 use anyhow::{anyhow, bail, Result};
+use data_encoding::BASE64;
+use nix_compat::nixbase32;
 use serde::Deserialize;
 
 use std::{
@@ -71,6 +73,8 @@ pub fn git_prefetch(git_scheme: bool, url: &str, rev: &str, submodules: bool) ->
 }
 
 pub fn url_prefetch(url: String, unpack: bool) -> Result<String> {
+    use bstr::ByteSlice;
+
     let mut cmd = Command::new("nix-prefetch-url");
     if unpack {
         cmd.arg("--unpack");
@@ -80,23 +84,11 @@ pub fn url_prefetch(url: String, unpack: bool) -> Result<String> {
     }
     cmd.arg(url);
 
-    let hash = String::from_utf8(cmd.get_stdout()?)?;
-    let hash = hash.trim_end();
-
-    info!("$ nix hash to-sri --experimental-features nix-command --type sha256 {hash}");
-    Ok(String::from_utf8(
-        Command::new("nix")
-            .arg("hash")
-            .arg("to-sri")
-            .arg("--experimental-features")
-            .arg("nix-command")
-            .arg("--type")
-            .arg("sha256")
-            .arg(hash)
-            .get_stdout()?,
-    )?
-    .trim_end()
-    .into())
+    let hash = cmd.get_stdout()?;
+    Ok(format!(
+        "sha256-{}",
+        BASE64.encode(&nixbase32::decode(hash.trim_end())?),
+    ))
 }
 
 pub fn fod_prefetch(expr: String) -> Result<String> {

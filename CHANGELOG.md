@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.9 - 2023-03-13
+
+### Fixes
+
+- Fix outdated Cargo.lock
+
 ## v0.3.8 - 2023-03-13
 
 ### Features

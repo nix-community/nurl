@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.8 - 2023-03-13
+
+### Features
+
+- optimize `fetchPypi` with extension specified
+- optimize converting hashes from base32 to SRI
+
 ## v0.3.7 - 2023-02-03
 
 ### Features

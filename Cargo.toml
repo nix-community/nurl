@@ -1,6 +1,6 @@
 [package]
 name = "nurl"
-version = "0.3.9"
+version = "0.3.10"
 authors = ["figsoda <figsoda@pm.me>"]
 edition = "2021"
 description = "Generate Nix fetcher calls from repository URLs"

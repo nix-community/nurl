@@ -656,7 +656,7 @@ dependencies = [
 
 [[package]]
 name = "nurl"
-version = "0.3.9"
+version = "0.3.10"
 dependencies = [
  "anyhow",
  "assert_cmd",

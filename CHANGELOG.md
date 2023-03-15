@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.10 - 2023-03-15
+
+### Fixes
+
+- Let git-based fetchers fallback to FOD to work around [nixos/nix#5128](https://github.com/nixos/nix/issues/5128)
+
 ## v0.3.9 - 2023-03-13
 
 ### Fixes

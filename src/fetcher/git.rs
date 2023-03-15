@@ -32,6 +32,7 @@ impl<'a> Fetchgit {
     ) -> Result<String> {
         if args.is_empty() && args_str.is_empty() {
             git_prefetch(matches!(self.0, GitScheme::Yes), url, rev, !submodules)
+                .or_else(|_| self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs))
         } else {
             self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
         }

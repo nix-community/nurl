@@ -621,12 +621,13 @@ dependencies = [
 [[package]]
 name = "nix-compat"
 version = "0.1.0"
-source = "git+https://code.tvl.fyi/depot.git:/tvix/nix-compat.git#69a0de6492678ef3dfde73a408fc87877d925e74"
+source = "git+https://code.tvl.fyi/depot.git:/tvix/nix-compat.git#f64a3bede483a7b4cc2952c662ef98d81ce0c002"
 dependencies = [
  "anyhow",
  "data-encoding",
  "glob",
  "serde",
+ "serde_json",
  "sha2",
  "thiserror",
 ]

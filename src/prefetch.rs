@@ -16,7 +16,7 @@ impl GetStdout for Command {
     fn get_stdout(&mut self) -> Result<Vec<u8>> {
         let Output { stdout, status, .. } = self.stderr(Stdio::inherit()).output()?;
         if !status.success() {
-            bail!("command exited with exit code {}", status);
+            bail!("command exited with {}", status);
         }
         Ok(stdout)
     }

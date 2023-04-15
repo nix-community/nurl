@@ -29,7 +29,15 @@
       packages = forEachSystem (system:
         let
           inherit (nixpkgs.legacyPackages.${system})
-            darwin gitMinimal installShellFiles makeWrapper mercurial nixVersions rustPlatform stdenv;
+            darwin
+            gitMinimal
+            installShellFiles
+            makeBinaryWrapper
+            mercurial
+            nixVersions
+            rustPlatform
+            stdenv
+            ;
         in
         {
           default = rustPlatform.buildRustPackage {
@@ -51,7 +59,7 @@
 
             nativeBuildInputs = [
               installShellFiles
-              makeWrapper
+              makeBinaryWrapper
             ];
 
             buildInputs = optionals stdenv.isDarwin [

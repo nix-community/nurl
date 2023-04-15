@@ -29,7 +29,7 @@
       packages = forEachSystem (system:
         let
           inherit (nixpkgs.legacyPackages.${system})
-            darwin gitMinimal installShellFiles makeWrapper mercurial nix rustPlatform stdenv;
+            darwin gitMinimal installShellFiles makeWrapper mercurial nixVersions rustPlatform stdenv;
         in
         {
           default = rustPlatform.buildRustPackage {
@@ -63,7 +63,7 @@
 
             postInstall = ''
               wrapProgram $out/bin/nurl \
-                --prefix PATH : ${makeBinPath [ gitMinimal mercurial nix ]}
+                --prefix PATH : ${makeBinPath [ gitMinimal mercurial nixVersions.unstable ]}
               installManPage artifacts/nurl.1
               installShellCompletion artifacts/nurl.{bash,fish} --zsh artifacts/_nurl
             '';

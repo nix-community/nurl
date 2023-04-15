@@ -71,6 +71,8 @@ Options:
                                        consideration when fetching the hash
   -O, --overwrite-str <NAME> <STRING>  Same as --overwrite, but accepts strings instead Nix
                                        expressions
+  -e, --expr <EXPR>                    Instead of fetching a URL, get the hash of a fixed-output
+                                       derivation, implies --hash and ignores all other options
   -l, --list-fetchers                  List all available fetchers
   -L, --list-possible-fetchers         List all fetchers that can be generated without --fetcher
   -s, --list-sep <SEPARATOR>           Print out the listed fetchers with the specified separator,
@@ -84,8 +86,8 @@ Options:
 
 - `nurl` infers the fetcher from the URL. For `nix-prefetch`, you need to pick the fetcher and supply the arguments manually.
 - `nix-prefetch` relies on FOD which is slow, `nurl` tries to use alternatives when possible.
-- `nix-prefetch` supports arbitrary expressions (planned for `nurl`) and file attributes.
-- `nix-prefetch` is more configurable and has an interface similar to `nix-build`.
+- `nix-prefetch` is more configurable and supports file attributes.
+- `nix-prefetch` has an interface similar to `nix-build`.
 - `nurl` has some nice features dedicated to generated packages (`--indent`, `--list-possible-fetchers`).
 
 ## Changelog

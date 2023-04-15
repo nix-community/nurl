@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.11 - 2023-04-15
+
+### Features
+
+- `--expr` to get the hash of arbitrary fixed-output derivations
+
 ## v0.3.10 - 2023-03-15
 
 ### Fixes
@@ -16,8 +22,8 @@
 
 ### Features
 
-- optimize `fetchPypi` with extension specified
-- optimize converting hashes from base32 to SRI
+- Optimize `fetchPypi` with extension specified
+- Optimize converting hashes from base32 to SRI
 
 ## v0.3.7 - 2023-02-03
 

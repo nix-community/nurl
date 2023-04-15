@@ -19,6 +19,7 @@ use crate::{
         FetchFromGitea, FetchFromGitiles, FetchFromRepoOrCz, FetchFromSourcehut, FetchHex,
         FetchPypi, Fetcher, FetcherDispatch, Fetchgit, Fetchhg, Fetchsvn,
     },
+    prefetch::fod_prefetch,
 };
 
 use std::{
@@ -56,6 +57,16 @@ pub enum GitScheme {
 
 fn main() -> Result<()> {
     let opts = Opts::parse();
+
+    if let Some(expr) = opts.expr {
+        print!(
+            "{}",
+            fod_prefetch(format!(
+                r#"({expr}).overrideAttrs(_:{{outputHash="";outputHashAlgo="sha256";}})"#,
+            ))?
+        );
+        return Ok(());
+    }
 
     if opts.list_fetchers || opts.list_possible_fetchers {
         let mut out = stdout().lock();

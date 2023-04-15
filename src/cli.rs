@@ -79,6 +79,13 @@ pub struct Opts {
     #[arg(short = 'O', long = "overwrite-str", num_args = 2, value_names = ["NAME", "STRING"])]
     pub overwrites_str: Vec<String>,
 
+    /// Instead of fetching a URL, get the hash of a fixed-output derivation,
+    /// implies --hash and ignores all other options
+    ///
+    /// Example: --expr '(import <nixpkgs> { }).nurl.src'
+    #[arg(short, long, group = "command")]
+    pub expr: Option<String>,
+
     /// List all available fetchers
     #[arg(short, long, group = "command")]
     pub list_fetchers: bool,

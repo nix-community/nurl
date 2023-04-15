@@ -76,7 +76,9 @@
               installShellCompletion artifacts/nurl.{bash,fish} --zsh artifacts/_nurl
             '';
 
-            GEN_ARTIFACTS = "artifacts";
+            env = {
+              GEN_ARTIFACTS = "artifacts";
+            };
 
             meta = {
               inherit (package) description;

@@ -1,0 +1,78 @@
+name: release
+
+on:
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
+
+jobs:
+  create_release:
+    name: create_release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          body: "[CHANGELOG.md](https://github.com/nix-community/nurl/blob/main/CHANGELOG.md)"
+
+  release:
+    name: release
+    needs: create_release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-apple-darwin
+            os: macos-latest
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cargo build
+        run: |
+          rustup toolchain install nightly --profile minimal -t ${{ matrix.target }}
+          cargo +nightly build --release --target ${{ matrix.target }}
+        env:
+          RUSTFLAGS: -C strip=symbols
+
+      - name: Upload asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ github.token }}
+          tag: ${{ github.ref }}
+          file: target/${{ matrix.target }}/release/nurl
+          asset_name: nurl-${{ matrix.target }}
+
+  artifacts:
+    name: artifacts
+    needs: create_release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cargo build
+        run: |
+          rustup toolchain install nightly --profile minimal
+          cargo +nightly build
+        env:
+          GEN_ARTIFACTS: artifacts
+
+      - name: Rename generated artifacts
+        run: |
+          mv artifacts/{_,}nurl.ps1
+          mv artifacts/{_nurl,nurl.zsh}
+
+      - name: Upload artifacts
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ github.token }}
+          tag: ${{ github.ref }}
+          file: artifacts/*
+          file_glob: true

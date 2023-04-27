@@ -25,8 +25,21 @@
           "x86_64-linux"
         ]
         (system: f nixpkgs.legacyPackages.${system});
+
+      runtimeInputs = pkgs:
+        with pkgs; [
+          gitMinimal
+          mercurial
+          nixVersions.unstable
+        ];
     in
     {
+      devShells = eachSystem (pkgs: {
+        default = pkgs.mkShell {
+          packages = runtimeInputs pkgs;
+        };
+      });
+
       formatter = eachSystem (pkgs: pkgs.nixpkgs-fmt);
 
       herculesCI.ciSystems = [
@@ -38,11 +51,8 @@
         let
           inherit (pkgs)
             darwin
-            gitMinimal
             installShellFiles
             makeBinaryWrapper
-            mercurial
-            nixVersions
             rustPlatform
             stdenv
             ;
@@ -83,7 +93,7 @@
 
             postInstall = ''
               wrapProgram $out/bin/nurl \
-                --prefix PATH : ${makeBinPath [ gitMinimal mercurial nixVersions.unstable ]}
+                --prefix PATH : ${makeBinPath (runtimeInputs pkgs)}
               installManPage artifacts/nurl.1
               installShellCompletion artifacts/nurl.{bash,fish} --zsh artifacts/_nurl
             '';

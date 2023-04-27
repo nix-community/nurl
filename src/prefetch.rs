@@ -59,7 +59,7 @@ pub fn git_prefetch(git_scheme: bool, url: &str, rev: &str, submodules: bool) ->
     let submodules = if submodules { "&submodules=1" } else { "" };
 
     if rev.len() == 40 {
-        flake_prefetch(format!("{prefix}{url}?rev={rev}{submodules}"))
+        flake_prefetch(format!("{prefix}{url}?allRefs=1&rev={rev}{submodules}"))
     } else {
         if !rev.starts_with("refs/") {
             if let hash @ Ok(_) =

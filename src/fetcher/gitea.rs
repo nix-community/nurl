@@ -57,7 +57,6 @@ impl FetchFromGitea<'_> {
                     rev,
                     true,
                 )
-                .or_else(|_| self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs))
             } else {
                 url_prefetch(
                     format!("https://{}/{owner}/{repo}/archive/{rev}.tar.gz", self.0),

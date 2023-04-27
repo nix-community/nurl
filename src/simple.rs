@@ -292,7 +292,6 @@ pub trait SimpleGitFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
                     rev,
                     !Self::SUBMODULES_DEFAULT,
                 )
-                .or_else(|_| self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs))
             } else {
                 flake_prefetch(self.get_flake_ref(values, rev))
             }

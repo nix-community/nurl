@@ -5,30 +5,38 @@
 
   outputs = { self, nixpkgs }:
     let
-      inherit (builtins) path;
       inherit (nixpkgs.lib)
-        genAttrs importTOML licenses makeBinPath maintainers optionals sourceByRegex;
+        genAttrs
+        importTOML
+        licenses
+        maintainers
+        makeBinPath
+        optionals
+        sourceByRegex
+        ;
+
       inherit (importTOML (self + "/Cargo.toml")) package;
 
-      forEachSystem = genAttrs [
-        "aarch64-darwin"
-        "aarch64-linux"
-        "x86_64-darwin"
-        "x86_64-linux"
-      ];
+      eachSystem = f: genAttrs
+        [
+          "aarch64-darwin"
+          "aarch64-linux"
+          "x86_64-darwin"
+          "x86_64-linux"
+        ]
+        (system: f nixpkgs.legacyPackages.${system});
     in
     {
-      formatter = forEachSystem
-        (system: nixpkgs.legacyPackages.${system}.nixpkgs-fmt);
+      formatter = eachSystem (pkgs: pkgs.nixpkgs-fmt);
 
       herculesCI.ciSystems = [
         "x86_64-linux"
         "aarch64-linux"
       ];
 
-      packages = forEachSystem (system:
+      packages = eachSystem (pkgs:
         let
-          inherit (nixpkgs.legacyPackages.${system})
+          inherit (pkgs)
             darwin
             gitMinimal
             installShellFiles
@@ -38,23 +46,23 @@
             rustPlatform
             stdenv
             ;
+
+          src = sourceByRegex self [
+            "(src|tests)(/.*)?"
+            "Cargo\\.(toml|lock)"
+            "build.rs"
+          ];
         in
         {
           default = rustPlatform.buildRustPackage {
             pname = "nurl";
             inherit (package) version;
 
-            src = sourceByRegex self [
-              "(src|tests)(/.*)?"
-              "Cargo\\.(toml|lock)"
-              "build.rs"
-            ];
+            inherit src;
 
             cargoLock = {
               allowBuiltinFetchGit = true;
-              lockFile = path {
-                path = self + "/Cargo.lock";
-              };
+              lockFile = src + "/Cargo.lock";
             };
 
             nativeBuildInputs = [
@@ -69,16 +77,16 @@
             # tests require internet access
             doCheck = false;
 
+            env = {
+              GEN_ARTIFACTS = "artifacts";
+            };
+
             postInstall = ''
               wrapProgram $out/bin/nurl \
                 --prefix PATH : ${makeBinPath [ gitMinimal mercurial nixVersions.unstable ]}
               installManPage artifacts/nurl.1
               installShellCompletion artifacts/nurl.{bash,fish} --zsh artifacts/_nurl
             '';
-
-            env = {
-              GEN_ARTIFACTS = "artifacts";
-            };
 
             meta = {
               inherit (package) description;

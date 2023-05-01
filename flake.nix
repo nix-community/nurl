@@ -32,22 +32,8 @@
           mercurial
           nixVersions.unstable
         ];
-    in
-    {
-      devShells = eachSystem (pkgs: {
-        default = pkgs.mkShell {
-          packages = runtimeInputs pkgs;
-        };
-      });
 
-      formatter = eachSystem (pkgs: pkgs.nixpkgs-fmt);
-
-      herculesCI.ciSystems = [
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
-
-      packages = eachSystem (pkgs:
+      packageFor = pkgs:
         let
           inherit (pkgs)
             darwin
@@ -63,47 +49,67 @@
             "build.rs"
           ];
         in
-        {
-          default = rustPlatform.buildRustPackage {
-            pname = "nurl";
-            inherit (package) version;
+        rustPlatform.buildRustPackage {
+          pname = "nurl";
+          inherit (package) version;
 
-            inherit src;
+          inherit src;
 
-            cargoLock = {
-              allowBuiltinFetchGit = true;
-              lockFile = src + "/Cargo.lock";
-            };
-
-            nativeBuildInputs = [
-              installShellFiles
-              makeBinaryWrapper
-            ];
-
-            buildInputs = optionals stdenv.isDarwin [
-              darwin.apple_sdk.frameworks.Security
-            ];
-
-            # tests require internet access
-            doCheck = false;
-
-            env = {
-              GEN_ARTIFACTS = "artifacts";
-            };
-
-            postInstall = ''
-              wrapProgram $out/bin/nurl \
-                --prefix PATH : ${makeBinPath (runtimeInputs pkgs)}
-              installManPage artifacts/nurl.1
-              installShellCompletion artifacts/nurl.{bash,fish} --zsh artifacts/_nurl
-            '';
-
-            meta = {
-              inherit (package) description;
-              license = licenses.mpl20;
-              maintainers = with maintainers; [ figsoda ];
-            };
+          cargoLock = {
+            allowBuiltinFetchGit = true;
+            lockFile = src + "/Cargo.lock";
           };
-        });
+
+          nativeBuildInputs = [
+            installShellFiles
+            makeBinaryWrapper
+          ];
+
+          buildInputs = optionals stdenv.isDarwin [
+            darwin.apple_sdk.frameworks.Security
+          ];
+
+          # tests require internet access
+          doCheck = false;
+
+          env = {
+            GEN_ARTIFACTS = "artifacts";
+          };
+
+          postInstall = ''
+            wrapProgram $out/bin/nurl \
+              --prefix PATH : ${makeBinPath (runtimeInputs pkgs)}
+            installManPage artifacts/nurl.1
+            installShellCompletion artifacts/nurl.{bash,fish} --zsh artifacts/_nurl
+          '';
+
+          meta = {
+            inherit (package) description;
+            license = licenses.mpl20;
+            maintainers = with maintainers; [ figsoda ];
+          };
+        };
+    in
+    {
+      devShells = eachSystem (pkgs: {
+        default = pkgs.mkShell {
+          packages = runtimeInputs pkgs;
+        };
+      });
+
+      formatter = eachSystem (pkgs: pkgs.nixpkgs-fmt);
+
+      herculesCI.ciSystems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+
+      overlays.default = _: prev: {
+        nurl = packageFor prev;
+      };
+
+      packages = eachSystem (pkgs: {
+        default = packageFor pkgs;
+      });
     };
 }

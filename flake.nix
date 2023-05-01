@@ -5,26 +5,21 @@
 
   outputs = { self, nixpkgs }:
     let
-      inherit (nixpkgs.lib)
-        genAttrs
-        importTOML
-        licenses
-        maintainers
-        makeBinPath
-        optionals
-        sourceByRegex
-        ;
-
-      inherit (importTOML (self + "/Cargo.toml")) package;
-
-      eachSystem = f: genAttrs
+      eachSystem = f: nixpkgs.lib.genAttrs
         [
           "aarch64-darwin"
           "aarch64-linux"
           "x86_64-darwin"
           "x86_64-linux"
         ]
-        (system: f nixpkgs.legacyPackages.${system});
+        (system: f (
+          import nixpkgs {
+            inherit system;
+            overlays = [
+              self.overlays.default
+            ];
+          }
+        ));
 
       runtimeInputs = pkgs:
         with pkgs; [
@@ -34,6 +29,8 @@
         ];
     in
     {
+      overlays.default = import ./overlay.nix;
+
       devShells = eachSystem (pkgs: {
         default = pkgs.mkShell {
           packages = runtimeInputs pkgs;
@@ -47,63 +44,8 @@
         "aarch64-linux"
       ];
 
-      packages = eachSystem (pkgs:
-        let
-          inherit (pkgs)
-            darwin
-            installShellFiles
-            makeBinaryWrapper
-            rustPlatform
-            stdenv
-            ;
-
-          src = sourceByRegex self [
-            "(src|tests)(/.*)?"
-            "Cargo\\.(toml|lock)"
-            "build.rs"
-          ];
-        in
-        {
-          default = rustPlatform.buildRustPackage {
-            pname = "nurl";
-            inherit (package) version;
-
-            inherit src;
-
-            cargoLock = {
-              allowBuiltinFetchGit = true;
-              lockFile = src + "/Cargo.lock";
-            };
-
-            nativeBuildInputs = [
-              installShellFiles
-              makeBinaryWrapper
-            ];
-
-            buildInputs = optionals stdenv.isDarwin [
-              darwin.apple_sdk.frameworks.Security
-            ];
-
-            # tests require internet access
-            doCheck = false;
-
-            env = {
-              GEN_ARTIFACTS = "artifacts";
-            };
-
-            postInstall = ''
-              wrapProgram $out/bin/nurl \
-                --prefix PATH : ${makeBinPath (runtimeInputs pkgs)}
-              installManPage artifacts/nurl.1
-              installShellCompletion artifacts/nurl.{bash,fish} --zsh artifacts/_nurl
-            '';
-
-            meta = {
-              inherit (package) description;
-              license = licenses.mpl20;
-              maintainers = with maintainers; [ figsoda ];
-            };
-          };
-        });
+      packages = eachSystem (pkgs: {
+        default = pkgs.nurl;
+      });
     };
 }

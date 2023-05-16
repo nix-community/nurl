@@ -669,7 +669,7 @@ dependencies = [
 [[package]]
 name = "nix-compat"
 version = "0.1.0"
-source = "git+https://code.tvl.fyi/depot.git:/tvix/nix-compat.git#5c474be58df3c63a1d465620e0b902d2b5096b8d"
+source = "git+https://code.tvl.fyi/depot.git:/tvix/nix-compat.git#c08511912551f8c0565b632b41ec109f4a4f7dbc"
 dependencies = [
  "anyhow",
  "data-encoding",

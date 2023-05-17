@@ -715,6 +715,7 @@ dependencies = [
  "data-encoding",
  "enum_dispatch",
  "gix-url",
+ "is-terminal",
  "itertools",
  "nix-compat",
  "nu-glob",

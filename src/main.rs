@@ -24,7 +24,7 @@ use crate::{
 
 use std::{
     fmt::{self, Display, Formatter},
-    io::{stdout, Write},
+    io::{stdout, IsTerminal, Write},
     str::Split,
 };
 
@@ -250,7 +250,7 @@ fn main() -> Result<()> {
             args,
             args_str,
             opts.nixpkgs,
-        )
+        )?;
     } else if opts.json {
         fetcher.fetch_json(
             out,
@@ -262,9 +262,9 @@ fn main() -> Result<()> {
             opts.overwrites.into_iter().tuples().collect(),
             opts.overwrites_str.into_iter().tuples().collect(),
             opts.nixpkgs,
-        )
+        )?;
     } else if opts.parse {
-        fetcher.to_json(out, &url, opts.rev)
+        fetcher.to_json(out, &url, opts.rev)?;
     } else {
         let mut overwrites: FxHashMap<_, _> = opts.overwrites.into_iter().tuples().collect();
 
@@ -282,6 +282,12 @@ fn main() -> Result<()> {
             overwrites,
             opts.nixpkgs,
             " ".repeat(opts.indent),
-        )
+        )?;
     }
+
+    if out.is_terminal() {
+        writeln!(out)?;
+    }
+
+    Ok(())
 }

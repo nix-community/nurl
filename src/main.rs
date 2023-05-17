@@ -9,6 +9,7 @@ use anyhow::{bail, Result};
 use bstr::ByteSlice;
 use clap::{Parser, ValueEnum};
 use gix_url::Scheme;
+use is_terminal::IsTerminal;
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
 
@@ -24,7 +25,7 @@ use crate::{
 
 use std::{
     fmt::{self, Display, Formatter},
-    io::{stdout, IsTerminal, Write},
+    io::{stdout, Write},
     str::Split,
 };
 

@@ -33,6 +33,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Install dependencies (musl)
+        if: contains(matrix.target, 'musl')
+        run: |
+          sudo apt update
+          sudo apt install musl-tools
+
       - name: Cargo build
         run: |
           rustup toolchain install nightly --profile minimal -t ${{ matrix.target }}

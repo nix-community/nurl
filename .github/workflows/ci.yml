@@ -24,10 +24,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Install dependencies (musl)
+        if: contains(matrix.target, 'musl')
+        run: |
+          sudo apt update
+          sudo apt install musl-tools
+
       - name: Cargo build
         run: |
           rustup toolchain install stable --profile minimal -t ${{ matrix.target }}
-          cargo build
+          cargo build --target ${{ matrix.target }}
         env:
           GEN_ARTIFACTS: artifacts
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.12 - 2023-05-18
+
+### Features
+
+- output a final newline when printing to a terminal ([#94](https://github.com/nix-community/nurl/issues/94))
+
+### Internal
+
+- remove workaround for "cannot find git revision"
+
 ## v0.3.11 - 2023-04-15
 
 ### Features

@@ -29,7 +29,7 @@
 
 ### Features
 
-- `--submodules` to fetch submodules instead of using the fetcher's default
+- `--submodules` to fetch submodules instead of using the fetcher's default ([#9](https://github.com/nix-community/nurl/issues/9))
 - `--nixpkgs` to override the nixpkgs used for fixed-output derivations
 - Recognize `invent.kde.org` as a GitLab instance
 - Recognize `repo.palemoon.org` as a Gitea instance
@@ -106,8 +106,8 @@
 ### Features
 
 - `--arg-str` to additional arguments to pass to the fetcher as strings
-- `--overwrite` to overwrite arguments in the final output
-- `--overwrite-str` to overwrite arguments in the final output as strings
+- `--overwrite` to overwrite arguments in the final output ([#2](https://github.com/nix-community/nurl/issues/2))
+- `--overwrite-str` to overwrite arguments in the final output as strings ([#2](https://github.com/nix-community/nurl/issues/2))
 
 ## v0.2.2 - 2023-01-01
 

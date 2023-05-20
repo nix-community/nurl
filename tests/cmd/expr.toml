@@ -1,0 +1,1 @@
+args = ["--expr", "(import <nixpkgs> { }).emptyFile"]

@@ -58,19 +58,25 @@ pub enum GitScheme {
 
 fn main() -> Result<()> {
     let opts = Opts::parse();
+    let out = &mut stdout().lock();
 
     if let Some(expr) = opts.expr {
-        print!(
+        write!(
+            out,
             "{}",
             fod_prefetch(format!(
                 r#"({expr}).overrideAttrs(_:{{outputHash="";outputHashAlgo="sha256";}})"#,
             ))?
-        );
+        )?;
+
+        if out.is_terminal() {
+            writeln!(out)?;
+        }
+
         return Ok(());
     }
 
     if opts.list_fetchers || opts.list_possible_fetchers {
-        let mut out = stdout().lock();
         let fetchers = FetcherFunction::value_variants()
             .iter()
             .filter(|fetcher| {
@@ -239,7 +245,6 @@ fn main() -> Result<()> {
         path: path.strip_prefix('/').unwrap_or(path),
     };
 
-    let out = &mut stdout().lock();
     let args = opts.args.into_iter().tuples().collect();
     let args_str = opts.args_str.into_iter().tuples().collect();
     if opts.hash {

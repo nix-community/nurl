@@ -18,6 +18,8 @@ fetchFromGitHub {
 }
 ```
 
+> If you want to generate Nix packages, feel free check out [nix-init](https://github.com/nix-community/nix-init), which builds on top of nurl
+
 ## Supported Fetchers
 
 - builtins.fetchGit

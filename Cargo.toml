@@ -20,7 +20,7 @@ gix-url = "0.18.0"
 is-terminal = "0.4.7"
 itertools = "0.10.5"
 nix-compat = { git = "https://code.tvl.fyi/depot.git:/tvix/nix-compat.git" }
-once_cell = "1.17.2"
+once_cell = "1.18.0"
 owo-colors = { version = "3.5.0", features = ["supports-colors"] }
 rustc-hash = "1.1.0"
 serde = { version = "1.0.163", features = ["derive"] }

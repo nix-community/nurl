@@ -1,12 +1,12 @@
-use clap::CommandFactory;
-use clap_complete::{generate_to, Shell};
-use clap_mangen::Man;
-
 use std::{
     env,
     fs::{create_dir_all, File},
     path::Path,
 };
+
+use clap::CommandFactory;
+use clap_complete::{generate_to, Shell};
+use clap_mangen::Man;
 
 include!("src/cli.rs");
 

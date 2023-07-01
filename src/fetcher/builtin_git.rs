@@ -1,8 +1,8 @@
+use std::io::Write;
+
 use anyhow::{bail, Context, Result};
 use rustc_hash::FxHashMap;
 use serde_json::json;
-
-use std::io::Write;
 
 use crate::{fetcher::Fetcher, Url};
 

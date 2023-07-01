@@ -13,9 +13,13 @@ mod repo_or_cz;
 mod sourcehut;
 mod svn;
 
+use std::io::Write;
+
+use anyhow::Result;
 pub use bitbucket::FetchFromBitbucket;
 pub use builtin_git::BuiltinsFetchGit;
 pub use crates_io::FetchCrate;
+use enum_dispatch::enum_dispatch;
 pub use git::Fetchgit;
 pub use gitea::FetchFromGitea;
 pub use github::FetchFromGitHub;
@@ -25,15 +29,11 @@ pub use hex::FetchHex;
 pub use hg::Fetchhg;
 pub use pypi::FetchPypi;
 pub use repo_or_cz::FetchFromRepoOrCz;
+use rustc_hash::FxHashMap;
 pub use sourcehut::FetchFromSourcehut;
 pub use svn::Fetchsvn;
 
 use crate::Url;
-use anyhow::Result;
-use enum_dispatch::enum_dispatch;
-use rustc_hash::FxHashMap;
-
-use std::io::Write;
 
 #[enum_dispatch]
 pub trait Fetcher<'a> {

@@ -1,12 +1,12 @@
-use anyhow::{anyhow, bail, Result};
-use data_encoding::BASE64;
-use nix_compat::nixbase32;
-use serde::Deserialize;
-
 use std::{
     io::BufRead,
     process::{Command, Output, Stdio},
 };
+
+use anyhow::{anyhow, bail, Result};
+use data_encoding::BASE64;
+use nix_compat::nixbase32;
+use serde::Deserialize;
 
 trait GetStdout {
     fn get_stdout(&mut self) -> Result<Vec<u8>>;

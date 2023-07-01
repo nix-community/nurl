@@ -5,6 +5,12 @@ mod fetcher;
 mod prefetch;
 mod simple;
 
+use std::{
+    fmt::{self, Display, Formatter},
+    io::{stdout, Write},
+    str::Split,
+};
+
 use anyhow::{bail, Result};
 use bstr::ByteSlice;
 use clap::{Parser, ValueEnum};
@@ -21,12 +27,6 @@ use crate::{
         FetchPypi, Fetcher, FetcherDispatch, Fetchgit, Fetchhg, Fetchsvn,
     },
     prefetch::fod_prefetch,
-};
-
-use std::{
-    fmt::{self, Display, Formatter},
-    io::{stdout, Write},
-    str::Split,
 };
 
 pub struct Url<'a> {

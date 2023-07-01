@@ -1,8 +1,8 @@
+use std::fs;
+
 use assert_cmd::Command;
 use nu_glob::glob;
 use trycmd::TestCases;
-
-use std::fs;
 
 #[test]
 fn integration() {

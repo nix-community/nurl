@@ -1,8 +1,8 @@
+use std::fmt::Write;
+
 use anyhow::{Context, Result};
 use once_cell::unsync::OnceCell;
 use serde::Deserialize;
-
-use std::fmt::Write;
 
 use crate::{
     impl_fetcher,

@@ -1,12 +1,14 @@
-use crate::{prefetch::git_prefetch, Url};
+use std::{fmt::Write as _, io::Write};
+
 use anyhow::{bail, Result};
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
 use serde_json::{json, Value};
 
-use std::{fmt::Write as _, io::Write};
-
-use crate::prefetch::{flake_prefetch, fod_prefetch, url_prefetch};
+use crate::{
+    prefetch::{flake_prefetch, fod_prefetch, git_prefetch, url_prefetch},
+    Url,
+};
 
 pub trait SimpleFetcher<'a, const N: usize> {
     const HASH_KEY: &'static str = "hash";

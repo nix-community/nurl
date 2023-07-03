@@ -16,23 +16,15 @@ mod svn;
 use std::io::Write;
 
 use anyhow::Result;
-pub use bitbucket::FetchFromBitbucket;
-pub use builtin_git::BuiltinsFetchGit;
-pub use crates_io::FetchCrate;
 use enum_dispatch::enum_dispatch;
-pub use git::Fetchgit;
-pub use gitea::FetchFromGitea;
-pub use github::FetchFromGitHub;
-pub use gitiles::FetchFromGitiles;
-pub use gitlab::FetchFromGitLab;
-pub use hex::FetchHex;
-pub use hg::Fetchhg;
-pub use pypi::FetchPypi;
-pub use repo_or_cz::FetchFromRepoOrCz;
 use rustc_hash::FxHashMap;
-pub use sourcehut::FetchFromSourcehut;
-pub use svn::Fetchsvn;
 
+pub use self::{
+    bitbucket::FetchFromBitbucket, builtin_git::BuiltinsFetchGit, crates_io::FetchCrate,
+    git::Fetchgit, gitea::FetchFromGitea, github::FetchFromGitHub, gitiles::FetchFromGitiles,
+    gitlab::FetchFromGitLab, hex::FetchHex, hg::Fetchhg, pypi::FetchPypi,
+    repo_or_cz::FetchFromRepoOrCz, sourcehut::FetchFromSourcehut, svn::Fetchsvn,
+};
 use crate::Url;
 
 #[enum_dispatch]

@@ -37,6 +37,8 @@ impl FetchPypi {
 }
 
 fn get_url(pname: &str, version: &str, ext: &str) -> String {
-    let Some(first) = pname.chars().next() else { unreachable!(); };
+    let Some(first) = pname.chars().next() else {
+        unreachable!();
+    };
     format!("https://pypi.org/packages/source/{first}/{pname}/{pname}-{version}.{ext}")
 }

@@ -120,9 +120,13 @@ pub fn fod_prefetch(expr: String) -> Result<String> {
         if !matches!(line, Ok(line) if line.trim_start().starts_with("specified:")) {
             continue;
         }
-        let Some(line) = lines.next() else { break; };
+        let Some(line) = lines.next() else {
+            break;
+        };
         if let Ok(line) = line {
-            let Some(hash) = line.trim_start().strip_prefix("got:") else { continue; };
+            let Some(hash) = line.trim_start().strip_prefix("got:") else {
+                continue;
+            };
             return Ok(hash.trim().into());
         }
     }

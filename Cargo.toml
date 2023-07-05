@@ -13,7 +13,7 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 anyhow = "1.0.71"
-bstr = "1.5.0"
+bstr = "1.6.0"
 data-encoding = "2.4.0"
 enum_dispatch = "0.3.11"
 gix-url = "0.20.1"

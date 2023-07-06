@@ -17,7 +17,7 @@ bstr = "1.6.0"
 data-encoding = "2.4.0"
 enum_dispatch = "0.3.11"
 gix-url = "0.20.1"
-is-terminal = "0.4.8"
+is-terminal = "0.4.9"
 itertools = "0.11.0"
 nix-compat = { git = "https://code.tvl.fyi/depot.git:/tvix/nix-compat.git" }
 once_cell = "1.18.0"

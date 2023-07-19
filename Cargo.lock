@@ -432,9 +432,9 @@ dependencies = [
 
 [[package]]
 name = "gix-features"
-version = "0.31.1"
+version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06142d8cff5d17509399b04052b64d2f9b3a311d5cff0b1a32b220f62cd0d595"
+checksum = "f708dc9875d1b3e05c1cbadfd22e5b543c733c511191798587ec479115664221"
 dependencies = [
  "gix-hash",
  "gix-trace",
@@ -472,9 +472,9 @@ checksum = "103eac621617be3ebe0605c9065ca51a223279a23218aaf67d10daa6e452f663"
 
 [[package]]
 name = "gix-url"
-version = "0.20.1"
+version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "beaede6dbc83f408b19adfd95bb52f1dbf01fb8862c3faf6c6243e2e67fcdfa1"
+checksum = "092d3f8f4040ee1b82830224e9002fff69248348af27dfdbcc8536db80283945"
 dependencies = [
  "bstr",
  "gix-features",

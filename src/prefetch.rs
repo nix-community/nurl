@@ -39,12 +39,12 @@ pub fn flake_prefetch(flake_ref: String) -> Result<String> {
         hash: String,
     }
 
-    info!("$ nix flake prefetch --experimental-features 'nix-command flakes' --json {flake_ref}");
+    info!("$ nix flake prefetch --extra-experimental-features 'nix-command flakes' --json {flake_ref}");
     Ok(serde_json::from_slice::<PrefetchOutput>(
         &Command::new("nix")
             .arg("flake")
             .arg("prefetch")
-            .arg("--experimental-features")
+            .arg("--extra-experimental-features")
             .arg("nix-command flakes")
             .arg("--json")
             .arg(flake_ref)
@@ -92,7 +92,9 @@ pub fn url_prefetch(url: String, unpack: bool) -> Result<String> {
 }
 
 pub fn fod_prefetch(expr: String) -> Result<String> {
-    info!("$ nix build --experimental-features nix-command --impure --no-link --expr '{expr}'");
+    info!(
+        "$ nix build --extra-experimental-features nix-command --impure --no-link --expr '{expr}'"
+    );
 
     let Output {
         stdout,
@@ -100,7 +102,7 @@ pub fn fod_prefetch(expr: String) -> Result<String> {
         status,
     } = Command::new("nix")
         .arg("build")
-        .arg("--experimental-features")
+        .arg("--extra-experimental-features")
         .arg("nix-command")
         .arg("--impure")
         .arg("--no-link")

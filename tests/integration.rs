@@ -44,7 +44,7 @@ fn verify_outputs() {
 
         Command::new("nix")
             .arg("build")
-            .arg("--experimental-features")
+            .arg("--extra-experimental-features")
             .arg("nix-command")
             .arg("--impure")
             .arg("--expr")

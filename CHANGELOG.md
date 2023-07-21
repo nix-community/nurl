@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.13 - 2023-07-21
+
+### Changes
+
+- Output a final newline with `--expr` when printing to a terminal
+
+### Fixes
+
+- Switch from `--experimental-features` to `--extra-experimental-features` ([#147](https://github.com/nix-community/nurl/issues/147))
+
 ## v0.3.12 - 2023-05-18
 
 ### Features

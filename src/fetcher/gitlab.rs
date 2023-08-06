@@ -1,7 +1,6 @@
-use std::fmt::Write;
+use std::{cell::OnceCell, fmt::Write};
 
 use anyhow::{Context, Result};
-use once_cell::unsync::OnceCell;
 use serde::Deserialize;
 
 use crate::{

@@ -87,6 +87,7 @@
             inherit (package) description;
             license = licenses.mpl20;
             maintainers = with maintainers; [ figsoda ];
+            mainProgram = "nurl";
           };
         };
     in

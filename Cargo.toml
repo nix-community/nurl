@@ -12,7 +12,7 @@ keywords = ["cli", "fetch", "git", "nix", "prefetch"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-anyhow = "1.0.72"
+anyhow = "1.0.74"
 bstr = "1.6.0"
 data-encoding = "2.4.0"
 enum_dispatch = "0.3.12"

@@ -15,6 +15,7 @@ jobs:
   create_release:
     name: create_release
     runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_dispatch'
     steps:
       - name: Create release
         uses: softprops/action-gh-release@v1

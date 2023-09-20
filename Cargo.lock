@@ -680,9 +680,9 @@ checksum = "61807f77802ff30975e01f4f071c8ba10c022052f98b3294119f3e615d13e5be"
 
 [[package]]
 name = "nu-glob"
-version = "0.84.0"
+version = "0.85.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac3d79473e0ae8a6ead8b6e432763f693921d0b2f61ff47740f28e36757e69a1"
+checksum = "e705d43b870fdf69f84dab27d7058e25f4d461877a2fa4eff646e9b67dc7253b"
 
 [[package]]
 name = "num_cpus"

@@ -89,7 +89,7 @@ impl<'a> SimpleGitFetcher<'a, 2> for FetchFromGitLab<'a> {
         let mut flake_ref = String::from("gitlab:");
         if let Some(group) = self.group.get() {
             flake_ref.push_str(group);
-            flake_ref.push_str("%2F");
+            flake_ref.push_str("%252F");
         }
         flake_ref.push_str(owner);
         flake_ref.push('/');

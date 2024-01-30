@@ -36,7 +36,7 @@ clap_complete = "4.4.7"
 clap_mangen = "0.2.17"
 
 [dev-dependencies]
-assert_cmd = "2.0.12"
+assert_cmd = "2.0.13"
 nu-glob = "0.89.0"
 trycmd = "0.14.19"
 

@@ -17,7 +17,7 @@ bstr = "1.9.0"
 data-encoding = "2.5.0"
 enum_dispatch = "0.3.12"
 gix-url = "0.27.0"
-is-terminal = "0.4.10"
+is-terminal = "0.4.11"
 itertools = "0.12.1"
 nix-compat = { git = "https://code.tvl.fyi/depot.git:/tvix/nix-compat.git" }
 owo-colors = { version = "4.0.0", features = ["supports-colors"] }

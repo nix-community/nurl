@@ -38,7 +38,7 @@ clap_mangen = "0.2.19"
 [dev-dependencies]
 assert_cmd = "2.0.13"
 nu-glob = "0.90.1"
-trycmd = "0.14.19"
+trycmd = "0.15.0"
 
 [profile.release]
 lto = true

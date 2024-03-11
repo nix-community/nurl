@@ -729,7 +729,7 @@ dependencies = [
 [[package]]
 name = "nix-compat"
 version = "0.1.0"
-source = "git+https://code.tvl.fyi/depot.git:/tvix/nix-compat.git#f814ea79461c7254ec37f9b4fa582214ba87f21b"
+source = "git+https://code.tvl.fyi/depot.git:/tvix/nix-compat.git#bc1107b76d5c4ecefed1f4722b3f32458e079e8a"
 dependencies = [
  "bitflags 2.4.1",
  "bstr",

@@ -18,7 +18,7 @@ jobs:
     if: github.event_name != 'workflow_dispatch'
     steps:
       - name: Create release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           body: "[CHANGELOG.md](https://github.com/nix-community/nurl/blob/main/CHANGELOG.md)"
 

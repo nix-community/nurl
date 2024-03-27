@@ -405,6 +405,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fcaabb2fef8c910e7f4c7ce9f67a1283a1715879a7c230ca9d6d1ae31f16d91"
 
 [[package]]
+name = "enum-primitive-derive"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba7795da175654fe16979af73f81f26a8ea27638d8d9823d317016888a63dc4c"
+dependencies = [
+ "num-traits",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "enum_dispatch"
 version = "0.3.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -729,15 +740,17 @@ dependencies = [
 [[package]]
 name = "nix-compat"
 version = "0.1.0"
-source = "git+https://code.tvl.fyi/depot.git:/tvix/nix-compat.git#f814ea79461c7254ec37f9b4fa582214ba87f21b"
+source = "git+https://code.tvl.fyi/depot.git:/tvix/nix-compat.git#511dfc0cec9b785ba776911c7f14e47e4c443aa3"
 dependencies = [
  "bitflags 2.4.1",
  "bstr",
  "data-encoding",
  "ed25519",
  "ed25519-dalek",
+ "enum-primitive-derive",
  "glob",
  "nom",
+ "num-traits",
  "serde",
  "serde_json",
  "sha2",
@@ -765,6 +778,15 @@ name = "nu-glob"
 version = "0.90.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "506855a5ab4939d7895efcc12faf4e97cf98c07251ce22baaddb41237f6a3100"
+
+[[package]]
+name = "num-traits"
+version = "0.2.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da0df0e5185db44f69b44f26786fe401b6c293d1907744beaa7fa62b2e5a517a"
+dependencies = [
+ "autocfg",
+]
 
 [[package]]
 name = "num_cpus"

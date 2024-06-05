@@ -8,11 +8,6 @@
       inherit (nixpkgs.lib)
         genAttrs
         importTOML
-        licenses
-        maintainers
-        makeBinPath
-        optionals
-        sourceByRegex
         ;
 
       inherit (importTOML (self + "/Cargo.toml")) package;
@@ -25,87 +20,84 @@
           "x86_64-linux"
         ]
         (system: f nixpkgs.legacyPackages.${system});
-
-      runtimeInputs = pkgs:
-        with pkgs; [
-          gitMinimal
-          mercurial
-          nixVersions.unstable
-        ];
-
-      packageFor = pkgs:
-        let
-          inherit (pkgs)
-            darwin
-            installShellFiles
-            makeBinaryWrapper
-            rustPlatform
-            stdenv
-            ;
-
-          src = sourceByRegex self [
-            "(src|tests)(/.*)?"
-            ''Cargo\.(toml|lock)''
-            ''build\.rs''
-          ];
-        in
-        rustPlatform.buildRustPackage {
-          pname = "nurl";
-          inherit (package) version;
-
-          inherit src;
-
-          cargoLock = {
-            allowBuiltinFetchGit = true;
-            lockFile = src + "/Cargo.lock";
-          };
-
-          nativeBuildInputs = [
-            installShellFiles
-            makeBinaryWrapper
-          ];
-
-          buildInputs = optionals stdenv.isDarwin [
-            darwin.apple_sdk.frameworks.Security
-          ];
-
-          # tests require internet access
-          doCheck = false;
-
-          env = {
-            GEN_ARTIFACTS = "artifacts";
-          };
-
-          postInstall = ''
-            wrapProgram $out/bin/nurl \
-              --prefix PATH : ${makeBinPath (runtimeInputs pkgs)}
-            installManPage artifacts/nurl.1
-            installShellCompletion artifacts/nurl.{bash,fish} --zsh artifacts/_nurl
-          '';
-
-          meta = {
-            inherit (package) description;
-            license = licenses.mpl20;
-            maintainers = with maintainers; [ figsoda ];
-            mainProgram = "nurl";
-          };
-        };
     in
     {
       devShells = eachSystem (pkgs: {
         default = pkgs.mkShell {
-          packages = runtimeInputs pkgs;
+          packages = self.packages.${pkgs.system}.default.runtimeInputs;
         };
       });
 
       formatter = eachSystem (pkgs: pkgs.nixpkgs-fmt);
 
       overlays.default = _: prev: {
-        nurl = packageFor prev;
+        nurl = self.packages.${prev.system}.default;
       };
 
       packages = eachSystem (pkgs: {
-        default = packageFor pkgs;
+        default = self.packages.${pkgs.system}.nurl;
+
+        nurl = pkgs.callPackage
+          (
+            { darwin
+            , installShellFiles
+            , lib
+            , makeBinaryWrapper
+            , rustPlatform
+            , stdenv
+            , gitMinimal
+            , mercurial
+            , nixUnstable
+            , ...
+            }: rustPlatform.buildRustPackage rec {
+              pname = "nurl";
+              inherit (package) version;
+
+              src = ./.;
+
+              cargoLock = {
+                allowBuiltinFetchGit = true;
+                lockFile = ./Cargo.lock;
+              };
+
+              runtimeInputs = [
+                gitMinimal
+                mercurial
+                nixUnstable
+              ];
+
+              nativeBuildInputs = [
+                installShellFiles
+                makeBinaryWrapper
+              ];
+
+              buildInputs = lib.optionals stdenv.isDarwin [
+                darwin.apple_sdk.frameworks.Security
+              ];
+
+              # tests require internet access
+              doCheck = false;
+
+              env = {
+                GEN_ARTIFACTS = "artifacts";
+              };
+
+              postInstall = ''
+                wrapProgram $out/bin/nurl \
+                  --prefix PATH : ${lib.makeBinPath runtimeInputs}
+                installManPage artifacts/nurl.1
+                installShellCompletion artifacts/nurl.{bash,fish} --zsh artifacts/_nurl
+              '';
+
+              meta = {
+                inherit (package) description;
+                license = lib.licenses.mpl20;
+                maintainers = with lib.maintainers; [ figsoda ];
+                mainProgram = "nurl";
+              };
+            }
+          )
+          { };
       });
     };
 }

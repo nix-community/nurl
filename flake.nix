@@ -47,7 +47,7 @@
             , stdenv
             , gitMinimal
             , mercurial
-            , nixUnstable
+            , nix
             , ...
             }: rustPlatform.buildRustPackage rec {
               pname = "nurl";
@@ -63,7 +63,7 @@
               runtimeInputs = [
                 gitMinimal
                 mercurial
-                nixUnstable
+                nix
               ];
 
               nativeBuildInputs = [

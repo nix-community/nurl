@@ -5,7 +5,7 @@ use std::{
 
 use anyhow::{anyhow, bail, Result};
 use data_encoding::BASE64;
-use nix_compat::nixbase32;
+use nix_base32::from_nix_base32;
 use serde::Deserialize;
 
 trait GetStdout {
@@ -87,7 +87,7 @@ pub fn url_prefetch(url: String, unpack: bool) -> Result<String> {
     let hash = cmd.get_stdout()?;
     Ok(format!(
         "sha256-{}",
-        BASE64.encode(&nixbase32::decode(hash.trim_end())?),
+        BASE64.encode(&from_nix_base32(&String::from_utf8_lossy(hash.trim_end())).unwrap()),
     ))
 }
 

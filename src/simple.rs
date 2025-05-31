@@ -41,7 +41,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
     }
 
     fn resolve_submodules(&self, submodules: Option<bool>) -> bool {
-        submodules.map_or(false, |submodules| submodules ^ Self::SUBMODULES_DEFAULT)
+        submodules.is_some_and(|submodules| submodules ^ Self::SUBMODULES_DEFAULT)
     }
 
     fn fetch_rev(&self, _: &[&str; N]) -> Result<String> {

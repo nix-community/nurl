@@ -14,6 +14,12 @@ struct Commit {
     sha: String,
 }
 
+fn token() -> Option<String> {
+    ["GH_TOKEN", "GITHUB_TOKEN", "GITHUB_API_TOKEN"]
+        .iter()
+        .find_map(|key| std::env::var(key).ok())
+}
+
 impl SimpleFetcher<'_, 2> for FetchFromGitHub<'_> {
     const HOST_KEY: &'static str = "githubBase";
     const KEYS: [&'static str; 2] = ["owner", "repo"];
@@ -28,7 +34,16 @@ impl SimpleFetcher<'_, 2> for FetchFromGitHub<'_> {
         let host = self.0.unwrap_or("github.com");
         let url = format!("https://api.{host}/repos/{owner}/{repo}/commits?per_page=1");
 
-        let [Commit { sha }] = ureq::get(&url)
+        // https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api
+        let mut request = ureq::get(&url)
+            .set("Accept", "application/vnd.github+json")
+            .set("X-GitHub-Api-Version", "2022-11-28");
+
+        if let Some(token) = token() {
+            request = request.set("Authorization", &format!("Bearer {token}"));
+        }
+
+        let [Commit { sha }] = request
             .call()?
             .into_json::<[_; 1]>()
             .with_context(|| format!("no commits found for https://{host}/{owner}/{repo}"))?;

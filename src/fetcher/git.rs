@@ -20,9 +20,9 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchgit {
     }
 }
 
-impl<'a> Fetchgit {
+impl Fetchgit {
     fn fetch(
-        &'a self,
+        &self,
         values @ [url]: &[&str; 1],
         rev: &str,
         submodules: bool,

@@ -1,13 +1,13 @@
 use std::{fmt::Write as _, io::Write};
 
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::{
-    prefetch::{flake_prefetch, fod_prefetch, git_prefetch, url_prefetch},
     Url,
+    prefetch::{flake_prefetch, fod_prefetch, git_prefetch, url_prefetch},
 };
 
 pub trait SimpleFetcher<'a, const N: usize> {
@@ -81,11 +81,10 @@ pub trait SimpleFetcher<'a, const N: usize> {
             Self::HASH_KEY,
         )?;
 
-        if submodules {
-            if let Some(key) = Self::SUBMODULES_KEY {
+        if submodules
+            && let Some(key) = Self::SUBMODULES_KEY {
                 write!(expr, "{key}={};", !Self::SUBMODULES_DEFAULT)?;
             }
-        }
 
         for (key, value) in args {
             write!(expr, "{key}={value};")?;
@@ -200,11 +199,10 @@ pub trait SimpleFetcher<'a, const N: usize> {
             fetcher_args["group"] = json!(group);
         }
 
-        if submodules {
-            if let Some(key) = Self::SUBMODULES_KEY {
+        if submodules
+            && let Some(key) = Self::SUBMODULES_KEY {
                 fetcher_args[key] = json!(!Self::SUBMODULES_DEFAULT);
             }
-        }
 
         for (key, value) in args {
             fetcher_args[key] = json!({

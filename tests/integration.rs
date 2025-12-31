@@ -1,7 +1,7 @@
 use std::fs;
 
 use assert_cmd::Command;
-use nu_glob::{glob, Uninterruptible};
+use nu_glob::{Uninterruptible, glob};
 use trycmd::TestCases;
 
 #[test]

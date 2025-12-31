@@ -4,9 +4,8 @@ use anyhow::{Context, Result};
 use serde::Deserialize;
 
 use crate::{
-    impl_fetcher,
+    Url, impl_fetcher,
     simple::{SimpleFetcher, SimpleGitFetcher},
-    Url,
 };
 
 pub struct FetchFromGitLab<'a> {

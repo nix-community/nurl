@@ -2,7 +2,7 @@
 name = "nurl"
 version = "0.3.13"
 authors = ["figsoda <figsoda@pm.me>"]
-edition = "2021"
+edition = "2024"
 description = "Generate Nix fetcher calls from repository URLs"
 readme = "README.md"
 homepage = "https://github.com/nix-community/nurl"

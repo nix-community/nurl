@@ -1,7 +1,6 @@
 use crate::{
-    impl_fetcher,
+    Url, impl_fetcher,
     simple::{SimpleFetcher, SimpleFlakeFetcher},
-    Url,
 };
 
 pub struct Fetchhg(pub bool);

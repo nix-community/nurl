@@ -1,7 +1,6 @@
 use crate::{
-    impl_fetcher,
+    Url, impl_fetcher,
     simple::{SimpleFetcher, SimpleFodFetcher},
-    Url,
 };
 
 pub struct Fetchsvn;

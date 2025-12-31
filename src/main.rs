@@ -7,11 +7,11 @@ mod simple;
 
 use std::{
     fmt::{self, Display, Formatter},
-    io::{stdout, Write},
+    io::{Write, stdout},
     str::Split,
 };
 
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use bstr::ByteSlice;
 use clap::{Parser, ValueEnum};
 use gix_url::Scheme;
@@ -39,7 +39,7 @@ impl Url<'_> {
         self.url
     }
 
-    fn path_segments(&self) -> Split<char> {
+    fn path_segments(&self) -> Split<'_, char> {
         self.path.split('/')
     }
 }

@@ -32,7 +32,8 @@ impl SimpleFetcher<'_, 2> for FetchFromGitea<'_> {
 
         let [Commit { sha }] = ureq::get(&url)
             .call()?
-            .into_json::<[_; 1]>()
+            .into_body()
+            .read_json::<[_; 1]>()
             .with_context(|| format!("no commits found for https://{}/{owner}/{repo}", self.0))?;
 
         Ok(sha)

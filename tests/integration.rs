@@ -1,7 +1,7 @@
 use std::fs;
 
 use assert_cmd::Command;
-use nu_glob::glob;
+use nu_glob::{glob, Uninterruptible};
 use trycmd::TestCases;
 
 #[test]
@@ -13,7 +13,7 @@ fn integration() {
 
 #[test]
 fn verify_outputs() {
-    for path in glob("tests/cmd/**/*.stdout").unwrap() {
+    for path in glob("tests/cmd/**/*.stdout", Uninterruptible).unwrap() {
         let path = path.unwrap();
         let name = path
             .file_name()

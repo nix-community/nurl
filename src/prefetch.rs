@@ -66,9 +66,9 @@ pub fn git_prefetch(git_scheme: bool, url: &str, rev: &str, submodules: bool) ->
         if !rev.starts_with("refs/")
             && let hash @ Ok(_) =
                 flake_prefetch(format!("{prefix}{url}?ref=refs/tags/{rev}{submodules}"))
-            {
-                return hash;
-            }
+        {
+            return hash;
+        }
         flake_prefetch(format!("{prefix}{url}?ref={rev}{submodules}"))
     }
 }

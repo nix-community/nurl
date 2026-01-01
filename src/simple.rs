@@ -81,10 +81,9 @@ pub trait SimpleFetcher<'a, const N: usize> {
             Self::HASH_KEY,
         )?;
 
-        if submodules
-            && let Some(key) = Self::SUBMODULES_KEY {
-                write!(expr, "{key}={};", !Self::SUBMODULES_DEFAULT)?;
-            }
+        if submodules && let Some(key) = Self::SUBMODULES_KEY {
+            write!(expr, "{key}={};", !Self::SUBMODULES_DEFAULT)?;
+        }
 
         for (key, value) in args {
             write!(expr, "{key}={value};")?;
@@ -199,10 +198,9 @@ pub trait SimpleFetcher<'a, const N: usize> {
             fetcher_args["group"] = json!(group);
         }
 
-        if submodules
-            && let Some(key) = Self::SUBMODULES_KEY {
-                fetcher_args[key] = json!(!Self::SUBMODULES_DEFAULT);
-            }
+        if submodules && let Some(key) = Self::SUBMODULES_KEY {
+            fetcher_args[key] = json!(!Self::SUBMODULES_DEFAULT);
+        }
 
         for (key, value) in args {
             fetcher_args[key] = json!({

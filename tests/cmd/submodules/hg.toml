@@ -1,6 +1,7 @@
+# wofi doesn't actually have subrepos, so this is mostly just testing the codegen
 args = [
-    "http://www.octave.org/hg/octave",
-    "release-7-1-0",
+    "https://hg.sr.ht/~scoopta/wofi",
+    "v1.5.1",
     "--submodules",
     "--fetcher",
     "fetchhg",

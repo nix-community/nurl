@@ -3,7 +3,8 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
-  outputs = { self, nixpkgs }:
+  outputs =
+    { self, nixpkgs }:
     let
       inherit (nixpkgs.lib)
         genAttrs
@@ -11,36 +12,34 @@
         licenses
         maintainers
         makeBinPath
-        optionals
         sourceByRegex
         ;
 
       inherit (importTOML (self + "/Cargo.toml")) package;
 
-      eachSystem = f: genAttrs
-        [
+      eachSystem =
+        f:
+        genAttrs [
           "aarch64-darwin"
           "aarch64-linux"
           "x86_64-darwin"
           "x86_64-linux"
-        ]
-        (system: f nixpkgs.legacyPackages.${system});
+        ] (system: f nixpkgs.legacyPackages.${system});
 
-      runtimeInputs = pkgs:
-        with pkgs; [
+      runtimeInputs =
+        pkgs: with pkgs; [
           gitMinimal
           mercurial
-          nixVersions.unstable
+          nix
         ];
 
-      packageFor = pkgs:
+      packageFor =
+        pkgs:
         let
           inherit (pkgs)
-            darwin
             installShellFiles
             makeBinaryWrapper
             rustPlatform
-            stdenv
             ;
 
           src = sourceByRegex self [
@@ -63,10 +62,6 @@
           nativeBuildInputs = [
             installShellFiles
             makeBinaryWrapper
-          ];
-
-          buildInputs = optionals stdenv.isDarwin [
-            darwin.apple_sdk.frameworks.Security
           ];
 
           # tests require internet access
@@ -98,7 +93,7 @@
         };
       });
 
-      formatter = eachSystem (pkgs: pkgs.nixpkgs-fmt);
+      formatter = eachSystem (pkgs: pkgs.nixfmt);
 
       overlays.default = _: prev: {
         nurl = packageFor prev;

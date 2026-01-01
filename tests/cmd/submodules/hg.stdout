@@ -1,6 +1,6 @@
 fetchhg {
-  url = "http://www.octave.org/hg/octave";
-  rev = "release-7-1-0";
-  sha256 = "sha256-zNpgpPPGAoIpSIRx39wJpEyLbxjJBsnFjUy47hGiZLs=";
+  url = "https://hg.sr.ht/~scoopta/wofi";
+  rev = "v1.5.1";
+  sha256 = "sha256-r+p8WDJw8aO1Gdgy6+UwT5QJdejIjcPFSs/Gfzq+D/c=";
   fetchSubrepos = true;
 }

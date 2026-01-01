@@ -4,9 +4,8 @@ use anyhow::{Context, Result};
 use serde::Deserialize;
 
 use crate::{
-    impl_fetcher,
+    Url, impl_fetcher,
     simple::{SimpleFetcher, SimpleGitFetcher},
-    Url,
 };
 
 pub struct FetchFromGitLab<'a> {
@@ -67,7 +66,8 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
 
         let [Commit { id }] = ureq::get(&url)
             .call()?
-            .into_json::<[_; 1]>()
+            .into_body()
+            .read_json::<[_; 1]>()
             .with_context(|| {
                 let mut msg = format!("no commits found for https://{host}/");
                 if let Some(group) = self.group.get() {

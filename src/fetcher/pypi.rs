@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use crate::{impl_fetcher, prefetch::url_prefetch, simple::SimpleFetcher, Url};
+use crate::{Url, impl_fetcher, prefetch::url_prefetch, simple::SimpleFetcher};
 
 pub struct FetchPypi;
 impl_fetcher!(FetchPypi);

@@ -1,13 +1,13 @@
 use std::{fmt::Write as _, io::Write};
 
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::{
-    prefetch::{flake_prefetch, fod_prefetch, git_prefetch, url_prefetch},
     Url,
+    prefetch::{flake_prefetch, fod_prefetch, git_prefetch, url_prefetch},
 };
 
 pub trait SimpleFetcher<'a, const N: usize> {
@@ -81,10 +81,8 @@ pub trait SimpleFetcher<'a, const N: usize> {
             Self::HASH_KEY,
         )?;
 
-        if submodules {
-            if let Some(key) = Self::SUBMODULES_KEY {
-                write!(expr, "{key}={};", !Self::SUBMODULES_DEFAULT)?;
-            }
+        if submodules && let Some(key) = Self::SUBMODULES_KEY {
+            write!(expr, "{key}={};", !Self::SUBMODULES_DEFAULT)?;
         }
 
         for (key, value) in args {
@@ -200,10 +198,8 @@ pub trait SimpleFetcher<'a, const N: usize> {
             fetcher_args["group"] = json!(group);
         }
 
-        if submodules {
-            if let Some(key) = Self::SUBMODULES_KEY {
-                fetcher_args[key] = json!(!Self::SUBMODULES_DEFAULT);
-            }
+        if submodules && let Some(key) = Self::SUBMODULES_KEY {
+            fetcher_args[key] = json!(!Self::SUBMODULES_DEFAULT);
         }
 
         for (key, value) in args {
@@ -249,26 +245,6 @@ pub trait SimpleFodFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         nixpkgs: String,
     ) -> Result<String> {
         self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
-    }
-}
-
-pub trait SimpleFlakeFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
-    fn get_flake_ref(&self, values: &[&str; N], rev: &str, submodules: bool) -> String;
-
-    fn fetch(
-        &self,
-        values: &[&str; N],
-        rev: &str,
-        submodules: bool,
-        args: &[(String, String)],
-        args_str: &[(String, String)],
-        nixpkgs: String,
-    ) -> Result<String> {
-        if args.is_empty() && args_str.is_empty() {
-            flake_prefetch(self.get_flake_ref(values, rev, submodules))
-        } else {
-            self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
-        }
     }
 }
 

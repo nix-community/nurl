@@ -36,16 +36,17 @@ impl SimpleFetcher<'_, 2> for FetchFromGitHub<'_> {
 
         // https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api
         let mut request = ureq::get(&url)
-            .set("Accept", "application/vnd.github+json")
-            .set("X-GitHub-Api-Version", "2022-11-28");
+            .header("Accept", "application/vnd.github+json")
+            .header("X-GitHub-Api-Version", "2022-11-28");
 
         if let Some(token) = token() {
-            request = request.set("Authorization", &format!("Bearer {token}"));
+            request = request.header("Authorization", &format!("Bearer {token}"));
         }
 
         let [Commit { sha }] = request
             .call()?
-            .into_json::<[_; 1]>()
+            .into_body()
+            .read_json::<[_; 1]>()
             .with_context(|| format!("no commits found for https://{host}/{owner}/{repo}"))?;
 
         Ok(sha)

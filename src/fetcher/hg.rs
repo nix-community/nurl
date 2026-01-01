@@ -1,8 +1,6 @@
-use crate::{
-    impl_fetcher,
-    simple::{SimpleFetcher, SimpleFlakeFetcher},
-    Url,
-};
+use anyhow::Result;
+
+use crate::{Url, impl_fetcher, prefetch::flake_prefetch, simple::SimpleFetcher};
 
 pub struct Fetchhg(pub bool);
 impl_fetcher!(Fetchhg);
@@ -22,12 +20,23 @@ impl<'a> SimpleFetcher<'a, 1> for Fetchhg {
     }
 }
 
-impl SimpleFlakeFetcher<'_, 1> for Fetchhg {
-    fn get_flake_ref(&self, [url]: &[&str; 1], rev: &str, submodules: bool) -> String {
-        format!(
-            "hg+{url}?{}={rev}{}",
-            if rev.len() == 40 { "rev" } else { "ref" },
-            if submodules { "&submodules=1" } else { "" },
-        )
+impl Fetchhg {
+    fn fetch(
+        &self,
+        values @ [url]: &[&str; 1],
+        rev: &str,
+        submodules: bool,
+        args: &[(String, String)],
+        args_str: &[(String, String)],
+        nixpkgs: String,
+    ) -> Result<String> {
+        if args.is_empty() && args_str.is_empty() && !submodules {
+            flake_prefetch(format!(
+                "hg+{url}?{}={rev}",
+                if rev.len() == 40 { "rev" } else { "ref" },
+            ))
+        } else {
+            self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
+        }
     }
 }

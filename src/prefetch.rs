@@ -3,7 +3,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{Result, anyhow, bail};
 use data_encoding::BASE64;
 use nix_compat::nixbase32;
 use serde::Deserialize;
@@ -39,7 +39,9 @@ pub fn flake_prefetch(flake_ref: String) -> Result<String> {
         hash: String,
     }
 
-    info!("$ nix flake prefetch --extra-experimental-features 'nix-command flakes' --json {flake_ref}");
+    info!(
+        "$ nix flake prefetch --extra-experimental-features 'nix-command flakes' --json {flake_ref}"
+    );
     Ok(serde_json::from_slice::<PrefetchOutput>(
         &Command::new("nix")
             .arg("flake")
@@ -61,12 +63,11 @@ pub fn git_prefetch(git_scheme: bool, url: &str, rev: &str, submodules: bool) ->
     if rev.len() == 40 {
         flake_prefetch(format!("{prefix}{url}?allRefs=1&rev={rev}{submodules}"))
     } else {
-        if !rev.starts_with("refs/") {
-            if let hash @ Ok(_) =
+        if !rev.starts_with("refs/")
+            && let hash @ Ok(_) =
                 flake_prefetch(format!("{prefix}{url}?ref=refs/tags/{rev}{submodules}"))
-            {
-                return hash;
-            }
+        {
+            return hash;
         }
         flake_prefetch(format!("{prefix}{url}?ref={rev}{submodules}"))
     }

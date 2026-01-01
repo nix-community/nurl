@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use crate::{impl_fetcher, prefetch::git_prefetch, simple::SimpleFetcher, GitScheme, Url};
+use crate::{GitScheme, Url, impl_fetcher, prefetch::git_prefetch, simple::SimpleFetcher};
 
 pub struct Fetchgit(pub GitScheme);
 impl_fetcher!(Fetchgit);

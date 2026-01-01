@@ -1,7 +1,6 @@
 use crate::{
-    impl_fetcher,
+    Url, impl_fetcher,
     simple::{SimpleFetcher, SimpleUrlFetcher},
-    Url,
 };
 
 pub struct FetchHex;

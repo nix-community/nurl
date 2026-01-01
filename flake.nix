@@ -12,7 +12,6 @@
         licenses
         maintainers
         makeBinPath
-        optionals
         sourceByRegex
         ;
 
@@ -38,11 +37,9 @@
         pkgs:
         let
           inherit (pkgs)
-            darwin
             installShellFiles
             makeBinaryWrapper
             rustPlatform
-            stdenv
             ;
 
           src = sourceByRegex self [
@@ -65,10 +62,6 @@
           nativeBuildInputs = [
             installShellFiles
             makeBinaryWrapper
-          ];
-
-          buildInputs = optionals stdenv.isDarwin [
-            darwin.apple_sdk.frameworks.Security
           ];
 
           # tests require internet access

@@ -94,7 +94,7 @@ pub fn url_prefetch(url: String, unpack: bool) -> Result<String> {
 
 pub fn fod_prefetch(expr: String) -> Result<String> {
     info!(
-        "$ nix build --extra-experimental-features nix-command --impure --no-link --expr '{expr}'"
+        "$ nix build --extra-experimental-features 'nix-command flakes' --impure --no-link --expr '{expr}'"
     );
 
     let Output {
@@ -104,7 +104,7 @@ pub fn fod_prefetch(expr: String) -> Result<String> {
     } = Command::new("nix")
         .arg("build")
         .arg("--extra-experimental-features")
-        .arg("nix-command")
+        .arg("nix-command flakes")
         .arg("--impure")
         .arg("--no-link")
         .arg("--expr")

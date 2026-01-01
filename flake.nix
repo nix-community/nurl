@@ -31,7 +31,7 @@
         pkgs: with pkgs; [
           gitMinimal
           mercurial
-          nixVersions.unstable
+          nix
         ];
 
       packageFor =

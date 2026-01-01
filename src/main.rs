@@ -23,8 +23,8 @@ use crate::{
     cli::{FetcherFunction, Opts},
     fetcher::{
         BuiltinsFetchGit, FetchCrate, FetchFromBitbucket, FetchFromGitHub, FetchFromGitLab,
-        FetchFromGitea, FetchFromGitiles, FetchFromRepoOrCz, FetchFromSourcehut, FetchHex,
-        FetchPypi, Fetcher, FetcherDispatch, Fetchgit, Fetchhg, Fetchsvn,
+        FetchFromGitea, FetchFromGitiles, FetchFromSourcehut, FetchHex, FetchPypi, Fetcher,
+        FetcherDispatch, Fetchgit, Fetchhg, Fetchsvn,
     },
     prefetch::fod_prefetch,
 };
@@ -154,7 +154,10 @@ fn main() -> Result<()> {
         (Some(FetcherFunction::FetchFromGitiles), ..) => FetchFromGitiles.into(),
 
         (None | Some(FetcherFunction::FetchFromRepoOrCz), Some("repo.or.cz"), _) => {
-            FetchFromRepoOrCz.into()
+            // fetchFromRepoOrCz is broken
+            // https://github.com/NixOS/nixpkgs/issues/476007
+            // FetchFromRepoOrCz.into()
+            Fetchgit(GitScheme::No).into()
         }
         (Some(FetcherFunction::FetchFromRepoOrCz), ..) => {
             bail!("fetchFromRepoOrCz only supports repo.or.cz");

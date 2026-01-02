@@ -1,5 +1,5 @@
 fetchgit {
   url = "https://repo.or.cz/tinycc.git";
-  rev = "release_0_9_27";
+  tag = "release_0_9_27";
   hash = "sha256-5yRaB/gxk1Gm/rukAe0pm1PEl5NdieVFngp87jENtYo=";
 }

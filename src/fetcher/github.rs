@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 use crate::{
     impl_fetcher,
-    simple::{SimpleFetcher, SimpleGitFetcher},
+    simple::{RevKey, SimpleFetcher, SimpleGitFetcher},
 };
 
 pub struct FetchFromGitHub<'a>(pub Option<&'a str>);
@@ -24,6 +24,7 @@ impl SimpleFetcher<'_, 2> for FetchFromGitHub<'_> {
     const HOST_KEY: &'static str = "githubBase";
     const KEYS: [&'static str; 2] = ["owner", "repo"];
     const NAME: &'static str = "fetchFromGitHub";
+    const REV_KEY: RevKey = RevKey::RevOrTag;
     const SUBMODULES_KEY: Option<&'static str> = Some("fetchSubmodules");
 
     fn host(&self) -> Option<&str> {

@@ -24,6 +24,7 @@ impl Fetchhg {
     fn fetch(
         &self,
         values @ [url]: &[&str; 1],
+        rev_key: &'static str,
         rev: &str,
         submodules: bool,
         args: &[(String, String)],
@@ -36,7 +37,7 @@ impl Fetchhg {
                 if rev.len() == 40 { "rev" } else { "ref" },
             ))
         } else {
-            self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
+            self.fetch_fod(values, rev_key, rev, submodules, args, args_str, nixpkgs)
         }
     }
 }

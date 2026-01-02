@@ -1,0 +1,5 @@
+fetchgit {
+  url = "https://github.com/nix-community/nurl";
+  rev = "16ab26c61b36cdbdc2940c17bdd8b18c32639135";
+  hash = "sha256-BWKfzElf/5T9CPUT53k49oTOI4O3uPsi6j33wrDMSY8=";
+}

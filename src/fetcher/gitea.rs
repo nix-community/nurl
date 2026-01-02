@@ -4,7 +4,7 @@ use serde::Deserialize;
 use crate::{
     impl_fetcher,
     prefetch::{git_prefetch, url_prefetch},
-    simple::SimpleFetcher,
+    simple::{RevKey, SimpleFetcher},
 };
 
 pub struct FetchFromGitea<'a>(pub &'a str);
@@ -18,6 +18,7 @@ struct Commit {
 impl SimpleFetcher<'_, 2> for FetchFromGitea<'_> {
     const KEYS: [&'static str; 2] = ["owner", "repo"];
     const NAME: &'static str = "fetchFromGitea";
+    const REV_KEY: RevKey = RevKey::RevOrTag;
     const SUBMODULES_KEY: Option<&'static str> = Some("fetchSubmodules");
 
     fn host(&self) -> Option<&str> {
@@ -44,6 +45,7 @@ impl FetchFromGitea<'_> {
     fn fetch(
         &self,
         values @ [owner, repo]: &[&str; 2],
+        rev_key: &'static str,
         rev: &str,
         submodules: bool,
         args: &[(String, String)],
@@ -65,7 +67,7 @@ impl FetchFromGitea<'_> {
                 )
             }
         } else {
-            self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
+            self.fetch_fod(values, rev_key, rev, submodules, args, args_str, nixpkgs)
         }
     }
 }

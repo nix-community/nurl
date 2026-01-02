@@ -1,6 +1,6 @@
 use crate::{
     impl_fetcher,
-    simple::{SimpleFetcher, SimpleGitFetcher},
+    simple::{RevKey, SimpleFetcher, SimpleGitFetcher},
 };
 
 pub struct FetchFromSourcehut<'a>(pub Option<&'a str>);
@@ -9,6 +9,7 @@ impl_fetcher!(FetchFromSourcehut<'a>);
 impl<'a> SimpleFetcher<'a, 2> for FetchFromSourcehut<'a> {
     const KEYS: [&'static str; 2] = ["owner", "repo"];
     const NAME: &'static str = "fetchFromSourcehut";
+    const REV_KEY: RevKey = RevKey::RevOrTag;
     const SUBMODULES_KEY: Option<&'static str> = Some("fetchSubmodules");
 
     fn host(&self) -> Option<&str> {

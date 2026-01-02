@@ -2,6 +2,6 @@ fetchFromGitea {
   domain = "codeberg.org";
   owner = "nsxiv";
   repo = "nsxiv";
-  rev = "v30";
+  tag = "v30";
   hash = "sha256-swzTdQ6ow1At4bKRORqz6fb0Ej92yU9rlI/OgcinPu4=";
 }

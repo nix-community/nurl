@@ -1,0 +1,4 @@
+args = [
+    "https://android.googlesource.com/platform/external/minijail",
+    "80bc6882d75376d301a72877046c17cf322278a9",
+]

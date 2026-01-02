@@ -5,7 +5,7 @@ use serde::Deserialize;
 
 use crate::{
     Url, impl_fetcher,
-    simple::{SimpleFetcher, SimpleGitFetcher},
+    simple::{RevKey, SimpleFetcher, SimpleGitFetcher},
 };
 
 pub struct FetchFromGitLab<'a> {
@@ -31,6 +31,7 @@ struct Commit {
 impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
     const KEYS: [&'static str; 2] = ["owner", "repo"];
     const NAME: &'static str = "fetchFromGitLab";
+    const REV_KEY: RevKey = RevKey::RevOrTag;
     const SUBMODULES_KEY: Option<&'static str> = Some("fetchSubmodules");
 
     fn host(&self) -> Option<&str> {

@@ -1,0 +1,5 @@
+fetchFromGitiles {
+  url = "https://android.googlesource.com/platform/external/minijail";
+  rev = "80bc6882d75376d301a72877046c17cf322278a9";
+  hash = "sha256-+e3zgIV4wUuqFVT/YdZKtOlel9vhPeoX2Ah6UvJdvXA=";
+}

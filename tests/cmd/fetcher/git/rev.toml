@@ -1,0 +1,6 @@
+args = [
+    "https://github.com/nix-community/nurl",
+    "16ab26c61b36cdbdc2940c17bdd8b18c32639135",
+    "--fetcher",
+    "fetchgit",
+]

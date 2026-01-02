@@ -113,11 +113,12 @@ macro_rules! impl_fetcher {
                     Some(rev) => rev,
                     None => self.fetch_rev(values)?,
                 };
+                let (rev_key, rev) = self.rev_entry(&rev);
 
                 let submodules = self.resolve_submodules(submodules);
-                let hash = self.fetch(values, &rev, submodules, &args, &args_str, nixpkgs)?;
+                let hash = self.fetch(values, rev_key, rev, submodules, &args, &args_str, nixpkgs)?;
 
-                self.write_nix(out, values, rev, hash, submodules, args, args_str, overwrites, indent)
+                self.write_nix(out, values, rev_key, rev, hash, submodules, args, args_str, overwrites, indent)
             }
 
             fn fetch_hash(
@@ -140,9 +141,10 @@ macro_rules! impl_fetcher {
                     Some(rev) => rev,
                     None => self.fetch_rev(values)?,
                 };
+                let (rev_key, rev) = self.rev_entry(&rev);
 
                 let submodules = self.resolve_submodules(submodules);
-                let hash = self.fetch(values, &rev, submodules, &args, &args_str, nixpkgs)?;
+                let hash = self.fetch(values, rev_key, rev, submodules, &args, &args_str, nixpkgs)?;
                 write!(out, "{}", hash)?;
 
                 Ok(())
@@ -170,13 +172,15 @@ macro_rules! impl_fetcher {
                     Some(rev) => rev,
                     None => self.fetch_rev(values)?,
                 };
+                let (rev_key, rev) = self.rev_entry(&rev);
 
                 let submodules = self.resolve_submodules(submodules);
-                let hash = self.fetch(values, &rev, submodules, &args, &args_str, nixpkgs)?;
+                let hash = self.fetch(values, rev_key, rev, submodules, &args, &args_str, nixpkgs)?;
 
                 self.write_json(
                     out,
                     values,
+                    rev_key,
                     rev,
                     hash,
                     submodules,
@@ -209,7 +213,8 @@ macro_rules! impl_fetcher {
                     fetcher_args["group"] = json!(group);
                 }
                 if let Some(rev) = rev {
-                    fetcher_args[Self::REV_KEY] = json!(rev);
+                    let (rev_key, rev) = self.rev_entry(&rev);
+                    fetcher_args[rev_key] = json!(rev);
                 }
 
                 serde_json::to_writer(

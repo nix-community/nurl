@@ -2,7 +2,7 @@ fetchFromGitea {
   domain = "repo.palemoon.org";
   owner = "MoonchildProductions";
   repo = "Pale-Moon";
-  rev = "31.0.0_Release";
+  tag = "31.0.0_Release";
   hash = "sha256-fIQAQCtjA/9Otft3e9Z4xWgE09sqsdArYQtZqmEgfTc=";
   fetchSubmodules = true;
 }

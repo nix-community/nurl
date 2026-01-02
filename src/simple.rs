@@ -10,14 +10,29 @@ use crate::{
     prefetch::{flake_prefetch, fod_prefetch, git_prefetch, url_prefetch},
 };
 
+pub enum RevKey {
+    Const(&'static str),
+    RevOrTag,
+}
+
 pub trait SimpleFetcher<'a, const N: usize> {
     const HASH_KEY: &'static str = "hash";
     const HOST_KEY: &'static str = "domain";
     const KEYS: [&'static str; N];
     const NAME: &'static str;
-    const REV_KEY: &'static str = "rev";
+    const REV_KEY: RevKey = RevKey::Const("rev");
     const SUBMODULES_DEFAULT: bool = false;
     const SUBMODULES_KEY: Option<&'static str> = None;
+
+    fn rev_entry<'b>(&self, rev: &'b str) -> (&'static str, &'b str) {
+        match Self::REV_KEY {
+            RevKey::Const(rev_key) => (rev_key, rev),
+            RevKey::RevOrTag => (
+                if rev.len() == 40 { "rev" } else { "tag" },
+                rev.strip_prefix("refs/tags/").unwrap_or(rev),
+            ),
+        }
+    }
 
     fn host(&self) -> Option<&str> {
         None
@@ -54,6 +69,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
     fn fetch_fod(
         &self,
         values: &[&str; N],
+        rev_key: &'static str,
         rev: &str,
         submodules: bool,
         args: &[(String, String)],
@@ -76,8 +92,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
 
         write!(
             expr,
-            r#"{}="{rev}";{}="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";"#,
-            Self::REV_KEY,
+            r#"{rev_key}="{rev}";{}="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";"#,
             Self::HASH_KEY,
         )?;
 
@@ -101,7 +116,8 @@ pub trait SimpleFetcher<'a, const N: usize> {
         &self,
         out: &mut impl Write,
         values: &[&str; N],
-        rev: String,
+        rev_key: &'static str,
+        rev: &str,
         hash: String,
         submodules: bool,
         args: Vec<(String, String)>,
@@ -133,10 +149,10 @@ pub trait SimpleFetcher<'a, const N: usize> {
             }
         }
 
-        if let Some(rev) = overwrites.remove(Self::REV_KEY) {
-            writeln!(out, "{indent}  {} = {rev};", Self::REV_KEY)?;
+        if let Some(rev) = overwrites.remove(rev_key) {
+            writeln!(out, "{indent}  {rev_key} = {rev};")?;
         } else {
-            writeln!(out, r#"{indent}  {} = "{rev}";"#, Self::REV_KEY)?;
+            writeln!(out, r#"{indent}  {rev_key} = "{rev}";"#)?;
         }
         if let Some(hash) = overwrites.remove(Self::HASH_KEY) {
             writeln!(out, "{indent}  {} = {hash};", Self::HASH_KEY)?;
@@ -177,7 +193,8 @@ pub trait SimpleFetcher<'a, const N: usize> {
         &self,
         out: &mut impl Write,
         values: &[&str; N],
-        rev: String,
+        rev_key: &'static str,
+        rev: &str,
         hash: String,
         submodules: bool,
         args: Vec<(String, String)>,
@@ -185,10 +202,12 @@ pub trait SimpleFetcher<'a, const N: usize> {
         overwrites: Vec<(String, String)>,
         overwrites_str: Vec<(String, String)>,
     ) -> Result<()> {
-        let mut fetcher_args = Value::from_iter(Self::KEYS.into_iter().zip(*values).chain([
-            (Self::REV_KEY, rev.as_ref()),
-            (Self::HASH_KEY, hash.as_ref()),
-        ]));
+        let mut fetcher_args = Value::from_iter(
+            Self::KEYS
+                .into_iter()
+                .zip(*values)
+                .chain([(rev_key, rev), (Self::HASH_KEY, hash.as_ref())]),
+        );
 
         if let Some(host) = self.host() {
             fetcher_args[Self::HOST_KEY] = json!(host);
@@ -238,13 +257,14 @@ pub trait SimpleFodFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
     fn fetch(
         &self,
         values: &[&str; N],
+        rev_key: &'static str,
         rev: &str,
         submodules: bool,
         args: &[(String, String)],
         args_str: &[(String, String)],
         nixpkgs: String,
     ) -> Result<String> {
-        self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
+        self.fetch_fod(values, rev_key, rev, submodules, args, args_str, nixpkgs)
     }
 }
 
@@ -256,6 +276,7 @@ pub trait SimpleGitFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
     fn fetch(
         &self,
         values: &[&str; N],
+        rev_key: &'static str,
         rev: &str,
         submodules: bool,
         args: &[(String, String)],
@@ -274,7 +295,7 @@ pub trait SimpleGitFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
                 flake_prefetch(self.get_flake_ref(values, rev))
             }
         } else {
-            self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
+            self.fetch_fod(values, rev_key, rev, submodules, args, args_str, nixpkgs)
         }
     }
 }
@@ -287,6 +308,7 @@ pub trait SimpleUrlFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
     fn fetch(
         &self,
         values: &[&str; N],
+        rev_key: &'static str,
         rev: &str,
         submodules: bool,
         args: &[(String, String)],
@@ -296,7 +318,7 @@ pub trait SimpleUrlFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         if args.is_empty() && args_str.is_empty() {
             url_prefetch(self.get_url(values, rev), Self::UNPACK)
         } else {
-            self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
+            self.fetch_fod(values, rev_key, rev, submodules, args, args_str, nixpkgs)
         }
     }
 }

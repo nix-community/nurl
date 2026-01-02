@@ -1,6 +1,10 @@
 use anyhow::Result;
 
-use crate::{GitScheme, Url, impl_fetcher, prefetch::git_prefetch, simple::SimpleFetcher};
+use crate::{
+    GitScheme, Url, impl_fetcher,
+    prefetch::git_prefetch,
+    simple::{RevKey, SimpleFetcher},
+};
 
 pub struct Fetchgit(pub GitScheme);
 impl_fetcher!(Fetchgit);
@@ -8,6 +12,7 @@ impl_fetcher!(Fetchgit);
 impl<'a> SimpleFetcher<'a, 1> for Fetchgit {
     const KEYS: [&'static str; 1] = ["url"];
     const NAME: &'static str = "fetchgit";
+    const REV_KEY: RevKey = RevKey::RevOrTag;
     const SUBMODULES_DEFAULT: bool = true;
     const SUBMODULES_KEY: Option<&'static str> = Some("fetchSubmodules");
 
@@ -24,6 +29,7 @@ impl Fetchgit {
     fn fetch(
         &self,
         values @ [url]: &[&str; 1],
+        rev_key: &'static str,
         rev: &str,
         submodules: bool,
         args: &[(String, String)],
@@ -33,7 +39,7 @@ impl Fetchgit {
         if args.is_empty() && args_str.is_empty() {
             git_prefetch(matches!(self.0, GitScheme::Yes), url, rev, !submodules)
         } else {
-            self.fetch_fod(values, rev, submodules, args, args_str, nixpkgs)
+            self.fetch_fod(values, rev_key, rev, submodules, args, args_str, nixpkgs)
         }
     }
 }

@@ -1,6 +1,6 @@
 fetchgit {
   url = "https://github.com/Koihik/LuaFormatter";
-  rev = "1.3.0";
+  tag = "1.3.0";
   hash = "sha256-UrADnTFH8y1rqA2LytSK9HkIQdxOIrY4CwqfL139Oag=";
   fetchSubmodules = false;
 }

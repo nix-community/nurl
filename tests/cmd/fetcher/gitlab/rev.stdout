@@ -1,0 +1,6 @@
+fetchFromGitLab {
+  owner = "timvisee";
+  repo = "ffsend";
+  rev = "85aae2f3e83a6c956c1ee7e22b416650e1c04db2";
+  hash = "sha256-RpIUpftTmFEtiQuk/66Ebc0u0aGoomBFLUGyntAXbp0=";
+}

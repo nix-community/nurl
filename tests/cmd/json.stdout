@@ -1,1 +1,1 @@
-{"args":{"hash":"sha256-jZ+cCp1THDhfHH5yMmRPjGuthOqsgcF/3OjZ61FMdA4=","owner":"nix-community","repo":"nurl","rev":"v0.3.0"},"fetcher":"fetchFromGitHub"}
+{"args":{"hash":"sha256-jZ+cCp1THDhfHH5yMmRPjGuthOqsgcF/3OjZ61FMdA4=","owner":"nix-community","repo":"nurl","tag":"v0.3.0"},"fetcher":"fetchFromGitHub"}

@@ -2,6 +2,6 @@ args = [
     "https://github.com/nix-community/nurl",
     "v0.3.0",
     "--overwrite-str",
-    "rev",
+    "tag",
     "v${version}",
 ]

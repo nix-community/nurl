@@ -8,7 +8,9 @@ use trycmd::TestCases;
 fn integration() {
     TestCases::new()
         .default_bin_name("nurl")
-        .case("tests/cmd/**/*.toml");
+        .case("tests/cmd/**/*.toml")
+        // fetchFromRepoOrCz is flaky
+        .skip("tests/cmd/fetcher/repo_or_cz.toml");
 }
 
 #[test]

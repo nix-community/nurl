@@ -37,7 +37,7 @@ clap_mangen = "0.2.31"
 
 [dev-dependencies]
 assert_cmd = "2.1.2"
-nu-glob = "0.109.1"
+nu-glob = "0.110.0"
 trycmd = "0.15.11"
 
 [profile.release]

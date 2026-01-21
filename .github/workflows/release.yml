@@ -16,6 +16,8 @@ jobs:
     name: create_release
     runs-on: ubuntu-latest
     if: github.event_name != 'workflow_dispatch'
+    permissions:
+      contents: write
     steps:
       - name: Create release
         uses: softprops/action-gh-release@v2
@@ -27,6 +29,8 @@ jobs:
     needs: create_release
     runs-on: ${{ matrix.os }}
     if: github.event_name != 'workflow_dispatch'
+    permissions:
+      contents: write
     strategy:
       matrix:
         include:
@@ -57,7 +61,6 @@ jobs:
       - name: Upload asset
         uses: svenstaro/upload-release-action@v2
         with:
-          repo_token: ${{ github.token }}
           tag: ${{ github.ref }}
           file: target/${{ matrix.target }}/release/nurl
           asset_name: nurl-${{ matrix.target }}
@@ -67,6 +70,8 @@ jobs:
     needs: create_release
     runs-on: ubuntu-latest
     if: github.event_name != 'workflow_dispatch'
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -87,7 +92,6 @@ jobs:
       - name: Upload artifacts
         uses: svenstaro/upload-release-action@v2
         with:
-          repo_token: ${{ github.token }}
           tag: ${{ github.ref }}
           file: artifacts/*
           file_glob: true

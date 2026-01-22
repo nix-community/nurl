@@ -7,7 +7,6 @@ pub struct Fetchsvn;
 impl_fetcher!(Fetchsvn);
 
 impl<'a> SimpleFetcher<'a, 1> for Fetchsvn {
-    const HASH_KEY: &'static str = "sha256";
     const KEYS: [&'static str; 1] = ["url"];
     const NAME: &'static str = "fetchsvn";
 

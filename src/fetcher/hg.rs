@@ -6,7 +6,6 @@ pub struct Fetchhg(pub bool);
 impl_fetcher!(Fetchhg);
 
 impl<'a> SimpleFetcher<'a, 1> for Fetchhg {
-    const HASH_KEY: &'static str = "sha256";
     const KEYS: [&'static str; 1] = ["url"];
     const NAME: &'static str = "fetchhg";
     const SUBMODULES_KEY: Option<&'static str> = Some("fetchSubrepos");

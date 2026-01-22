@@ -1,5 +1,5 @@
 fetchhg {
   url = "https://hg.sr.ht/~scoopta/wofi";
   rev = "v1.3";
-  sha256 = "sha256-GxMjEXBPQniD+Yc9QZjd8TH4ILJAX5dNzrjxDawhy8w=";
+  hash = "sha256-GxMjEXBPQniD+Yc9QZjd8TH4ILJAX5dNzrjxDawhy8w=";
 }

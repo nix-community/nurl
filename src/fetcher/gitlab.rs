@@ -1,4 +1,4 @@
-use std::{cell::OnceCell, fmt::Write};
+use std::{cell::OnceCell, fmt::Write, iter::once};
 
 use anyhow::{Context, Result};
 use serde::Deserialize;
@@ -43,16 +43,29 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
     }
 
     fn get_values(&self, url: &'a Url) -> Option<[&'a str; 2]> {
-        let mut xs = url.path_segments();
-        let x = xs.next()?;
-        let y = xs.next()?;
-        Some(match xs.next() {
-            None | Some("" | "-") => [x, y.strip_suffix(".git").unwrap_or(y)],
-            Some(z) => {
-                let _ = self.group.set(x);
-                [y, z.strip_suffix(".git").unwrap_or(z)]
+        let mut i = 0;
+        for j in url
+            .path
+            .match_indices('/')
+            .map(|(j, _)| j)
+            .chain(once(url.path.len()))
+        {
+            if matches!(url.path.get(i + 1 .. j), Some("" | "-") | None) {
+                break;
             }
-        })
+            i = j;
+        }
+
+        let (path, repo) = url.path[.. i].rsplit_once('/')?;
+        let owner = match path.rsplit_once('/') {
+            Some((group, owner)) => {
+                let _ = self.group.set(group);
+                owner
+            }
+            None => path,
+        };
+
+        Some([owner, repo.strip_suffix(".git").unwrap_or(repo)])
     }
 
     fn fetch_rev(&self, [owner, repo]: &[&str; 2]) -> Result<String> {
@@ -60,7 +73,7 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
 
         let mut url = format!("https://{host}/api/v4/projects/");
         if let Some(group) = self.group.get() {
-            url.push_str(group);
+            url.push_str(&group.replace('/', "%2F"));
             url.push_str("%2F");
         }
         write!(url, "{owner}%2F{repo}/repository/commits?per_page=1")?;
@@ -89,7 +102,7 @@ impl<'a> SimpleGitFetcher<'a, 2> for FetchFromGitLab<'a> {
     fn get_flake_ref(&self, [owner, repo]: &[&str; 2], rev: &str) -> String {
         let mut flake_ref = String::from("gitlab:");
         if let Some(group) = self.group.get() {
-            flake_ref.push_str(group);
+            flake_ref.push_str(&group.replace('/', "%252F"));
             flake_ref.push_str("%252F");
         }
         flake_ref.push_str(owner);
@@ -116,5 +129,107 @@ impl<'a> SimpleGitFetcher<'a, 2> for FetchFromGitLab<'a> {
         flake_ref.push('/');
         flake_ref.push_str(repo);
         flake_ref
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::FetchFromGitLab;
+    use crate::{Url, simple::SimpleFetcher};
+
+    #[test]
+    fn basic() {
+        let fetcher = FetchFromGitLab::new(None);
+        let url = Url {
+            url: "https://gitlab.com/foo/bar",
+            path: "foo/bar",
+        };
+        assert_eq!(fetcher.get_values(&url), Some(["foo", "bar"]));
+        assert_eq!(fetcher.group(), None);
+    }
+
+    #[test]
+    fn basic_issues() {
+        let fetcher = FetchFromGitLab::new(None);
+        let url = Url {
+            url: "https://gitlab.com/foo/bar/-/issues/42",
+            path: "foo/bar/-/issues/42",
+        };
+        assert_eq!(fetcher.get_values(&url), Some(["foo", "bar"]));
+        assert_eq!(fetcher.group(), None);
+    }
+
+    #[test]
+    fn group() {
+        let fetcher = FetchFromGitLab::new(None);
+        let url = Url {
+            url: "https://gitlab.com/foo/bar/baz",
+            path: "foo/bar/baz",
+        };
+        assert_eq!(fetcher.get_values(&url), Some(["bar", "baz"]));
+        assert_eq!(fetcher.group(), Some("foo"));
+    }
+
+    #[test]
+    fn nested() {
+        let fetcher = FetchFromGitLab::new(None);
+        let url = Url {
+            url: "https://gitlab.com/lorem/ipsum/dolor/sit/amet",
+            path: "lorem/ipsum/dolor/sit/amet",
+        };
+        assert_eq!(fetcher.get_values(&url), Some(["sit", "amet"]));
+        assert_eq!(fetcher.group(), Some("lorem/ipsum/dolor"));
+    }
+
+    #[test]
+    fn nested_issues() {
+        let fetcher = FetchFromGitLab::new(None);
+        let url = Url {
+            url: "https://gitlab.com/lorem/ipsum/dolor/sit/amet/-/issues/42",
+            path: "lorem/ipsum/dolor/sit/amet/-/issues/42",
+        };
+        assert_eq!(fetcher.get_values(&url), Some(["sit", "amet"]));
+        assert_eq!(fetcher.group(), Some("lorem/ipsum/dolor"));
+    }
+
+    #[test]
+    fn nested_trailing() {
+        let fetcher = FetchFromGitLab::new(None);
+        let url = Url {
+            url: "https://gitlab.com/lorem/ipsum/dolor/sit/amet//",
+            path: "lorem/ipsum/dolor/sit/amet//",
+        };
+        assert_eq!(fetcher.get_values(&url), Some(["sit", "amet"]));
+        assert_eq!(fetcher.group(), Some("lorem/ipsum/dolor"));
+    }
+
+    #[test]
+    fn invalid() {
+        let fetcher = FetchFromGitLab::new(None);
+        let url = Url {
+            url: "https://gitlab.com/lorem",
+            path: "lorem",
+        };
+        assert_eq!(fetcher.get_values(&url), None);
+    }
+
+    #[test]
+    fn invalid_trailing() {
+        let fetcher = FetchFromGitLab::new(None);
+        let url = Url {
+            url: "https://gitlab.com/lorem/",
+            path: "lorem/",
+        };
+        assert_eq!(fetcher.get_values(&url), None);
+    }
+
+    #[test]
+    fn invalid_double_trailing() {
+        let fetcher = FetchFromGitLab::new(None);
+        let url = Url {
+            url: "https://gitlab.com/lorem//",
+            path: "lorem//",
+        };
+        assert_eq!(fetcher.get_values(&url), None);
     }
 }

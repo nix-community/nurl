@@ -64,8 +64,11 @@
             makeBinaryWrapper
           ];
 
-          # tests require internet access
-          doCheck = false;
+          # disable tests that require internet access
+          checkFlags = [
+            "--skip=integration"
+            "--skip=verify_outputs"
+          ];
 
           env = {
             GEN_ARTIFACTS = "artifacts";

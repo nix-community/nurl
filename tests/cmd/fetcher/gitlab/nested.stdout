@@ -1,0 +1,7 @@
+fetchFromGitLab {
+  group = "ubports/development";
+  owner = "core";
+  repo = "cmake-extras";
+  tag = "1.9";
+  hash = "sha256-7dIuQ2SdtpG93cPZTmoxXUCwFhsq11gmg4OJlGTQ3VY=";
+}

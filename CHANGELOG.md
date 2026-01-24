@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.4.0 - 2026-02-06
+
+### Changes
+
+- Output `tag = "...";` instead of `rev` for all supported fetchers ([#395](https://github.com/nix-community/nurl/pull/395)).
+  To adapt to this change, instead of `--overwrite(-str) rev <VALUE>`, use `--overwrite-rev <VALUE>` or `--overwrite-rev-str <VALUE>`,
+  which also works for `fetchCrate` and `fetchHex`.
+- `fetchhg` and `fetchsvn` now output `hash` instead of `sha256`
+
+### Features
+
+- `fetchurl`, `fetchzip`, `fetchpatch`, and `fetchpatch2` support ([#420](https://github.com/nix-community/nurl/pull/420))
+- Use a GitHub token for authorization if it exists ([#388](https://github.com/nix-community/nurl/pull/388))
+- `--overwrite-rev` and `--overwrite-rev-str` as alternatives to `--overwrite-rev(-str) (rev|tag|version)` ([#419](https://github.com/nix-community/nurl/pull/419))
+- `fetchFromGitLab` support for <https://framagit.org> ([#428](https://github.com/nix-community/nurl/pull/428))
+- `fetchFromGitea` support for <https://git.lix.systems> ([#428](https://github.com/nix-community/nurl/pull/428))
+- More colorful errors
+
+### Fixes
+
+- Add `flakes` to extra experimental features ([#220](https://github.com/nix-community/nurl/pull/220))
+- Support subgroups with `fetchFromGitLab` ([#410](https://github.com/nix-community/nurl/pull/410))
+- Group escaping with Nix 2.18+ and `fetchFromGitLab`
+- Fetch submodules correctly with `fetchhg`
+
 ## v0.3.13 - 2023-07-21
 
 ### Changes

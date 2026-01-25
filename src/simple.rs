@@ -275,17 +275,15 @@ pub trait SimpleGitFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
     ) -> Result<String> {
         if cfg.has_args() {
             self.fetch_fod(values, rev_key, rev, submodules, cfg)
+        } else if submodules {
+            git_prefetch(
+                true,
+                &self.get_repo_url(values),
+                rev,
+                !Self::SUBMODULES_DEFAULT,
+            )
         } else {
-            if submodules {
-                git_prefetch(
-                    true,
-                    &self.get_repo_url(values),
-                    rev,
-                    !Self::SUBMODULES_DEFAULT,
-                )
-            } else {
-                flake_prefetch(self.get_flake_ref(values, rev))
-            }
+            flake_prefetch(self.get_flake_ref(values, rev))
         }
     }
 }

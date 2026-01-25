@@ -2,6 +2,7 @@ use anyhow::{Context, Result};
 use serde::Deserialize;
 
 use crate::{
+    config::FetcherConfig,
     impl_fetcher,
     prefetch::{git_prefetch, url_prefetch},
     simple::{RevKey, SimpleFetcher},
@@ -48,26 +49,22 @@ impl FetchFromGitea<'_> {
         rev_key: &'static str,
         rev: &str,
         submodules: bool,
-        args: &[(String, String)],
-        args_str: &[(String, String)],
-        nixpkgs: String,
+        cfg: &FetcherConfig,
     ) -> Result<String> {
-        if args.is_empty() && args_str.is_empty() {
-            if submodules {
-                git_prefetch(
-                    true,
-                    &format!("git+https://{}/{owner}/{repo}", self.0),
-                    rev,
-                    true,
-                )
-            } else {
-                url_prefetch(
-                    format!("https://{}/{owner}/{repo}/archive/{rev}.tar.gz", self.0),
-                    true,
-                )
-            }
+        if cfg.has_args() {
+            self.fetch_fod(values, rev_key, rev, submodules, cfg)
+        } else if submodules {
+            git_prefetch(
+                true,
+                &format!("git+https://{}/{owner}/{repo}", self.0),
+                rev,
+                true,
+            )
         } else {
-            self.fetch_fod(values, rev_key, rev, submodules, args, args_str, nixpkgs)
+            url_prefetch(
+                format!("https://{}/{owner}/{repo}/archive/{rev}.tar.gz", self.0),
+                true,
+            )
         }
     }
 }

@@ -1,63 +1,53 @@
 use std::io::Write;
 
 use anyhow::{Context, Result, bail};
-use rustc_hash::FxHashMap;
 use serde_json::json;
 
-use crate::{Url, fetcher::Fetcher};
+use crate::{Url, config::FetcherConfig, fetcher::Fetcher};
 
 pub struct BuiltinsFetchGit;
 
 impl<'a> Fetcher<'a> for BuiltinsFetchGit {
-    fn fetch_nix(
-        &self,
-        out: &mut impl Write,
-        url: &'a Url,
-        rev: Option<String>,
-        submodules: Option<bool>,
-        args: Vec<(String, String)>,
-        args_str: Vec<(String, String)>,
-        overwrites: FxHashMap<String, String>,
-        _: String,
-        indent: String,
-    ) -> Result<()> {
-        let mut overwrites = overwrites;
-        let rev = rev.context("builtins.fetchGit does not support feching the latest revision")?;
+    fn fetch_nix(&self, out: &mut impl Write, url: &'a Url, mut cfg: FetcherConfig) -> Result<()> {
+        let indent = " ".repeat(cfg.indent);
+        let rev = cfg
+            .rev
+            .context("builtins.fetchGit does not support feching the latest revision")?;
         let rev_type = if rev.len() == 40 { "rev" } else { "ref" };
 
         writeln!(out, "builtins.fetchGit {{")?;
 
-        if let Some(url) = overwrites.remove("url") {
+        if let Some(url) = cfg.overwrites.remove("url") {
             writeln!(out, "{indent}  {url} = {url};")?;
         } else {
             writeln!(out, r#"{indent}  url = "{url}";"#)?;
         }
 
-        if let Some(rev) = overwrites.remove(rev_type) {
+        if let Some(rev) = cfg.overwrites.remove(rev_type) {
             writeln!(out, "{indent}  {rev_type} = {rev};")?;
         } else {
             writeln!(out, r#"{indent}  {rev_type} = "{rev}";"#)?;
         }
 
-        if let Some(submodules) = overwrites.remove("submodules") {
+        if let Some(submodules) = cfg.overwrites.remove("submodules") {
             writeln!(out, "{indent}  submodules = {submodules};")?;
-        } else if matches!(submodules, Some(true)) {
+        } else if matches!(cfg.submodules, Some(true)) {
             writeln!(out, "{indent}  submodules = true;")?;
         }
 
-        for (key, value) in args {
-            let value = overwrites.remove(&key).unwrap_or(value);
+        for (key, value) in cfg.args {
+            let value = cfg.overwrites.remove(&key).unwrap_or(value);
             writeln!(out, "{indent}  {key} = {value};")?;
         }
-        for (key, value) in args_str {
-            if let Some(value) = overwrites.remove(&key) {
+        for (key, value) in cfg.args_str {
+            if let Some(value) = cfg.overwrites.remove(&key) {
                 writeln!(out, "{indent}  {key} = {value};")?;
             } else {
                 writeln!(out, r#"{indent}  {key} = "{value}";"#)?;
             }
         }
 
-        for (key, value) in overwrites {
+        for (key, value) in cfg.overwrites {
             writeln!(out, "{indent}  {key} = {value};")?;
         }
 
@@ -66,60 +56,42 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
         Ok(())
     }
 
-    fn fetch_hash(
-        &self,
-        _: &mut impl Write,
-        _: &'a Url,
-        _: Option<String>,
-        _: Option<bool>,
-        _: Vec<(String, String)>,
-        _: Vec<(String, String)>,
-        _: String,
-    ) -> Result<()> {
+    fn fetch_hash(&self, _: &mut impl Write, _: &'a Url, _: FetcherConfig) -> Result<()> {
         bail!("builtins.fetchGit does not support hashes");
     }
 
-    fn fetch_json(
-        &self,
-        out: &mut impl Write,
-        url: &'a Url,
-        rev: Option<String>,
-        submodules: Option<bool>,
-        args: Vec<(String, String)>,
-        args_str: Vec<(String, String)>,
-        overwrites: Vec<(String, String)>,
-        overwrites_str: Vec<(String, String)>,
-        _: String,
-    ) -> Result<()> {
-        let rev = rev.context("builtins.fetchGit does not support feching the latest revision")?;
+    fn fetch_json(&self, out: &mut impl Write, url: &'a Url, cfg: FetcherConfig) -> Result<()> {
+        let rev = cfg
+            .rev
+            .context("builtins.fetchGit does not support feching the latest revision")?;
         let rev_type = if rev.len() == 40 { "rev" } else { "ref" };
 
         let mut fetcher_args = json!({
-            "url": url.to_string(),
+            "url": url.as_str(),
             rev_type: rev,
         });
 
-        if matches!(submodules, Some(true)) {
+        if matches!(cfg.submodules, Some(true)) {
             fetcher_args["submodules"] = json!(true);
         }
 
-        for (key, value) in args {
+        for (key, value) in cfg.args {
             fetcher_args[key] = json!({
                 "type": "nix",
                 "value": value,
             });
         }
-        for (key, value) in args_str {
+        for (key, value) in cfg.args_str {
             fetcher_args[key] = json!(value);
         }
 
-        for (key, value) in overwrites {
+        for (key, value) in cfg.overwrites {
             fetcher_args[key] = json!({
                 "type": "nix",
                 "value": value,
             })
         }
-        for (key, value) in overwrites_str {
+        for (key, value) in cfg.overwrites_str {
             fetcher_args[key] = json!(value);
         }
 
@@ -143,7 +115,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
             &json!({
                 "fetcher": "builtins.fetchGit",
                 "args": {
-                    "url": url.to_string(),
+                    "url": url.as_str(),
                     rev_type: rev,
                 },
             }),

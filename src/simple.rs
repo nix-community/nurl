@@ -2,11 +2,11 @@ use std::{fmt::Write as _, io::Write};
 
 use anyhow::{Result, bail};
 use itertools::Itertools;
-use rustc_hash::FxHashMap;
 use serde_json::{Value, json};
 
 use crate::{
     Url,
+    config::FetcherConfig,
     prefetch::{flake_prefetch, fod_prefetch, git_prefetch, url_prefetch},
 };
 
@@ -72,11 +72,9 @@ pub trait SimpleFetcher<'a, const N: usize> {
         rev_key: &'static str,
         rev: &str,
         submodules: bool,
-        args: &[(String, String)],
-        args_str: &[(String, String)],
-        nixpkgs: String,
+        cfg: &FetcherConfig,
     ) -> Result<String> {
-        let mut expr = format!(r#"(import({nixpkgs}){{}}).{}{{"#, Self::NAME);
+        let mut expr = format!(r#"(import({}){{}}).{}{{"#, cfg.nixpkgs, Self::NAME);
 
         if let Some(host) = self.host() {
             write!(expr, r#"{}="{host}";"#, Self::HOST_KEY)?;
@@ -100,10 +98,10 @@ pub trait SimpleFetcher<'a, const N: usize> {
             write!(expr, "{key}={};", !Self::SUBMODULES_DEFAULT)?;
         }
 
-        for (key, value) in args {
+        for (key, value) in &cfg.args {
             write!(expr, "{key}={value};")?;
         }
-        for (key, value) in args_str {
+        for (key, value) in &cfg.args_str {
             write!(expr, r#"{key}="{value}";"#)?;
         }
 
@@ -112,6 +110,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
         fod_prefetch(expr)
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn write_nix(
         &self,
         out: &mut impl Write,
@@ -120,67 +119,64 @@ pub trait SimpleFetcher<'a, const N: usize> {
         rev: &str,
         hash: String,
         submodules: bool,
-        args: Vec<(String, String)>,
-        args_str: Vec<(String, String)>,
-        overwrites: FxHashMap<String, String>,
-        indent: String,
+        mut cfg: FetcherConfig,
     ) -> Result<()> {
-        let mut overwrites = overwrites;
+        let indent = " ".repeat(cfg.indent);
 
         writeln!(out, "{} {{", Self::NAME)?;
 
-        if let Some(host) = overwrites.remove(Self::HOST_KEY) {
+        if let Some(host) = cfg.overwrites.remove(Self::HOST_KEY) {
             writeln!(out, r#"{indent}  {} = {host};"#, Self::HOST_KEY)?;
         } else if let Some(host) = self.host() {
             writeln!(out, r#"{indent}  {} = "{host}";"#, Self::HOST_KEY)?;
         }
 
-        if let Some(group) = overwrites.remove("group") {
+        if let Some(group) = cfg.overwrites.remove("group") {
             writeln!(out, r#"{indent}  group = {group};"#)?;
         } else if let Some(group) = self.group() {
             writeln!(out, r#"{indent}  group = "{group}";"#)?;
         }
 
         for (key, value) in Self::KEYS.iter().zip(values) {
-            if let Some(value) = overwrites.remove(*key) {
+            if let Some(value) = cfg.overwrites.remove(*key) {
                 writeln!(out, r#"{indent}  {key} = {value};"#)?;
             } else {
                 writeln!(out, r#"{indent}  {key} = "{value}";"#)?;
             }
         }
 
-        if let Some(rev) = overwrites.remove(rev_key) {
+        if let Some(rev) = cfg.overwrites.remove(rev_key) {
             writeln!(out, "{indent}  {rev_key} = {rev};")?;
         } else {
             writeln!(out, r#"{indent}  {rev_key} = "{rev}";"#)?;
         }
-        if let Some(hash) = overwrites.remove(Self::HASH_KEY) {
+        if let Some(hash) = cfg.overwrites.remove(Self::HASH_KEY) {
             writeln!(out, "{indent}  {} = {hash};", Self::HASH_KEY)?;
         } else {
             writeln!(out, r#"{indent}  {} = "{hash}";"#, Self::HASH_KEY)?;
         }
 
         if let Some(key) = Self::SUBMODULES_KEY {
-            if let Some(submodules) = overwrites.remove(key) {
+            if let Some(submodules) = cfg.overwrites.remove(key) {
                 writeln!(out, "{indent}  {key} = {submodules};")?;
             } else if submodules {
                 writeln!(out, "{indent}  {key} = {};", !Self::SUBMODULES_DEFAULT)?;
             }
         }
 
-        for (key, value) in args {
-            let value = overwrites.remove(&key).unwrap_or(value);
+        for (key, value) in cfg.args {
+            let value = cfg.overwrites.remove(&key).unwrap_or(value);
             writeln!(out, "{indent}  {key} = {value};")?;
         }
-        for (key, value) in args_str {
-            if let Some(value) = overwrites.remove(&key) {
+        for (key, value) in cfg.args_str {
+            if let Some(value) = cfg.overwrites.remove(&key) {
                 writeln!(out, "{indent}  {key} = {value};")?;
             } else {
                 writeln!(out, r#"{indent}  {key} = "{value}";"#)?;
             }
         }
 
-        for (key, value) in overwrites {
+        for (key, value) in cfg.overwrites {
             writeln!(out, "{indent}  {key} = {value};")?;
         }
 
@@ -189,6 +185,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn write_json(
         &self,
         out: &mut impl Write,
@@ -197,10 +194,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
         rev: &str,
         hash: String,
         submodules: bool,
-        args: Vec<(String, String)>,
-        args_str: Vec<(String, String)>,
-        overwrites: Vec<(String, String)>,
-        overwrites_str: Vec<(String, String)>,
+        cfg: FetcherConfig,
     ) -> Result<()> {
         let mut fetcher_args = Value::from_iter(
             Self::KEYS
@@ -221,23 +215,23 @@ pub trait SimpleFetcher<'a, const N: usize> {
             fetcher_args[key] = json!(!Self::SUBMODULES_DEFAULT);
         }
 
-        for (key, value) in args {
+        for (key, value) in cfg.args {
             fetcher_args[key] = json!({
                 "type": "nix",
                 "value": value,
             });
         }
-        for (key, value) in args_str {
+        for (key, value) in cfg.args_str {
             fetcher_args[key] = json!(value);
         }
 
-        for (key, value) in overwrites {
+        for (key, value) in cfg.overwrites {
             fetcher_args[key] = json!({
                 "type": "nix",
                 "value": value,
             })
         }
-        for (key, value) in overwrites_str {
+        for (key, value) in cfg.overwrites_str {
             fetcher_args[key] = json!(value);
         }
 
@@ -260,11 +254,9 @@ pub trait SimpleFodFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         rev_key: &'static str,
         rev: &str,
         submodules: bool,
-        args: &[(String, String)],
-        args_str: &[(String, String)],
-        nixpkgs: String,
+        cfg: &FetcherConfig,
     ) -> Result<String> {
-        self.fetch_fod(values, rev_key, rev, submodules, args, args_str, nixpkgs)
+        self.fetch_fod(values, rev_key, rev, submodules, cfg)
     }
 }
 
@@ -279,11 +271,11 @@ pub trait SimpleGitFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         rev_key: &'static str,
         rev: &str,
         submodules: bool,
-        args: &[(String, String)],
-        args_str: &[(String, String)],
-        nixpkgs: String,
+        cfg: &FetcherConfig,
     ) -> Result<String> {
-        if args.is_empty() && args_str.is_empty() {
+        if cfg.has_args() {
+            self.fetch_fod(values, rev_key, rev, submodules, cfg)
+        } else {
             if submodules {
                 git_prefetch(
                     true,
@@ -294,8 +286,6 @@ pub trait SimpleGitFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
             } else {
                 flake_prefetch(self.get_flake_ref(values, rev))
             }
-        } else {
-            self.fetch_fod(values, rev_key, rev, submodules, args, args_str, nixpkgs)
         }
     }
 }
@@ -311,14 +301,12 @@ pub trait SimpleUrlFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         rev_key: &'static str,
         rev: &str,
         submodules: bool,
-        args: &[(String, String)],
-        args_str: &[(String, String)],
-        nixpkgs: String,
+        cfg: &FetcherConfig,
     ) -> Result<String> {
-        if args.is_empty() && args_str.is_empty() {
-            url_prefetch(self.get_url(values, rev), Self::UNPACK)
+        if cfg.has_args() {
+            self.fetch_fod(values, rev_key, rev, submodules, cfg)
         } else {
-            self.fetch_fod(values, rev_key, rev, submodules, args, args_str, nixpkgs)
+            url_prefetch(self.get_url(values, rev), Self::UNPACK)
         }
     }
 }

@@ -105,7 +105,7 @@ pub struct Opts {
     pub list_sep: Option<String>,
 }
 
-#[derive(Clone, Debug, ValueEnum)]
+#[derive(Clone, Copy, Debug, ValueEnum)]
 #[clap(rename_all = "camelCase")]
 pub enum FetcherFunction {
     #[clap(name = "builtins.fetchGit")]

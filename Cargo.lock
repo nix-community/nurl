@@ -962,7 +962,7 @@ dependencies = [
 [[package]]
 name = "nix-compat"
 version = "0.1.0"
-source = "git+https://code.tvl.fyi/depot.git:/tvix.git#bcff85103852424ca6fe827c09de5c3ee0fd2e37"
+source = "git+https://code.tvl.fyi/depot.git:/tvix.git#1bc2819b19ad81964283706f6670e1e517c32c48"
 dependencies = [
  "bitflags",
  "bstr",
@@ -987,7 +987,7 @@ dependencies = [
 [[package]]
 name = "nix-compat-derive"
 version = "0.1.0"
-source = "git+https://code.tvl.fyi/depot.git:/tvix.git#bcff85103852424ca6fe827c09de5c3ee0fd2e37"
+source = "git+https://code.tvl.fyi/depot.git:/tvix.git#1bc2819b19ad81964283706f6670e1e517c32c48"
 dependencies = [
  "proc-macro2",
  "quote",

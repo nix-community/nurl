@@ -1,6 +1,5 @@
-#![allow(clippy::too_many_arguments)]
-
 mod cli;
+mod config;
 mod fetcher;
 mod prefetch;
 mod simple;
@@ -16,11 +15,10 @@ use bstr::ByteSlice;
 use clap::{Parser, ValueEnum};
 use gix_url::Scheme;
 use is_terminal::IsTerminal;
-use itertools::Itertools;
-use rustc_hash::FxHashMap;
 
 use crate::{
     cli::{FetcherFunction, Opts},
+    config::FetcherConfig,
     fetcher::{
         BuiltinsFetchGit, FetchCrate, FetchFromBitbucket, FetchFromGitHub, FetchFromGitLab,
         FetchFromGitea, FetchFromGitiles, FetchFromRepoOrCz, FetchFromSourcehut, FetchHex,
@@ -101,7 +99,7 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
-    let url: gix_url::Url = opts.url.try_into()?;
+    let url: gix_url::Url = opts.url.as_str().try_into()?;
 
     let fetcher: FetcherDispatch = match (opts.fetcher, url.host(), &url.scheme) {
         (Some(FetcherFunction::BuiltinsFetchGit), ..) => BuiltinsFetchGit.into(),
@@ -245,50 +243,16 @@ fn main() -> Result<()> {
         path: path.strip_prefix('/').unwrap_or(path),
     };
 
-    let args = opts.args.into_iter().tuples().collect();
-    let args_str = opts.args_str.into_iter().tuples().collect();
     if opts.hash {
-        fetcher.fetch_hash(
-            out,
-            &url,
-            opts.rev,
-            opts.submodules,
-            args,
-            args_str,
-            opts.nixpkgs,
-        )?;
+        fetcher.fetch_hash(out, &url, opts.into())?;
     } else if opts.json {
-        fetcher.fetch_json(
-            out,
-            &url,
-            opts.rev,
-            opts.submodules,
-            args,
-            args_str,
-            opts.overwrites.into_iter().tuples().collect(),
-            opts.overwrites_str.into_iter().tuples().collect(),
-            opts.nixpkgs,
-        )?;
+        fetcher.fetch_json(out, &url, opts.into())?;
     } else if opts.parse {
         fetcher.to_json(out, &url, opts.rev)?;
     } else {
-        let mut overwrites: FxHashMap<_, _> = opts.overwrites.into_iter().tuples().collect();
-
-        for (key, value) in opts.overwrites_str.into_iter().tuples() {
-            overwrites.insert(key, format!(r#""{value}""#));
-        }
-
-        fetcher.fetch_nix(
-            out,
-            &url,
-            opts.rev,
-            opts.submodules,
-            args,
-            args_str,
-            overwrites,
-            opts.nixpkgs,
-            " ".repeat(opts.indent),
-        )?;
+        let mut cfg = FetcherConfig::from(opts);
+        cfg.merge_overwrites();
+        fetcher.fetch_nix(out, &url, cfg)?;
     }
 
     if out.is_terminal() {

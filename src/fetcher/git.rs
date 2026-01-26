@@ -1,7 +1,9 @@
 use anyhow::Result;
 
 use crate::{
-    GitScheme, Url, impl_fetcher,
+    GitScheme, Url,
+    config::FetcherConfig,
+    impl_fetcher,
     prefetch::git_prefetch,
     simple::{RevKey, SimpleFetcher},
 };
@@ -32,14 +34,12 @@ impl Fetchgit {
         rev_key: &'static str,
         rev: &str,
         submodules: bool,
-        args: &[(String, String)],
-        args_str: &[(String, String)],
-        nixpkgs: String,
+        cfg: &FetcherConfig,
     ) -> Result<String> {
-        if args.is_empty() && args_str.is_empty() {
-            git_prefetch(matches!(self.0, GitScheme::Yes), url, rev, !submodules)
+        if cfg.has_args() {
+            self.fetch_fod(values, rev_key, rev, submodules, cfg)
         } else {
-            self.fetch_fod(values, rev_key, rev, submodules, args, args_str, nixpkgs)
+            git_prefetch(matches!(self.0, GitScheme::Yes), url, rev, !submodules)
         }
     }
 }

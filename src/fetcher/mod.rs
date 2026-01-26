@@ -17,7 +17,6 @@ use std::io::Write;
 
 use anyhow::Result;
 use enum_dispatch::enum_dispatch;
-use rustc_hash::FxHashMap;
 
 pub use self::{
     bitbucket::FetchFromBitbucket, builtin_git::BuiltinsFetchGit, crates_io::FetchCrate,
@@ -25,46 +24,15 @@ pub use self::{
     gitlab::FetchFromGitLab, hex::FetchHex, hg::Fetchhg, pypi::FetchPypi,
     repo_or_cz::FetchFromRepoOrCz, sourcehut::FetchFromSourcehut, svn::Fetchsvn,
 };
-use crate::Url;
+use crate::{Url, config::FetcherConfig};
 
 #[enum_dispatch]
 pub trait Fetcher<'a> {
-    fn fetch_nix(
-        &self,
-        out: &mut impl Write,
-        url: &'a Url,
-        rev: Option<String>,
-        submodules: Option<bool>,
-        args: Vec<(String, String)>,
-        args_str: Vec<(String, String)>,
-        overwrites: FxHashMap<String, String>,
-        nixpkgs: String,
-        indent: String,
-    ) -> Result<()>;
+    fn fetch_nix(&self, out: &mut impl Write, url: &'a Url, cfg: FetcherConfig) -> Result<()>;
 
-    fn fetch_hash(
-        &self,
-        out: &mut impl Write,
-        url: &'a Url,
-        rev: Option<String>,
-        submodules: Option<bool>,
-        args: Vec<(String, String)>,
-        args_str: Vec<(String, String)>,
-        nixpkgs: String,
-    ) -> Result<()>;
+    fn fetch_hash(&self, out: &mut impl Write, url: &'a Url, cfg: FetcherConfig) -> Result<()>;
 
-    fn fetch_json(
-        &self,
-        out: &mut impl Write,
-        url: &'a Url,
-        rev: Option<String>,
-        submodules: Option<bool>,
-        args: Vec<(String, String)>,
-        args_str: Vec<(String, String)>,
-        overwrites: Vec<(String, String)>,
-        overwrites_str: Vec<(String, String)>,
-        nixpkgs: String,
-    ) -> Result<()>;
+    fn fetch_json(&self, out: &mut impl Write, url: &'a Url, cfg: FetcherConfig) -> Result<()>;
 
     fn to_json(&'a self, out: &mut impl Write, url: &'a Url, rev: Option<String>) -> Result<()>;
 }
@@ -95,57 +63,47 @@ macro_rules! impl_fetcher {
                 &self,
                 out: &mut impl ::std::io::Write,
                 url: &'a $crate::Url,
-                rev: Option<String>,
-                submodules: Option<bool>,
-                args: Vec<(String, String)>,
-                args_str: Vec<(String, String)>,
-                overwrites: ::rustc_hash::FxHashMap<String, String>,
-                nixpkgs: String,
-                indent: String,
+                cfg: $crate::config::FetcherConfig,
             ) -> ::anyhow::Result<()> {
-                use anyhow::Context;
+                use ::anyhow::Context;
 
                 let values = &self
                     .get_values(url)
                     .with_context(|| format!("failed to parse {url}"))?;
 
-                let rev = match rev {
-                    Some(rev) => rev,
+                let rev = match &cfg.rev {
+                    Some(rev) => rev.clone(),
                     None => self.fetch_rev(values)?,
                 };
                 let (rev_key, rev) = self.rev_entry(&rev);
 
-                let submodules = self.resolve_submodules(submodules);
-                let hash = self.fetch(values, rev_key, rev, submodules, &args, &args_str, nixpkgs)?;
+                let submodules = self.resolve_submodules(cfg.submodules);
+                let hash = self.fetch(values, rev_key, rev, submodules, &cfg)?;
 
-                self.write_nix(out, values, rev_key, rev, hash, submodules, args, args_str, overwrites, indent)
+                self.write_nix(out, values, rev_key, rev, hash, submodules, cfg)
             }
 
             fn fetch_hash(
                 &self,
                 out: &mut impl ::std::io::Write,
                 url: &'a $crate::Url,
-                rev: Option<String>,
-                submodules: Option<bool>,
-                args: Vec<(String, String)>,
-                args_str: Vec<(String, String)>,
-                nixpkgs: String,
+                cfg: $crate::config::FetcherConfig,
             ) -> ::anyhow::Result<()> {
-                use anyhow::Context;
+                use ::anyhow::Context;
 
                 let values = &self
                     .get_values(url)
                     .with_context(|| format!("failed to parse {url}"))?;
 
-                let rev = match rev {
+                let rev = match &cfg.rev {
                     Some(rev) => rev,
-                    None => self.fetch_rev(values)?,
+                    None => &self.fetch_rev(values)?,
                 };
                 let (rev_key, rev) = self.rev_entry(&rev);
 
-                let submodules = self.resolve_submodules(submodules);
-                let hash = self.fetch(values, rev_key, rev, submodules, &args, &args_str, nixpkgs)?;
-                write!(out, "{}", hash)?;
+                let submodules = self.resolve_submodules(cfg.submodules);
+                let hash = self.fetch(values, rev_key, rev, submodules, &cfg)?;
+                write!(out, "{hash}")?;
 
                 Ok(())
             }
@@ -154,28 +112,22 @@ macro_rules! impl_fetcher {
                 &self,
                 out: &mut impl ::std::io::Write,
                 url: &'a $crate::Url,
-                rev: Option<String>,
-                submodules: Option<bool>,
-                args: Vec<(String, String)>,
-                args_str: Vec<(String, String)>,
-                overwrites: Vec<(String, String)>,
-                overwrites_str: Vec<(String, String)>,
-                nixpkgs: String,
+                cfg: $crate::config::FetcherConfig,
             ) -> ::anyhow::Result<()> {
-                use anyhow::Context;
+                use ::anyhow::Context;
 
                 let values = &self
                     .get_values(url)
                     .with_context(|| format!("failed to parse {url}"))?;
 
-                let rev = match rev {
-                    Some(rev) => rev,
+                let rev = match &cfg.rev {
+                    Some(rev) => rev.clone(),
                     None => self.fetch_rev(values)?,
                 };
                 let (rev_key, rev) = self.rev_entry(&rev);
 
-                let submodules = self.resolve_submodules(submodules);
-                let hash = self.fetch(values, rev_key, rev, submodules, &args, &args_str, nixpkgs)?;
+                let submodules = self.resolve_submodules(cfg.submodules);
+                let hash = self.fetch(values, rev_key, rev, submodules, &cfg)?;
 
                 self.write_json(
                     out,
@@ -184,10 +136,7 @@ macro_rules! impl_fetcher {
                     rev,
                     hash,
                     submodules,
-                    args,
-                    args_str,
-                    overwrites,
-                    overwrites_str,
+                    cfg,
                 )
             }
 
@@ -197,8 +146,8 @@ macro_rules! impl_fetcher {
                 url: &'a $crate::Url,
                 rev: Option<String>,
             ) -> ::anyhow::Result<()> {
-                use anyhow::Context;
-                use serde_json::{json, Value};
+                use ::anyhow::Context;
+                use ::serde_json::{json, Value};
 
                 let values = self
                     .get_values(url)

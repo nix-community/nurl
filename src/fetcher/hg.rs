@@ -1,6 +1,8 @@
 use anyhow::Result;
 
-use crate::{Url, impl_fetcher, prefetch::flake_prefetch, simple::SimpleFetcher};
+use crate::{
+    Url, config::FetcherConfig, impl_fetcher, prefetch::flake_prefetch, simple::SimpleFetcher,
+};
 
 pub struct Fetchhg(pub bool);
 impl_fetcher!(Fetchhg);
@@ -26,17 +28,15 @@ impl Fetchhg {
         rev_key: &'static str,
         rev: &str,
         submodules: bool,
-        args: &[(String, String)],
-        args_str: &[(String, String)],
-        nixpkgs: String,
+        cfg: &FetcherConfig,
     ) -> Result<String> {
-        if args.is_empty() && args_str.is_empty() && !submodules {
+        if cfg.has_args() || submodules {
+            self.fetch_fod(values, rev_key, rev, submodules, cfg)
+        } else {
             flake_prefetch(format!(
                 "hg+{url}?{}={rev}",
                 if rev.len() == 40 { "rev" } else { "ref" },
             ))
-        } else {
-            self.fetch_fod(values, rev_key, rev, submodules, args, args_str, nixpkgs)
         }
     }
 }

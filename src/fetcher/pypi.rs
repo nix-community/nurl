@@ -1,7 +1,9 @@
 use anyhow::Result;
 
 use crate::{
-    Url, impl_fetcher,
+    Url,
+    config::FetcherConfig,
+    impl_fetcher,
     prefetch::url_prefetch,
     simple::{RevKey, SimpleFetcher},
 };
@@ -27,18 +29,17 @@ impl FetchPypi {
         rev_key: &'static str,
         version: &str,
         submodules: bool,
-        args: &[(String, String)],
-        args_str: &[(String, String)],
-        nixpkgs: String,
+        cfg: &FetcherConfig,
     ) -> Result<String> {
-        match (args, args_str) {
-            ([], []) => url_prefetch(get_url(pname, version, "tar.gz"), false),
-            ([], [(key, ext)]) if key == "extension" => {
-                url_prefetch(get_url(pname, version, ext), false)
-            }
-            _ => self.fetch_fod(
-                values, rev_key, version, submodules, args, args_str, nixpkgs,
-            ),
+        if !cfg.has_args() {
+            url_prefetch(get_url(pname, version, "tar.gz"), false)
+        } else if cfg.args.is_empty()
+            && cfg.args_str.len() == 1
+            && let Some(ext) = cfg.args.get("extension")
+        {
+            url_prefetch(get_url(pname, version, ext), false)
+        } else {
+            self.fetch_fod(values, rev_key, version, submodules, cfg)
         }
     }
 }

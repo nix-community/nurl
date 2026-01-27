@@ -1,6 +1,6 @@
 use std::{fmt::Write as _, io::Write};
 
-use anyhow::{Result, bail};
+use eyre::{Result, bail};
 use itertools::Itertools;
 use serde_json::{Value, json};
 

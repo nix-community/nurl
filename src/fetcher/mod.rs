@@ -15,8 +15,8 @@ mod svn;
 
 use std::io::Write;
 
-use anyhow::Result;
 use enum_dispatch::enum_dispatch;
+use eyre::Result;
 
 pub use self::{
     bitbucket::FetchFromBitbucket, builtin_git::BuiltinsFetchGit, crates_io::FetchCrate,
@@ -64,12 +64,12 @@ macro_rules! impl_fetcher {
                 out: &mut impl ::std::io::Write,
                 url: &'a $crate::Url,
                 cfg: $crate::config::FetcherConfig,
-            ) -> ::anyhow::Result<()> {
-                use ::anyhow::Context;
+            ) -> ::eyre::Result<()> {
+                use ::eyre::eyre;
 
                 let values = &self
                     .get_values(url)
-                    .with_context(|| format!("failed to parse {url}"))?;
+                    .ok_or_else(|| eyre!("failed to parse {url}"))?;
 
                 let rev = match &cfg.rev {
                     Some(rev) => rev.clone(),
@@ -88,12 +88,12 @@ macro_rules! impl_fetcher {
                 out: &mut impl ::std::io::Write,
                 url: &'a $crate::Url,
                 cfg: $crate::config::FetcherConfig,
-            ) -> ::anyhow::Result<()> {
-                use ::anyhow::Context;
+            ) -> ::eyre::Result<()> {
+                use ::eyre::eyre;
 
                 let values = &self
                     .get_values(url)
-                    .with_context(|| format!("failed to parse {url}"))?;
+                    .ok_or_else(|| eyre!("failed to parse {url}"))?;
 
                 let rev = match &cfg.rev {
                     Some(rev) => rev,
@@ -113,12 +113,12 @@ macro_rules! impl_fetcher {
                 out: &mut impl ::std::io::Write,
                 url: &'a $crate::Url,
                 cfg: $crate::config::FetcherConfig,
-            ) -> ::anyhow::Result<()> {
-                use ::anyhow::Context;
+            ) -> ::eyre::Result<()> {
+                use ::eyre::eyre;
 
                 let values = &self
                     .get_values(url)
-                    .with_context(|| format!("failed to parse {url}"))?;
+                    .ok_or_else(|| eyre!("failed to parse {url}"))?;
 
                 let rev = match &cfg.rev {
                     Some(rev) => rev.clone(),
@@ -145,13 +145,13 @@ macro_rules! impl_fetcher {
                 out: &mut impl ::std::io::Write,
                 url: &'a $crate::Url,
                 rev: Option<String>,
-            ) -> ::anyhow::Result<()> {
-                use ::anyhow::Context;
+            ) -> ::eyre::Result<()> {
+                use ::eyre::eyre;
                 use ::serde_json::{json, Value};
 
                 let values = self
                     .get_values(url)
-                    .with_context(|| format!("failed to parse {url}"))?;
+                    .ok_or_else(|| eyre!("failed to parse {url}"))?;
 
                 let mut fetcher_args = Value::from_iter(Self::KEYS.into_iter().zip(values));
 

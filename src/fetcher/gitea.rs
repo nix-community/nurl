@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use eyre::{Result, WrapErr};
 use serde::Deserialize;
 
 use crate::{
@@ -36,7 +36,7 @@ impl SimpleFetcher<'_, 2> for FetchFromGitea<'_> {
             .call()?
             .into_body()
             .read_json::<[_; 1]>()
-            .with_context(|| format!("no commits found for https://{}/{owner}/{repo}", self.0))?;
+            .wrap_err_with(|| format!("no commits found for https://{}/{owner}/{repo}", self.0))?;
 
         Ok(sha)
     }

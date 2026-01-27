@@ -10,9 +10,9 @@ use std::{
     str::Split,
 };
 
-use anyhow::{Result, bail};
 use bstr::ByteSlice;
 use clap::{Parser, ValueEnum};
+use eyre::{Result, bail};
 use gix_url::Scheme;
 use is_terminal::IsTerminal;
 
@@ -55,6 +55,8 @@ pub enum GitScheme {
 }
 
 fn main() -> Result<()> {
+    color_eyre::install()?;
+
     let opts = Opts::parse();
     let out = &mut stdout().lock();
 

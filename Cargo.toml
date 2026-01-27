@@ -12,10 +12,11 @@ keywords = ["cli", "fetch", "git", "nix", "prefetch"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-anyhow = "1.0.100"
 bstr = "1.12.1"
+color-eyre = "0.6.5"
 data-encoding = "2.10.0"
 enum_dispatch = "0.3.13"
+eyre = "0.6.12"
 gix-url = "0.35.0"
 is-terminal = "0.4.17"
 itertools = "0.14.0"

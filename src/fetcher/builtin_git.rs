@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use anyhow::{Context, Result, bail};
+use eyre::{OptionExt, Result, bail};
 use serde_json::json;
 
 use crate::{Url, config::FetcherConfig, fetcher::Fetcher};
@@ -12,7 +12,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
         let indent = " ".repeat(cfg.indent);
         let rev = cfg
             .rev
-            .context("builtins.fetchGit does not support feching the latest revision")?;
+            .ok_or_eyre("builtins.fetchGit does not support feching the latest revision")?;
         let rev_type = if rev.len() == 40 { "rev" } else { "ref" };
 
         writeln!(out, "builtins.fetchGit {{")?;
@@ -63,7 +63,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
     fn fetch_json(&self, out: &mut impl Write, url: &'a Url, cfg: FetcherConfig) -> Result<()> {
         let rev = cfg
             .rev
-            .context("builtins.fetchGit does not support feching the latest revision")?;
+            .ok_or_eyre("builtins.fetchGit does not support feching the latest revision")?;
         let rev_type = if rev.len() == 40 { "rev" } else { "ref" };
 
         let mut fetcher_args = json!({
@@ -107,7 +107,8 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
     }
 
     fn to_json(&'a self, out: &mut impl Write, url: &'a Url, rev: Option<String>) -> Result<()> {
-        let rev = rev.context("builtins.fetchGit does not support feching the latest revision")?;
+        let rev =
+            rev.ok_or_eyre("builtins.fetchGit does not support feching the latest revision")?;
         let rev_type = if rev.len() == 40 { "rev" } else { "ref" };
 
         serde_json::to_writer(

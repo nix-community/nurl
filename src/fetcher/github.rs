@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use eyre::{Result, WrapErr};
 use serde::Deserialize;
 
 use crate::{
@@ -48,7 +48,7 @@ impl SimpleFetcher<'_, 2> for FetchFromGitHub<'_> {
             .call()?
             .into_body()
             .read_json::<[_; 1]>()
-            .with_context(|| format!("no commits found for https://{host}/{owner}/{repo}"))?;
+            .wrap_err_with(|| format!("no commits found for https://{host}/{owner}/{repo}"))?;
 
         Ok(sha)
     }

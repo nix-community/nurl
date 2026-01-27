@@ -1,4 +1,4 @@
-use anyhow::Result;
+use eyre::Result;
 
 use crate::{
     Url, config::FetcherConfig, impl_fetcher, prefetch::flake_prefetch, simple::SimpleFetcher,

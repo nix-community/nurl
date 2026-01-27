@@ -1,6 +1,6 @@
 use std::{cell::OnceCell, fmt::Write, iter::once};
 
-use anyhow::{Context, Result};
+use eyre::{Result, WrapErr};
 use serde::Deserialize;
 
 use crate::{
@@ -82,7 +82,7 @@ impl<'a> SimpleFetcher<'a, 2> for FetchFromGitLab<'a> {
             .call()?
             .into_body()
             .read_json::<[_; 1]>()
-            .with_context(|| {
+            .wrap_err_with(|| {
                 let mut msg = format!("no commits found for https://{host}/");
                 if let Some(group) = self.group.get() {
                     msg.push_str(group);

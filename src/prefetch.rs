@@ -3,8 +3,8 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-use anyhow::{Result, anyhow, bail};
 use data_encoding::BASE64;
+use eyre::{Result, bail, eyre};
 use nix_compat::nixbase32;
 use serde::Deserialize;
 
@@ -134,7 +134,7 @@ pub fn fod_prefetch(expr: String) -> Result<String> {
         }
     }
 
-    Err(anyhow!(
+    Err(eyre!(
         "failed to find the hash from error messages\nstdout: {}\nstderr:\n{}",
         String::from_utf8_lossy(&stdout),
         String::from_utf8_lossy(&stderr),

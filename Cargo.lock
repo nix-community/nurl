@@ -1138,6 +1138,7 @@ dependencies = [
  "rustc-hash",
  "serde",
  "serde_json",
+ "supports-color 3.0.2",
  "trycmd",
  "ureq",
 ]

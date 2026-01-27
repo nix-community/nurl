@@ -15,6 +15,7 @@ use clap::{Parser, ValueEnum};
 use eyre::{Result, bail};
 use gix_url::Scheme;
 use is_terminal::IsTerminal;
+use supports_color::Stream;
 
 use crate::{
     cli::{FetcherFunction, Opts},
@@ -55,7 +56,9 @@ pub enum GitScheme {
 }
 
 fn main() -> Result<()> {
-    color_eyre::install()?;
+    if supports_color::on(Stream::Stderr).is_some() {
+        color_eyre::install()?;
+    }
 
     let opts = Opts::parse();
     let out = &mut stdout().lock();

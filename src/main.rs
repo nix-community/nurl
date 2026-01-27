@@ -6,7 +6,7 @@ mod simple;
 
 use std::{
     fmt::{self, Display, Formatter},
-    io::{Write, stdout},
+    io::{IsTerminal, Write, stdout},
     str::Split,
 };
 
@@ -14,7 +14,6 @@ use bstr::ByteSlice;
 use clap::{Parser, ValueEnum};
 use eyre::{Result, bail};
 use gix_url::Scheme;
-use is_terminal::IsTerminal;
 use supports_color::Stream;
 
 use crate::{

@@ -1130,7 +1130,6 @@ dependencies = [
  "enum_dispatch",
  "eyre",
  "gix-url",
- "is-terminal",
  "itertools",
  "nix-compat",
  "nu-glob",

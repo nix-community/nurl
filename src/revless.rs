@@ -8,7 +8,7 @@ use crate::{Url, config::FetcherConfig, fetcher::Fetcher};
 pub trait RevlessFetcher {
     const NAME: &'static str;
 
-    fn fetch(&self, url: &Url) -> Result<String>;
+    fn fetch(&self, url: &Url, cfg: &FetcherConfig) -> Result<String>;
 }
 
 impl<'a, T: RevlessFetcher> Fetcher<'a> for T {
@@ -17,7 +17,7 @@ impl<'a, T: RevlessFetcher> Fetcher<'a> for T {
             bail!("{} does not support revisions", Self::NAME);
         }
 
-        let hash = self.fetch(url)?;
+        let hash = self.fetch(url, &cfg)?;
         let indent = " ".repeat(cfg.indent);
 
         writeln!(out, "{} {{", Self::NAME)?;
@@ -45,7 +45,7 @@ impl<'a, T: RevlessFetcher> Fetcher<'a> for T {
             bail!("{} does not support revisions", Self::NAME);
         }
 
-        let hash = self.fetch(url)?;
+        let hash = self.fetch(url, &cfg)?;
         write!(out, "{hash}")?;
 
         Ok(())
@@ -56,7 +56,7 @@ impl<'a, T: RevlessFetcher> Fetcher<'a> for T {
             bail!("{} does not support revisions", Self::NAME);
         }
 
-        let hash = self.fetch(url)?;
+        let hash = self.fetch(url, &cfg)?;
 
         let mut fetcher_args = json!({
             "url": url.as_str(),

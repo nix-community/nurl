@@ -23,7 +23,8 @@ use crate::{
     fetcher::{
         BuiltinsFetchGit, FetchCrate, FetchFromBitbucket, FetchFromGitHub, FetchFromGitLab,
         FetchFromGitea, FetchFromGitiles, FetchFromRepoOrCz, FetchFromSourcehut, FetchHex,
-        FetchPypi, Fetcher, FetcherDispatch, Fetchgit, Fetchhg, Fetchsvn, Fetchurl, Fetchzip,
+        FetchPypi, Fetcher, FetcherDispatch, Fetchgit, Fetchhg, Fetchpatch, Fetchsvn, Fetchurl,
+        Fetchzip,
     },
     prefetch::fod_prefetch,
 };
@@ -208,6 +209,8 @@ fn main() -> Result<()> {
         }
         (Some(FetcherFunction::Fetchhg), ..) => Fetchhg(false).into(),
 
+        (Some(FetcherFunction::Fetchpatch), ..) => Fetchpatch.into(),
+
         (None, _, Scheme::Ext(scheme)) if scheme == "svn" => Fetchsvn.into(),
         (Some(FetcherFunction::Fetchsvn), ..) => Fetchsvn.into(),
 
@@ -241,6 +244,7 @@ fn main() -> Result<()> {
             }
             FetcherFunction::Fetchgit => Fetchgit(GitScheme::No).into(),
             FetcherFunction::Fetchhg => Fetchhg(false).into(),
+            FetcherFunction::Fetchpatch => Fetchpatch.into(),
             FetcherFunction::Fetchsvn => Fetchsvn.into(),
             FetcherFunction::Fetchurl => Fetchurl.into(),
             FetcherFunction::Fetchzip => Fetchzip.into(),

@@ -145,7 +145,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
             }
         }
 
-        if let Some(rev) = cfg.overwrite_rev {
+        if let Some(rev) = &cfg.overwrite_rev {
             writeln!(out, "{indent}  {rev_key} = {rev};")?;
         } else if let Some(rev) = cfg.overwrites.remove(rev_key) {
             writeln!(out, "{indent}  {rev_key} = {rev};")?;
@@ -166,22 +166,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
             }
         }
 
-        for (key, value) in cfg.args {
-            let value = cfg.overwrites.remove(&key).unwrap_or(value);
-            writeln!(out, "{indent}  {key} = {value};")?;
-        }
-        for (key, value) in cfg.args_str {
-            if let Some(value) = cfg.overwrites.remove(&key) {
-                writeln!(out, "{indent}  {key} = {value};")?;
-            } else {
-                writeln!(out, r#"{indent}  {key} = "{value}";"#)?;
-            }
-        }
-
-        for (key, value) in cfg.overwrites {
-            writeln!(out, "{indent}  {key} = {value};")?;
-        }
-
+        cfg.write_nix_args(out, &indent)?;
         write!(out, "{indent}}}")?;
 
         Ok(())
@@ -288,7 +273,7 @@ pub trait SimpleUrlFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
         if cfg.has_args() {
             self.fetch_fod(values, rev_key, rev, submodules, cfg)
         } else {
-            url_prefetch(self.get_url(values, rev), Self::UNPACK)
+            url_prefetch(&self.get_url(values, rev), Self::UNPACK)
         }
     }
 }

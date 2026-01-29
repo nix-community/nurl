@@ -62,7 +62,7 @@ impl FetchFromGitea<'_> {
             )
         } else {
             url_prefetch(
-                format!("https://{}/{owner}/{repo}/archive/{rev}.tar.gz", self.0),
+                &format!("https://{}/{owner}/{repo}/archive/{rev}.tar.gz", self.0),
                 true,
             )
         }

@@ -9,6 +9,7 @@ mod gitlab;
 mod hex;
 mod hg;
 mod patch;
+mod patch2;
 mod pypi;
 mod repo_or_cz;
 mod sourcehut;
@@ -24,9 +25,9 @@ use eyre::Result;
 pub use self::{
     bitbucket::FetchFromBitbucket, builtin_git::BuiltinsFetchGit, crates_io::FetchCrate,
     git::Fetchgit, gitea::FetchFromGitea, github::FetchFromGitHub, gitiles::FetchFromGitiles,
-    gitlab::FetchFromGitLab, hex::FetchHex, hg::Fetchhg, patch::Fetchpatch, pypi::FetchPypi,
-    repo_or_cz::FetchFromRepoOrCz, sourcehut::FetchFromSourcehut, svn::Fetchsvn, url::Fetchurl,
-    zip::Fetchzip,
+    gitlab::FetchFromGitLab, hex::FetchHex, hg::Fetchhg, patch::Fetchpatch, patch2::Fetchpatch2,
+    pypi::FetchPypi, repo_or_cz::FetchFromRepoOrCz, sourcehut::FetchFromSourcehut, svn::Fetchsvn,
+    url::Fetchurl, zip::Fetchzip,
 };
 use crate::{Url, config::FetcherConfig};
 
@@ -57,6 +58,7 @@ pub enum FetcherDispatch<'a> {
     Fetchgit(Fetchgit),
     Fetchhg(Fetchhg),
     Fetchpatch(Fetchpatch),
+    Fetchpatch2(Fetchpatch2),
     Fetchsvn(Fetchsvn),
     Fetchurl(Fetchurl),
     Fetchzip(Fetchzip),

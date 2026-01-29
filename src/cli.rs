@@ -133,6 +133,7 @@ pub enum FetcherFunction {
     Fetchgit,
     Fetchhg,
     Fetchpatch,
+    Fetchpatch2,
     Fetchsvn,
     Fetchurl,
     Fetchzip,

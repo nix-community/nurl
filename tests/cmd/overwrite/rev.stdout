@@ -1,0 +1,6 @@
+fetchFromGitHub {
+  owner = "nix-community";
+  repo = "nurl";
+  rev = "v${version}";
+  hash = "sha256-BWKfzElf/5T9CPUT53k49oTOI4O3uPsi6j33wrDMSY8=";
+}

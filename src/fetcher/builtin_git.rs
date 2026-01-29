@@ -13,7 +13,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
         let rev = cfg
             .rev
             .ok_or_eyre("builtins.fetchGit does not support feching the latest revision")?;
-        let rev_type = if rev.len() == 40 { "rev" } else { "ref" };
+        let rev_key = if rev.len() == 40 { "rev" } else { "ref" };
 
         writeln!(out, "builtins.fetchGit {{")?;
 
@@ -23,10 +23,12 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
             writeln!(out, r#"{indent}  url = "{url}";"#)?;
         }
 
-        if let Some(rev) = cfg.overwrites.remove(rev_type) {
-            writeln!(out, "{indent}  {rev_type} = {rev};")?;
+        if let Some(rev_key) = cfg.overwrite_rev {
+            writeln!(out, "{indent}  {rev_key} = {rev};")?;
+        } else if let Some(rev) = cfg.overwrites.remove(rev_key) {
+            writeln!(out, "{indent}  {rev_key} = {rev};")?;
         } else {
-            writeln!(out, r#"{indent}  {rev_type} = "{rev}";"#)?;
+            writeln!(out, r#"{indent}  {rev_key} = "{rev}";"#)?;
         }
 
         if let Some(submodules) = cfg.overwrites.remove("submodules") {
@@ -63,37 +65,20 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
     fn fetch_json(&self, out: &mut impl Write, url: &'a Url, cfg: FetcherConfig) -> Result<()> {
         let rev = cfg
             .rev
+            .as_ref()
             .ok_or_eyre("builtins.fetchGit does not support feching the latest revision")?;
-        let rev_type = if rev.len() == 40 { "rev" } else { "ref" };
+        let rev_key = if rev.len() == 40 { "rev" } else { "ref" };
 
         let mut fetcher_args = json!({
             "url": url.as_str(),
-            rev_type: rev,
+            rev_key: rev,
         });
 
         if matches!(cfg.submodules, Some(true)) {
             fetcher_args["submodules"] = json!(true);
         }
 
-        for (key, value) in cfg.args {
-            fetcher_args[key] = json!({
-                "type": "nix",
-                "value": value,
-            });
-        }
-        for (key, value) in cfg.args_str {
-            fetcher_args[key] = json!(value);
-        }
-
-        for (key, value) in cfg.overwrites {
-            fetcher_args[key] = json!({
-                "type": "nix",
-                "value": value,
-            })
-        }
-        for (key, value) in cfg.overwrites_str {
-            fetcher_args[key] = json!(value);
-        }
+        cfg.extend_fetcher_args(&mut fetcher_args, rev_key);
 
         serde_json::to_writer(
             out,
@@ -109,7 +94,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
     fn to_json(&'a self, out: &mut impl Write, url: &'a Url, rev: Option<String>) -> Result<()> {
         let rev =
             rev.ok_or_eyre("builtins.fetchGit does not support feching the latest revision")?;
-        let rev_type = if rev.len() == 40 { "rev" } else { "ref" };
+        let rev_key = if rev.len() == 40 { "rev" } else { "ref" };
 
         serde_json::to_writer(
             out,
@@ -117,7 +102,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
                 "fetcher": "builtins.fetchGit",
                 "args": {
                     "url": url.as_str(),
-                    rev_type: rev,
+                    rev_key: rev,
                 },
             }),
         )?;

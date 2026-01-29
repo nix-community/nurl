@@ -1,0 +1,6 @@
+args = [
+    "https://crates.io/crates/nurl",
+    "0.3.0",
+    "--overwrite-rev",
+    "version",
+]

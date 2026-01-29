@@ -79,6 +79,16 @@ pub struct Opts {
     #[arg(short = 'O', long = "overwrite-str", num_args = 2, value_names = ["NAME", "STRING"])]
     pub overwrites_str: Vec<String>,
 
+    /// Same as --overwrite (rev|tag|version) <EXPR>,
+    /// depending on the rev-like attribute the fetcher uses
+    #[arg(long, value_name = "EXPR")]
+    pub overwrite_rev: Option<String>,
+
+    /// Same as --overwrite-str (rev|tag|version) <STRING>,
+    /// depending on the rev-like attribute the fetcher uses
+    #[arg(long, value_name = "STRING")]
+    pub overwrite_rev_str: Option<String>,
+
     /// Instead of fetching a URL, get the hash of a fixed-output derivation,
     /// implies --hash and ignores all other options
     ///

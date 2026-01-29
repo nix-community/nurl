@@ -145,7 +145,9 @@ pub trait SimpleFetcher<'a, const N: usize> {
             }
         }
 
-        if let Some(rev) = cfg.overwrites.remove(rev_key) {
+        if let Some(rev) = cfg.overwrite_rev {
+            writeln!(out, "{indent}  {rev_key} = {rev};")?;
+        } else if let Some(rev) = cfg.overwrites.remove(rev_key) {
             writeln!(out, "{indent}  {rev_key} = {rev};")?;
         } else {
             writeln!(out, r#"{indent}  {rev_key} = "{rev}";"#)?;
@@ -215,25 +217,7 @@ pub trait SimpleFetcher<'a, const N: usize> {
             fetcher_args[key] = json!(!Self::SUBMODULES_DEFAULT);
         }
 
-        for (key, value) in cfg.args {
-            fetcher_args[key] = json!({
-                "type": "nix",
-                "value": value,
-            });
-        }
-        for (key, value) in cfg.args_str {
-            fetcher_args[key] = json!(value);
-        }
-
-        for (key, value) in cfg.overwrites {
-            fetcher_args[key] = json!({
-                "type": "nix",
-                "value": value,
-            })
-        }
-        for (key, value) in cfg.overwrites_str {
-            fetcher_args[key] = json!(value);
-        }
+        cfg.extend_fetcher_args(&mut fetcher_args, rev_key);
 
         serde_json::to_writer(
             out,

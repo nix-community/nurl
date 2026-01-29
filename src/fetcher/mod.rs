@@ -13,6 +13,7 @@ mod repo_or_cz;
 mod sourcehut;
 mod svn;
 mod url;
+mod zip;
 
 use std::io::Write;
 
@@ -24,6 +25,7 @@ pub use self::{
     git::Fetchgit, gitea::FetchFromGitea, github::FetchFromGitHub, gitiles::FetchFromGitiles,
     gitlab::FetchFromGitLab, hex::FetchHex, hg::Fetchhg, pypi::FetchPypi,
     repo_or_cz::FetchFromRepoOrCz, sourcehut::FetchFromSourcehut, svn::Fetchsvn, url::Fetchurl,
+    zip::Fetchzip,
 };
 use crate::{Url, config::FetcherConfig};
 
@@ -55,6 +57,7 @@ pub enum FetcherDispatch<'a> {
     Fetchhg(Fetchhg),
     Fetchsvn(Fetchsvn),
     Fetchurl(Fetchurl),
+    Fetchzip(Fetchzip),
 }
 
 #[macro_export]

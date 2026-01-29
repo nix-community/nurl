@@ -134,4 +134,5 @@ pub enum FetcherFunction {
     Fetchhg,
     Fetchsvn,
     Fetchurl,
+    Fetchzip,
 }

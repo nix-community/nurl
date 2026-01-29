@@ -1,3 +1,6 @@
+use std::io::Write;
+
+use eyre::Result;
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
 use serde_json::{Value, json};
@@ -22,6 +25,10 @@ impl FetcherConfig {
         !(self.args.is_empty() && self.args_str.is_empty())
     }
 
+    pub fn has_rev(&self) -> bool {
+        self.rev.is_some() || self.overwrite_rev.is_some() || self.overwrite_rev_str.is_some()
+    }
+
     pub fn merge_overwrites(&mut self) {
         for (key, value) in self.overwrites_str.drain() {
             self.overwrites.insert(key, format!(r#""{value}""#));
@@ -29,6 +36,31 @@ impl FetcherConfig {
         if let Some(rev) = self.overwrite_rev_str.take() {
             self.overwrite_rev = Some(format!(r#""{rev}""#));
         }
+    }
+
+    // assumes overwrites have been merged
+    pub fn write_nix_args(&mut self, out: &mut impl Write, indent: &str) -> Result<()> {
+        for (key, value) in &self.args {
+            if let Some(value) = self.overwrites.remove(key) {
+                writeln!(out, "{indent}  {key} = {value};")?;
+            } else {
+                writeln!(out, "{indent}  {key} = {value};")?;
+            }
+        }
+
+        for (key, value) in &self.args_str {
+            if let Some(value) = self.overwrites.remove(key) {
+                writeln!(out, "{indent}  {key} = {value};")?;
+            } else {
+                writeln!(out, r#"{indent}  {key} = "{value}";"#)?;
+            }
+        }
+
+        for (key, value) in &self.overwrites {
+            writeln!(out, "{indent}  {key} = {value};")?;
+        }
+
+        Ok(())
     }
 
     pub fn extend_fetcher_args(&self, fetcher_args: &mut Value, rev_key: &str) {

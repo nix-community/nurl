@@ -73,7 +73,7 @@ pub fn git_prefetch(git_scheme: bool, url: &str, rev: &str, submodules: bool) ->
     }
 }
 
-pub fn url_prefetch(url: String, unpack: bool) -> Result<String> {
+pub fn url_prefetch(url: &str, unpack: bool) -> Result<String> {
     use bstr::ByteSlice;
 
     let mut cmd = Command::new("nix-prefetch-url");

@@ -12,6 +12,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
         let indent = " ".repeat(cfg.indent);
         let rev = cfg
             .rev
+            .as_ref()
             .ok_or_eyre("builtins.fetchGit does not support feching the latest revision")?;
         let rev_key = if rev.len() == 40 { "rev" } else { "ref" };
 
@@ -23,7 +24,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
             writeln!(out, r#"{indent}  url = "{url}";"#)?;
         }
 
-        if let Some(rev_key) = cfg.overwrite_rev {
+        if let Some(rev_key) = &cfg.overwrite_rev {
             writeln!(out, "{indent}  {rev_key} = {rev};")?;
         } else if let Some(rev) = cfg.overwrites.remove(rev_key) {
             writeln!(out, "{indent}  {rev_key} = {rev};")?;
@@ -37,22 +38,7 @@ impl<'a> Fetcher<'a> for BuiltinsFetchGit {
             writeln!(out, "{indent}  submodules = true;")?;
         }
 
-        for (key, value) in cfg.args {
-            let value = cfg.overwrites.remove(&key).unwrap_or(value);
-            writeln!(out, "{indent}  {key} = {value};")?;
-        }
-        for (key, value) in cfg.args_str {
-            if let Some(value) = cfg.overwrites.remove(&key) {
-                writeln!(out, "{indent}  {key} = {value};")?;
-            } else {
-                writeln!(out, r#"{indent}  {key} = "{value}";"#)?;
-            }
-        }
-
-        for (key, value) in cfg.overwrites {
-            writeln!(out, "{indent}  {key} = {value};")?;
-        }
-
+        cfg.write_nix_args(out, &indent)?;
         write!(out, "{indent}}}")?;
 
         Ok(())

@@ -12,6 +12,7 @@ mod pypi;
 mod repo_or_cz;
 mod sourcehut;
 mod svn;
+mod url;
 
 use std::io::Write;
 
@@ -22,7 +23,7 @@ pub use self::{
     bitbucket::FetchFromBitbucket, builtin_git::BuiltinsFetchGit, crates_io::FetchCrate,
     git::Fetchgit, gitea::FetchFromGitea, github::FetchFromGitHub, gitiles::FetchFromGitiles,
     gitlab::FetchFromGitLab, hex::FetchHex, hg::Fetchhg, pypi::FetchPypi,
-    repo_or_cz::FetchFromRepoOrCz, sourcehut::FetchFromSourcehut, svn::Fetchsvn,
+    repo_or_cz::FetchFromRepoOrCz, sourcehut::FetchFromSourcehut, svn::Fetchsvn, url::Fetchurl,
 };
 use crate::{Url, config::FetcherConfig};
 
@@ -53,6 +54,7 @@ pub enum FetcherDispatch<'a> {
     Fetchgit(Fetchgit),
     Fetchhg(Fetchhg),
     Fetchsvn(Fetchsvn),
+    Fetchurl(Fetchurl),
 }
 
 #[macro_export]

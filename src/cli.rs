@@ -133,4 +133,5 @@ pub enum FetcherFunction {
     Fetchgit,
     Fetchhg,
     Fetchsvn,
+    Fetchurl,
 }

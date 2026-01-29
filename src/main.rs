@@ -2,6 +2,7 @@ mod cli;
 mod config;
 mod fetcher;
 mod prefetch;
+mod revless;
 mod simple;
 
 use std::{

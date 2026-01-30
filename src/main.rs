@@ -15,7 +15,6 @@ use bstr::ByteSlice;
 use clap::{Parser, ValueEnum};
 use eyre::{Result, bail};
 use gix_url::Scheme;
-use itertools::Itertools;
 use supports_color::Stream;
 
 use crate::{
@@ -112,6 +111,10 @@ fn main() -> Result<()> {
     let path = path.split_once('?').map_or(path, |(path, _)| path);
 
     let fetcher: FetcherDispatch = match (opts.fetcher, url.host(), &url.scheme) {
+        // high priority
+        (None, ..) if is_archive(path) => Fetchzip.into(),
+
+        // low priority
         (Some(FetcherFunction::BuiltinsFetchGit), ..) => BuiltinsFetchGit.into(),
 
         (None | Some(FetcherFunction::FetchCrate), Some("crates.io"), _) => FetchCrate(true).into(),
@@ -127,15 +130,7 @@ fn main() -> Result<()> {
             bail!("fetchFromBitbucket only supports bitbucket.org");
         }
 
-        (None, Some("github.com"), _) => {
-            if is_archive(path)
-                && path.split('/').skip(2).next_tuple() == Some(("releases", "download"))
-            {
-                Fetchzip.into()
-            } else {
-                FetchFromGitHub(None).into()
-            }
-        }
+        (None, Some("github.com"), _) => FetchFromGitHub(None).into(),
         (Some(FetcherFunction::FetchFromGitHub), Some(host), _) => {
             FetchFromGitHub(Some(host)).into()
         }
@@ -228,7 +223,6 @@ fn main() -> Result<()> {
 
         (Some(FetcherFunction::Fetchurl), ..) => Fetchurl.into(),
 
-        (None, ..) if is_archive(path) => Fetchzip.into(),
         (Some(FetcherFunction::Fetchzip), ..) => Fetchzip.into(),
 
         (None, ..) => match opts.fallback {

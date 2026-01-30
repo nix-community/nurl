@@ -132,7 +132,9 @@ fn main() -> Result<()> {
             bail!("fetchFromBitbucket only supports bitbucket.org");
         }
 
-        (None, Some("github.com"), _) => FetchFromGitHub(None).into(),
+        (None | Some(FetcherFunction::FetchFromGitHub), Some("github.com"), _) => {
+            FetchFromGitHub(None).into()
+        }
         (Some(FetcherFunction::FetchFromGitHub), Some(host), _) => {
             FetchFromGitHub(Some(host)).into()
         }

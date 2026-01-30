@@ -15,6 +15,7 @@ use bstr::ByteSlice;
 use clap::{Parser, ValueEnum};
 use eyre::{Result, bail};
 use gix_url::Scheme;
+use itertools::Itertools;
 use supports_color::Stream;
 
 use crate::{
@@ -106,6 +107,9 @@ fn main() -> Result<()> {
     }
 
     let url: gix_url::Url = opts.url.as_str().try_into()?;
+    let path = url.path.to_str()?;
+    let path = path.strip_prefix('/').unwrap_or(path);
+    let path = path.split_once('?').map_or(path, |(path, _)| path);
 
     let fetcher: FetcherDispatch = match (opts.fetcher, url.host(), &url.scheme) {
         (Some(FetcherFunction::BuiltinsFetchGit), ..) => BuiltinsFetchGit.into(),
@@ -123,8 +127,14 @@ fn main() -> Result<()> {
             bail!("fetchFromBitbucket only supports bitbucket.org");
         }
 
-        (None | Some(FetcherFunction::FetchFromGitHub), Some("github.com"), _) => {
-            FetchFromGitHub(None).into()
+        (None, Some("github.com"), _) => {
+            if is_archive(path)
+                && path.split('/').skip(2).next_tuple() == Some(("releases", "download"))
+            {
+                Fetchzip.into()
+            } else {
+                FetchFromGitHub(None).into()
+            }
         }
         (Some(FetcherFunction::FetchFromGitHub), Some(host), _) => {
             FetchFromGitHub(Some(host)).into()
@@ -218,6 +228,7 @@ fn main() -> Result<()> {
 
         (Some(FetcherFunction::Fetchurl), ..) => Fetchurl.into(),
 
+        (None, ..) if is_archive(path) => Fetchzip.into(),
         (Some(FetcherFunction::Fetchzip), ..) => Fetchzip.into(),
 
         (None, ..) => match opts.fallback {
@@ -255,10 +266,9 @@ fn main() -> Result<()> {
     };
 
     let url_bstring = url.to_bstring();
-    let path = url.path.to_str()?;
     let url = Url {
         url: url_bstring.to_str()?,
-        path: path.strip_prefix('/').unwrap_or(path),
+        path,
     };
 
     if opts.hash {
@@ -278,4 +288,13 @@ fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+fn is_archive(path: &str) -> bool {
+    let mut exts = path.rsplit('.');
+    match exts.next() {
+        Some("tar" | "tbz" | "tbz2" | "tgz" | "txz" | "zip") => true,
+        Some(_) if exts.next() == Some("tar") => true,
+        _ => false,
+    }
 }

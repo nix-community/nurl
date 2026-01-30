@@ -7,7 +7,11 @@ pub struct Fetchurl;
 impl RevlessFetcher for Fetchurl {
     const NAME: &'static str = "fetchurl";
 
-    fn fetch(&self, url: &Url, _: &FetcherConfig) -> Result<String> {
-        url_prefetch(url.as_str(), false)
+    fn fetch(&self, url: &Url, cfg: &FetcherConfig) -> Result<String> {
+        if cfg.has_args() {
+            self.fetch_fod(url, cfg)
+        } else {
+            url_prefetch(url.as_str(), false)
+        }
     }
 }

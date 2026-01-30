@@ -1,14 +1,33 @@
-use std::io::Write;
+use std::{fmt::Write as _, io::Write};
 
 use eyre::{Result, bail};
 use serde_json::json;
 
-use crate::{Url, config::FetcherConfig, fetcher::Fetcher};
+use crate::{Url, config::FetcherConfig, fetcher::Fetcher, prefetch::fod_prefetch};
 
 pub trait RevlessFetcher {
     const NAME: &'static str;
 
     fn fetch(&self, url: &Url, cfg: &FetcherConfig) -> Result<String>;
+
+    fn fetch_fod(&self, url: &Url, cfg: &FetcherConfig) -> Result<String> {
+        let mut expr = format!(
+            r#"(import({}){{}}).{}{{url="{url}";hash="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";"#,
+            cfg.nixpkgs,
+            Self::NAME,
+        );
+
+        for (key, value) in &cfg.args {
+            write!(expr, "{key}={value};")?;
+        }
+        for (key, value) in &cfg.args_str {
+            write!(expr, r#"{key}="{value}";"#)?;
+        }
+
+        expr.push('}');
+
+        fod_prefetch(expr)
+    }
 }
 
 impl<'a, T: RevlessFetcher> Fetcher<'a> for T {

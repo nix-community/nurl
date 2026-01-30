@@ -112,7 +112,9 @@ fn main() -> Result<()> {
 
     let fetcher: FetcherDispatch = match (opts.fetcher, url.host(), &url.scheme) {
         // high priority
-        (None, ..) if path.ends_with(".diff") || path.ends_with(".patch") => Fetchpatch2.into(),
+
+        // prefer fetchpatch over fetchpatch2: https://github.com/NixOS/nixpkgs/issues/257446
+        (None, ..) if path.ends_with(".diff") || path.ends_with(".patch") => Fetchpatch.into(),
 
         (None, ..) if is_archive(path) => Fetchzip.into(),
 

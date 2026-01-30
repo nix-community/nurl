@@ -1,5 +1,5 @@
 fetchsvn {
   url = "svn://svn.mplayerhq.hu/mplayer/trunk";
-  rev = "30000";
-  hash = "sha256-gmiB9GR2VfzTzdIWe6kVCldaau6Cq0F9J0exFZChT1o=";
+  rev = "40";
+  hash = "sha256-jvLT2ZSAg1kvGl2/OM/BpzHxbKQVcMZFE5jNPBXIJx8=";
 }

@@ -1,0 +1,5 @@
+args = [
+    "https://github.com/nix-community/nurl/releases/download/v0.3.13/nurl.1",
+    "--fetcher",
+    "fetchurl",
+]

@@ -1,0 +1,4 @@
+fetchzip {
+  url = "https://github.com/nix-community/nurl/archive/refs/tags/v0.3.13.zip";
+  hash = "sha256-rVqF+16esE27G7GS55RT91tD4x/GAzfVlIR0AgSknz0=";
+}

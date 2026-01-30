@@ -1,0 +1,4 @@
+fetchurl {
+  url = "https://github.com/nix-community/nurl/releases/download/v0.3.13/nurl.1";
+  hash = "sha256-RFSv9MCS1I1Aa3cEAaDV7xol7VMyyT4/FFwahQoqivo=";
+}

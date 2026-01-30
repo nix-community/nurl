@@ -112,6 +112,8 @@ fn main() -> Result<()> {
 
     let fetcher: FetcherDispatch = match (opts.fetcher, url.host(), &url.scheme) {
         // high priority
+        (None, ..) if path.ends_with(".diff") || path.ends_with(".patch") => Fetchpatch2.into(),
+
         (None, ..) if is_archive(path) => Fetchzip.into(),
 
         // low priority

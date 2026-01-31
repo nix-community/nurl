@@ -49,8 +49,9 @@ jobs:
       - name: Restore fetcher cache
         uses: actions/cache/restore@v5
         with:
-          key: nix-cache
+          key: nix-cache-${{ hashFiles('flake.lock', 'src/**', 'tests/**/*.toml') }}
           path: ~/.cache/nix
+          restore-key: nix-cache-
 
       - name: Install nix
         uses: cachix/install-nix-action@v31
@@ -70,7 +71,7 @@ jobs:
         uses: actions/cache/save@v5
         if: always()
         with:
-          key: nix-cache
+          key: nix-cache-${{ hashFiles('flake.lock', 'src/**', 'tests/**/*.toml') }}
           path: ~/.cache/nix
 
   clippy-rustfmt:

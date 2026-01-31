@@ -32,12 +32,12 @@ impl FetchPypi {
         cfg: &FetcherConfig,
     ) -> Result<String> {
         if !cfg.has_args() {
-            url_prefetch(&get_url(pname, version, "tar.gz"), false)
+            url_prefetch(&get_url(pname, version, "tar.gz"))
         } else if cfg.args.is_empty()
             && cfg.args_str.len() == 1
             && let Some(ext) = cfg.args.get("extension")
         {
-            url_prefetch(&get_url(pname, version, ext), false)
+            url_prefetch(&get_url(pname, version, ext))
         } else {
             self.fetch_fod(values, rev_key, version, submodules, cfg)
         }

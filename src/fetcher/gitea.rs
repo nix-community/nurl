@@ -4,7 +4,7 @@ use serde::Deserialize;
 use crate::{
     config::FetcherConfig,
     impl_fetcher,
-    prefetch::{git_prefetch, url_prefetch},
+    prefetch::{flake_prefetch, git_prefetch},
     simple::{RevKey, SimpleFetcher},
 };
 
@@ -61,10 +61,10 @@ impl FetchFromGitea<'_> {
                 true,
             )
         } else {
-            url_prefetch(
-                &format!("https://{}/{owner}/{repo}/archive/{rev}.tar.gz", self.0),
-                true,
-            )
+            flake_prefetch(format!(
+                "tarball+https://{}/{owner}/{repo}/archive/{rev}.tar.gz",
+                self.0
+            ))
         }
     }
 }

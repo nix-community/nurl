@@ -68,6 +68,7 @@ jobs:
 
       - name: Save fetcher cache
         uses: actions/cache/save@v5
+        if: always()
         with:
           key: nix-cache
           path: ~/.cache/nix

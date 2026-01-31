@@ -46,6 +46,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Persist fetcher cache
+        uses: actions/cache@v5
+        with:
+          key: nix-cache
+          path: ~/.cache/nix
+
       - name: Install nix
         uses: cachix/install-nix-action@v31
         with:

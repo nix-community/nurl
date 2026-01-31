@@ -51,6 +51,7 @@ jobs:
         with:
           key: nix-cache
           path: ~/.cache/nix
+          save-always: true
 
       - name: Install nix
         uses: cachix/install-nix-action@v31

@@ -51,7 +51,7 @@ jobs:
         with:
           key: nix-cache-${{ hashFiles('flake.lock', 'src/**', 'tests/**/*.toml') }}
           path: ~/.cache/nix
-          restore-key: nix-cache-
+          restore-keys: nix-cache-
 
       - name: Install nix
         uses: cachix/install-nix-action@v31

@@ -2,6 +2,7 @@ mod cli;
 mod config;
 mod fetcher;
 mod prefetch;
+mod revless;
 mod simple;
 
 use std::{
@@ -22,7 +23,8 @@ use crate::{
     fetcher::{
         BuiltinsFetchGit, FetchCrate, FetchFromBitbucket, FetchFromGitHub, FetchFromGitLab,
         FetchFromGitea, FetchFromGitiles, FetchFromRepoOrCz, FetchFromSourcehut, FetchHex,
-        FetchPypi, Fetcher, FetcherDispatch, Fetchgit, Fetchhg, Fetchsvn,
+        FetchPypi, Fetcher, FetcherDispatch, Fetchgit, Fetchhg, Fetchpatch, Fetchpatch2, Fetchsvn,
+        Fetchurl, Fetchzip,
     },
     prefetch::fod_prefetch,
 };
@@ -104,8 +106,19 @@ fn main() -> Result<()> {
     }
 
     let url: gix_url::Url = opts.url.as_str().try_into()?;
+    let path = url.path.to_str()?;
+    let path = path.strip_prefix('/').unwrap_or(path);
+    let path = path.split_once('?').map_or(path, |(path, _)| path);
 
     let fetcher: FetcherDispatch = match (opts.fetcher, url.host(), &url.scheme) {
+        // high priority
+
+        // prefer fetchpatch over fetchpatch2: https://github.com/NixOS/nixpkgs/issues/257446
+        (None, ..) if path.ends_with(".diff") || path.ends_with(".patch") => Fetchpatch.into(),
+
+        (None, ..) if is_archive(path) => Fetchzip.into(),
+
+        // low priority
         (Some(FetcherFunction::BuiltinsFetchGit), ..) => BuiltinsFetchGit.into(),
 
         (None | Some(FetcherFunction::FetchCrate), Some("crates.io"), _) => FetchCrate(true).into(),
@@ -207,8 +220,16 @@ fn main() -> Result<()> {
         }
         (Some(FetcherFunction::Fetchhg), ..) => Fetchhg(false).into(),
 
+        (Some(FetcherFunction::Fetchpatch), ..) => Fetchpatch.into(),
+
+        (Some(FetcherFunction::Fetchpatch2), ..) => Fetchpatch2.into(),
+
         (None, _, Scheme::Ext(scheme)) if scheme == "svn" => Fetchsvn.into(),
         (Some(FetcherFunction::Fetchsvn), ..) => Fetchsvn.into(),
+
+        (Some(FetcherFunction::Fetchurl), ..) => Fetchurl.into(),
+
+        (Some(FetcherFunction::Fetchzip), ..) => Fetchzip.into(),
 
         (None, ..) => match opts.fallback {
             FetcherFunction::BuiltinsFetchGit => BuiltinsFetchGit.into(),
@@ -236,15 +257,18 @@ fn main() -> Result<()> {
             }
             FetcherFunction::Fetchgit => Fetchgit(GitScheme::No).into(),
             FetcherFunction::Fetchhg => Fetchhg(false).into(),
+            FetcherFunction::Fetchpatch => Fetchpatch.into(),
+            FetcherFunction::Fetchpatch2 => Fetchpatch2.into(),
             FetcherFunction::Fetchsvn => Fetchsvn.into(),
+            FetcherFunction::Fetchurl => Fetchurl.into(),
+            FetcherFunction::Fetchzip => Fetchzip.into(),
         },
     };
 
     let url_bstring = url.to_bstring();
-    let path = url.path.to_str()?;
     let url = Url {
         url: url_bstring.to_str()?,
-        path: path.strip_prefix('/').unwrap_or(path),
+        path,
     };
 
     if opts.hash {
@@ -264,4 +288,13 @@ fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+fn is_archive(path: &str) -> bool {
+    let mut exts = path.rsplit('.');
+    match exts.next() {
+        Some("tar" | "tbz" | "tbz2" | "tgz" | "txz" | "zip") => true,
+        Some(_) if exts.next() == Some("tar") => true,
+        _ => false,
+    }
 }

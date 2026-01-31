@@ -1,0 +1,3 @@
+args = [
+    "https://github.com/nix-community/nurl/archive/refs/tags/v0.3.13.zip"
+]

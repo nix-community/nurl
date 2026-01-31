@@ -1,0 +1,3 @@
+args = [
+    "https://github.com/AdaCore/gpr/releases/download/v25.0.0/gpr2-with-gprconfig_kb-25.0.tgz",
+]

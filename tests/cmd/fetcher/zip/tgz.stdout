@@ -1,0 +1,4 @@
+fetchzip {
+  url = "https://github.com/AdaCore/gpr/releases/download/v25.0.0/gpr2-with-gprconfig_kb-25.0.tgz";
+  hash = "sha256-zIBRrDMOlAUklLTA3O40XknHMTP93red4/55Lg6pyA4=";
+}

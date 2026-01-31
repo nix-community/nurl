@@ -1,0 +1,4 @@
+fetchpatch2 {
+  url = "https://github.com/nix-community/nurl/commit/4d5515e112addf88b4107dd9357243dc10624e58.patch?full_index=1";
+  hash = "sha256-U3x8Y4+9eYoZOCycTvUDWah+VgIcPAP7xMqQilSAtpo=";
+}

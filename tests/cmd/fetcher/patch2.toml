@@ -1,0 +1,5 @@
+args = [
+    "https://github.com/nix-community/nurl/commit/4d5515e112addf88b4107dd9357243dc10624e58.patch?full_index=1",
+    "--fetcher",
+    "fetchpatch2",
+]

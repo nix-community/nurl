@@ -132,5 +132,9 @@ pub enum FetcherFunction {
     FetchPypi,
     Fetchgit,
     Fetchhg,
+    Fetchpatch,
+    Fetchpatch2,
     Fetchsvn,
+    Fetchurl,
+    Fetchzip,
 }

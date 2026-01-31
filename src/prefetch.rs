@@ -73,19 +73,12 @@ pub fn git_prefetch(git_scheme: bool, url: &str, rev: &str, submodules: bool) ->
     }
 }
 
-pub fn url_prefetch(url: &str, unpack: bool) -> Result<String> {
+pub fn url_prefetch(url: &str) -> Result<String> {
     use bstr::ByteSlice;
 
-    let mut cmd = Command::new("nix-prefetch-url");
-    if unpack {
-        cmd.arg("--unpack");
-        info!("$ nix-prefetch-url --unpack {url}");
-    } else {
-        info!("$ nix-prefetch-url {url}");
-    }
-    cmd.arg(url);
+    info!("$ nix-prefetch-url {url}");
+    let hash = Command::new("nix-prefetch-url").arg(url).get_stdout()?;
 
-    let hash = cmd.get_stdout()?;
     Ok(format!(
         "sha256-{}",
         BASE64.encode(&nixbase32::decode(hash.trim_end())?),

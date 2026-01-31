@@ -11,7 +11,7 @@ impl RevlessFetcher for Fetchurl {
         if cfg.has_args() {
             self.fetch_fod(url, cfg)
         } else {
-            url_prefetch(url.as_str(), false)
+            url_prefetch(url.as_str())
         }
     }
 }

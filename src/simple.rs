@@ -272,8 +272,10 @@ pub trait SimpleUrlFetcher<'a, const N: usize>: SimpleFetcher<'a, N> {
     ) -> Result<String> {
         if cfg.has_args() {
             self.fetch_fod(values, rev_key, rev, submodules, cfg)
+        } else if Self::UNPACK {
+            flake_prefetch(format!("tarball+{}", self.get_url(values, rev)))
         } else {
-            url_prefetch(&self.get_url(values, rev), Self::UNPACK)
+            url_prefetch(&self.get_url(values, rev))
         }
     }
 }

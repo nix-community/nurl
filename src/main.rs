@@ -147,7 +147,7 @@ fn main() -> Result<()> {
         (None, Some(host), _) if host.starts_with("gitlab.") => {
             FetchFromGitLab::new(Some(host)).into()
         }
-        (None, Some(host @ ("invent.kde.org" | "salsa.debian.org")), _) => {
+        (None, Some(host @ ("framagit.org" | "invent.kde.org" | "salsa.debian.org")), _) => {
             FetchFromGitLab::new(Some(host)).into()
         }
         (Some(FetcherFunction::FetchFromGitLab), Some(host), _) => {

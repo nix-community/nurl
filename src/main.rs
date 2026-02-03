@@ -147,7 +147,7 @@ fn main() -> Result<()> {
         (None, Some(host), _) if host.starts_with("gitlab.") => {
             FetchFromGitLab::new(Some(host)).into()
         }
-        (None, Some(host @ ("invent.kde.org" | "salsa.debian.org")), _) => {
+        (None, Some(host @ ("framagit.org" | "invent.kde.org" | "salsa.debian.org")), _) => {
             FetchFromGitLab::new(Some(host)).into()
         }
         (Some(FetcherFunction::FetchFromGitLab), Some(host), _) => {
@@ -156,7 +156,10 @@ fn main() -> Result<()> {
 
         (
             None | Some(FetcherFunction::FetchFromGitea),
-            Some(host @ ("codeberg.org" | "gitea.com" | "notabug.org" | "repo.palemoon.org")),
+            Some(
+                host @ ("codeberg.org" | "git.lix.systems" | "gitea.com" | "notabug.org"
+                | "repo.palemoon.org"),
+            ),
             _,
         ) => FetchFromGitea(host).into(),
         (Some(FetcherFunction::FetchFromGitea), Some(host), _) => FetchFromGitea(host).into(),

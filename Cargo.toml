@@ -14,12 +14,10 @@ categories = ["command-line-utilities"]
 [dependencies]
 bstr = "1.12.1"
 color-eyre = "0.6.5"
-data-encoding = "2.10.0"
 enum_dispatch = "0.3.13"
 eyre = "0.6.12"
 gix-url = "0.35.0"
 itertools = "0.14.0"
-nix-compat = { git = "https://code.tvl.fyi/depot.git:/tvix.git", package = "nix-compat" }
 owo-colors = { version = "4.2.3", features = ["supports-colors"] }
 rustc-hash = "2.1.1"
 serde = { version = "1.0.228", features = ["derive"] }

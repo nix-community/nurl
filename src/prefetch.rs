@@ -3,10 +3,13 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-use data_encoding::BASE64;
 use eyre::{Result, bail, eyre};
-use nix_compat::nixbase32;
 use serde::Deserialize;
+
+#[derive(Deserialize)]
+struct PrefetchOutput {
+    hash: String,
+}
 
 trait GetStdout {
     fn get_stdout(&mut self) -> Result<Vec<u8>>;
@@ -34,11 +37,6 @@ macro_rules! info {
 }
 
 pub fn flake_prefetch(flake_ref: String) -> Result<String> {
-    #[derive(Deserialize)]
-    struct PrefetchOutput {
-        hash: String,
-    }
-
     info!(
         "$ nix flake prefetch --extra-experimental-features 'nix-command flakes' --json {flake_ref}"
     );
@@ -74,15 +72,19 @@ pub fn git_prefetch(git_scheme: bool, url: &str, rev: &str, submodules: bool) ->
 }
 
 pub fn url_prefetch(url: &str) -> Result<String> {
-    use bstr::ByteSlice;
+    info!("$ nix store prefetch-file --json {url}");
 
-    info!("$ nix-prefetch-url {url}");
-    let hash = Command::new("nix-prefetch-url").arg(url).get_stdout()?;
-
-    Ok(format!(
-        "sha256-{}",
-        BASE64.encode(&nixbase32::decode(hash.trim_end())?),
-    ))
+    Ok(serde_json::from_slice::<PrefetchOutput>(
+        &Command::new("nix")
+            .arg("store")
+            .arg("prefetch-file")
+            .arg("--extra-experimental-features")
+            .arg("nix-command")
+            .arg("--json")
+            .arg(url)
+            .get_stdout()?,
+    )?
+    .hash)
 }
 
 pub fn fod_prefetch(expr: String) -> Result<String> {

@@ -9,6 +9,9 @@ fn integration() {
     TestCases::new()
         .default_bin_name("nurl")
         .case("tests/cmd/**/*.toml")
+        // fetchFromGitLab fails for repositories within groups on GNOME GitLab
+        // https://github.com/NixOS/nixpkgs/issues/485701
+        .skip("tests/cmd/fetcher/gitlab/group.toml")
         // fetchFromRepoOrCz is flaky
         .skip("tests/cmd/fetcher/repo_or_cz.toml");
 }

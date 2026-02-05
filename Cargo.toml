@@ -23,7 +23,7 @@ rustc-hash = "2.1.1"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
 supports-color = "3.0.2"
-ureq = { version = "3.1.4", features = ["json"] }
+ureq = { version = "3.2.0", features = ["json"] }
 
 [dependencies.clap]
 version = "4.5.57"

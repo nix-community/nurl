@@ -13,12 +13,13 @@ $ nurl https://github.com/nix-community/patsh v0.2.0 2>/dev/null
 fetchFromGitHub {
   owner = "nix-community";
   repo = "patsh";
-  rev = "v0.2.0";
+  tag = "v0.2.0";
   hash = "sha256-7HXJspebluQeejKYmVA7sy/F3dtU1gc4eAbKiPexMMA=";
 }
 ```
 
-> If you want to generate Nix packages, feel free check out [nix-init](https://github.com/nix-community/nix-init), which builds on top of nurl
+> If you want to generate Nix packages, check out [nix-init](https://github.com/nix-community/nix-init),
+> which builds on top of nurl, and includes a lot of features to reduce boilerplate
 
 ## Supported Fetchers
 
@@ -35,7 +36,11 @@ fetchFromGitHub {
 - fetchPypi
 - fetchgit
 - fetchhg
+- fetchpatch
+- fetchpatch2
 - fetchsvn
+- fetchurl
+- fetchzip
 
 ## Usage
 
@@ -43,45 +48,109 @@ fetchFromGitHub {
 Usage: nurl [OPTIONS] [URL] [REV]
 
 Arguments:
-  [URL]  URL to the repository to be fetched
-  [REV]  The revision or reference to be fetched
+  [URL]
+          URL to the repository to be fetched
+
+  [REV]
+          The revision or reference to be fetched
 
 Options:
-  -S, --submodules[=<SUBMODULES>]      Fetch submodules instead of using the fetcher's default [possible
-                                       values: true, false]
-  -f, --fetcher <FETCHER>              Specify the fetcher function instead of inferring from the
-                                       URL [possible values: builtins.fetchGit, fetchCrate,
-                                       fetchFromBitbucket, fetchFromGitHub, fetchFromGitLab,
-                                       fetchFromGitea, fetchFromGitiles, fetchFromRepoOrCz,
-                                       fetchFromSourcehut, fetchHex, fetchPypi, fetchgit, fetchhg,
-                                       fetchsvn]
-  -F, --fallback <FALLBACK>            The fetcher to fall back to when nurl fails to infer it from
-                                       the URL [default: fetchgit] [possible values:
-                                       builtins.fetchGit, fetchCrate, fetchFromBitbucket,
-                                       fetchFromGitHub, fetchFromGitLab, fetchFromGitea,
-                                       fetchFromGitiles, fetchFromRepoOrCz, fetchFromSourcehut,
-                                       fetchHex, fetchPypi, fetchgit, fetchhg, fetchsvn]
-  -n, --nixpkgs <NIXPKGS>              Path to nixpkgs (in nix) [default: <nixpkgs>]
-  -i, --indent <INDENT>                Extra indentation (in number of spaces) [default: 0]
-  -H, --hash                           Only output the hash
-  -j, --json                           Output in json format
-  -p, --parse                          Parse the url without fetching the hash, output in json
-                                       format
-  -a, --arg <NAME> <EXPR>              Additional arguments to pass to the fetcher
-  -A, --arg-str <NAME> <STRING>        Same as --arg, but accepts strings instead Nix expressions
-  -o, --overwrite <NAME> <EXPR>        Overwrite arguments in the final output, not taken into
-                                       consideration when fetching the hash
-  -O, --overwrite-str <NAME> <STRING>  Same as --overwrite, but accepts strings instead Nix
-                                       expressions
-  -e, --expr <EXPR>                    Instead of fetching a URL, get the hash of a fixed-output
-                                       derivation, implies --hash and ignores all other options
-  -l, --list-fetchers                  List all available fetchers
-  -L, --list-possible-fetchers         List all fetchers that can be generated without --fetcher
-  -s, --list-sep <SEPARATOR>           Print out the listed fetchers with the specified separator,
-                                       only used when --list-fetchers or --list-possible-fetchers is
-                                       specified
-  -h, --help                           Print help
-  -V, --version                        Print version
+  -S, --submodules[=<SUBMODULES>]
+          Fetch submodules instead of using the fetcher's default
+
+          [possible values: true, false]
+
+  -f, --fetcher <FETCHER>
+          Specify the fetcher function instead of inferring from the URL
+
+          [possible values: builtins.fetchGit, fetchCrate, fetchFromBitbucket,
+          fetchFromGitHub, fetchFromGitLab, fetchFromGitea, fetchFromGitiles,
+          fetchFromRepoOrCz, fetchFromSourcehut, fetchHex, fetchPypi, fetchgit, fetchhg,
+          fetchpatch, fetchpatch2, fetchsvn, fetchurl, fetchzip]
+
+  -F, --fallback <FALLBACK>
+          The fetcher to fall back to when nurl fails to infer it from the URL
+
+          [default: fetchgit]
+          [possible values: builtins.fetchGit, fetchCrate, fetchFromBitbucket,
+          fetchFromGitHub, fetchFromGitLab, fetchFromGitea, fetchFromGitiles,
+          fetchFromRepoOrCz, fetchFromSourcehut, fetchHex, fetchPypi, fetchgit, fetchhg,
+          fetchpatch, fetchpatch2, fetchsvn, fetchurl, fetchzip]
+
+  -n, --nixpkgs <NIXPKGS>
+          Path to nixpkgs (in nix)
+
+          [default: <nixpkgs>]
+
+  -i, --indent <INDENT>
+          Extra indentation (in number of spaces)
+
+          [default: 0]
+
+  -H, --hash
+          Only output the hash
+
+  -j, --json
+          Output in json format
+
+  -p, --parse
+          Parse the url without fetching the hash, output in json format
+
+          Note that --arg(-str) and --overwrite(-str) will be ignored silently
+
+  -a, --arg <NAME> <EXPR>
+          Additional arguments to pass to the fetcher
+
+  -A, --arg-str <NAME> <STRING>
+          Same as --arg, but accepts strings instead Nix expressions
+
+  -o, --overwrite <NAME> <EXPR>
+          Overwrite arguments in the final output, not taken into consideration when
+          fetching the hash
+
+          Note that nurl does not verify any of the overwrites, for the final output to
+          be valid, the user should not overwrite anything that would change the hash
+
+          Examples:
+            --overwrite repo pname
+            --overwrite rev version
+
+  -O, --overwrite-str <NAME> <STRING>
+          Same as --overwrite, but accepts strings instead Nix expressions
+
+          Examples:
+            --overwrite-str rev 'v${version}'
+            --overwrite-str meta.homepage https://example.org
+
+      --overwrite-rev <EXPR>
+          Same as --overwrite (rev|tag|version) <EXPR>, depending on the rev-like
+          attribute the fetcher uses
+
+      --overwrite-rev-str <STRING>
+          Same as --overwrite-str (rev|tag|version) <STRING>, depending on the rev-like
+          attribute the fetcher uses
+
+  -e, --expr <EXPR>
+          Instead of fetching a URL, get the hash of a fixed-output derivation, implies
+          --hash and ignores all other options
+
+          Example: --expr '(import <nixpkgs> { }).nurl.src'
+
+  -l, --list-fetchers
+          List all available fetchers
+
+  -L, --list-possible-fetchers
+          List all fetchers that can be generated without --fetcher
+
+  -s, --list-sep <SEPARATOR>
+          Print out the listed fetchers with the specified separator, only used when
+          --list-fetchers or --list-possible-fetchers is specified
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version
 ```
 
 ## Comparison to [nix-prefetch](https://github.com/msteen/nix-prefetch)

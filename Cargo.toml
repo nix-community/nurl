@@ -26,12 +26,12 @@ supports-color = "3.0.2"
 ureq = { version = "3.2.0", features = ["json"] }
 
 [dependencies.clap]
-version = "4.5.57"
+version = "4.5.58"
 features = ["cargo", "derive", "unicode", "wrap_help"]
 
 [build-dependencies]
-clap = { version = "4.5.57", features = ["derive"] }
-clap_complete = "4.5.65"
+clap = { version = "4.5.58", features = ["derive"] }
+clap_complete = "4.5.66"
 clap_mangen = "0.2.31"
 
 [dev-dependencies]

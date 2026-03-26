@@ -13,7 +13,7 @@ jobs:
       contents: write
     steps:
       - name: Create release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2.6.1
         with:
           body: "[CHANGELOG.md](https://github.com/nix-community/nurl/blob/main/CHANGELOG.md)"
 
@@ -37,7 +37,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Install dependencies (musl)
         if: contains(matrix.target, 'musl')
@@ -53,7 +55,7 @@ jobs:
           RUSTFLAGS: -C strip=symbols
 
       - name: Upload asset
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@29e53e917877a24fad85510ded594ab3c9ca12de # latest
         with:
           tag: ${{ github.ref }}
           file: target/${{ matrix.target }}/release/nurl
@@ -68,7 +70,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Cargo build
         run: |
@@ -83,7 +87,7 @@ jobs:
           mv artifacts/{_nurl,nurl.zsh}
 
       - name: Upload artifacts
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@29e53e917877a24fad85510ded594ab3c9ca12de # latest
         with:
           tag: ${{ github.ref }}
           file: artifacts/*

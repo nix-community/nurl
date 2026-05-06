@@ -16,7 +16,7 @@ bstr = "1.12.1"
 color-eyre = "0.6.5"
 enum_dispatch = "0.3.13"
 eyre = "0.6.12"
-gix-url = "0.35.3"
+gix-url = "0.36.0"
 itertools = "0.14.0"
 owo-colors = { version = "4.3.0", features = ["supports-colors"] }
 rustc-hash = "2.1.2"

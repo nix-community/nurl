@@ -16,7 +16,7 @@ bstr = "1.12.1"
 color-eyre = "0.6.5"
 enum_dispatch = "0.3.13"
 eyre = "0.6.12"
-gix-url = "0.36.0"
+gix-url = "0.36.1"
 itertools = "0.14.0"
 owo-colors = { version = "4.3.0", features = ["supports-colors"] }
 rustc-hash = "2.1.2"
@@ -36,7 +36,7 @@ clap_mangen = "0.3.0"
 
 [dev-dependencies]
 assert_cmd = "2.2.2"
-nu-glob = "0.112.2"
+nu-glob = "0.113.0"
 trycmd = "1.2.0"
 
 [profile.release]

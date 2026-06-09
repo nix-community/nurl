@@ -798,9 +798,9 @@ checksum = "61807f77802ff30975e01f4f071c8ba10c022052f98b3294119f3e615d13e5be"
 
 [[package]]
 name = "nu-glob"
-version = "0.113.0"
+version = "0.113.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "072c7fc42e59fc84bf2a78f28e1823d17105e0de09257a5a83ca2b374ea31dc8"
+checksum = "39c10023a62f5c90f22b4977878b7a25fac8dc2091639ddee2e3b7b9a47d52ff"
 
 [[package]]
 name = "num-conv"

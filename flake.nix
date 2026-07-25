@@ -104,5 +104,16 @@
       packages = eachSystem (pkgs: {
         default = packageFor pkgs;
       });
+
+      checks = eachSystem (
+        pkgs:
+        let
+          inherit (pkgs.stdenv.hostPlatform) system;
+        in
+        {
+          devShell = self.devShells.${system}.default;
+          package = self.packages.${system}.default;
+        }
+      );
     };
 }

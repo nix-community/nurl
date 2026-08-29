@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.4.1 - 2026-08-29
+
+### Fixes
+
+- Fix `fetchCrate` 403 by switching to the `static.crates.io` endpoint
+
 ## v0.4.0 - 2026-02-06
 
 ### Changes

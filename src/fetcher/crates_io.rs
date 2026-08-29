@@ -26,6 +26,6 @@ impl SimpleFetcher<'_, 1> for FetchCrate {
 
 impl SimpleUrlFetcher<'_, 1> for FetchCrate {
     fn get_url(&self, [pname]: &[&str; 1], version: &str) -> String {
-        format!("https://crates.io/api/v1/crates/{pname}/{version}/download")
+        format!("https://static.crates.io/crates/{pname}/{version}/download")
     }
 }

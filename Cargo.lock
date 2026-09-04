@@ -493,9 +493,9 @@ checksum = "be3eb81d9dc914335923e50d52829c551feefd6a72d176c4130c546b67a60814"
 
 [[package]]
 name = "gix-url"
-version = "0.37.1"
+version = "0.38.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "31bdfc93aa880cda3272718a5879ce3aa7723fa13514320dd6608151607afe72"
+checksum = "5bda80ccb4bc81fb9fb07a975916eb0c7a889bcbcb0c8a239c3f82a9cc2abdda"
 dependencies = [
  "bstr",
  "gix-path",
@@ -799,9 +799,9 @@ checksum = "61807f77802ff30975e01f4f071c8ba10c022052f98b3294119f3e615d13e5be"
 
 [[package]]
 name = "nu-experimental"
-version = "0.115.0"
+version = "0.115.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7e2cbe2481dfb273de71f9e7688844e236bb54cfb17f9883c39e818d8e175c8"
+checksum = "46240f7e3c926524639c9cd620215ee79fb50a2248e6dfbff2d208e5ea3e92f8"
 dependencies = [
  "itertools",
  "thiserror",
@@ -809,9 +809,9 @@ dependencies = [
 
 [[package]]
 name = "nu-glob"
-version = "0.115.0"
+version = "0.115.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f3fa4298c55bdd148b4c2d76cdf2a0db452ef351f1532080bd465aa027f7109"
+checksum = "788679a8ac0327a41af9da83a69a6caa65aebe007ec21f410bb58557480c9b3c"
 dependencies = [
  "anyhow",
  "log",
@@ -882,9 +882,9 @@ dependencies = [
 
 [[package]]
 name = "owo-colors"
-version = "4.3.0"
+version = "4.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d211803b9b6b570f68772237e415a029d5a50c65d382910b879fb19d3271f94d"
+checksum = "13c45bb4a6ae1280ec0803b1ef9d3455eb50f01efbbe1447ab020f1d54fba9d8"
 dependencies = [
  "supports-color 2.1.0",
  "supports-color 3.0.2",

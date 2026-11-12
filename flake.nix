@@ -91,7 +91,7 @@
     {
       devShells = eachSystem (pkgs: {
         default = pkgs.mkShell {
-          packages = runtimeInputs pkgs;
+          packages = (runtimeInputs pkgs) ++ (packageFor pkgs).nativeBuildInputs;
         };
       });
 
